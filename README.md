@@ -44,7 +44,20 @@ The platform combines:
 - **Smart Contracts:** Solidity ^0.8.24 + Hardhat
 - **Backend:** Node.js 20 LTS / TypeScript 5.4+
 - **AI Agents:** Python 3.11+ / FastAPI
+## MVP Priority
 
+Three non-negotiable components for system launch:
+1. **MACI smart contract** — anti-collusion voting core
+2. **ZK identity proof** — circom circuit (biometric → ZK-Proof)
+3. **VWU calculation contract** — vote weight computation
+
+> Without these three components the system does not function.
+> Celestia and Lit Protocol added in Phase 2.
+
+**Implementation roadmap:**
+- Phase 1 — Core: 1–2 months
+- Phase 2 — Integration: 2–3 months
+- Phase 3 — Pilot (50–100 users): 1–2 months
 ---
 
 ## Vote Weight Unit (VWU)
@@ -83,8 +96,7 @@ All papers are timestamped and DOI-protected.
 
 ## Author
 
-Independent researcher. Economist by training, philosopher by practice.
-Baku, Azerbaijan.
+Independent researcher. Master Document available under NDA.
 
 *Master Document and Technical Specification available under NDA.*
 *VWU formula protected by Zenodo DOI + MD hash.*
