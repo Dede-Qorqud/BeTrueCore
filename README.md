@@ -92,8 +92,10 @@ All papers are timestamped and DOI-protected.
 | 3 | Dynamic Bayesian Evolution Cycle and Sociotechnical Robustness | [10.5281/zenodo.20424602](https://doi.org/10.5281/zenodo.20424602) |
 | 4 | BeTrueCore Modular System: Reflexive Analysis | [10.5281/zenodo.20468741](https://doi.org/10.5281/zenodo.20468741) |
 
-> All papers include SHA256 hash in the header,
-> confirming document integrity and timestamp.
+> All papers reference the source document in their headers:
+> *«BeTrueCore» Modular System. Methodological Base:*
+> *«Web3 Intuitive Symmetry Methodology» v1.2*
+> *Timestamped via OpenTimestamps (SHA-256).*
 
 ## Core Principles
 
