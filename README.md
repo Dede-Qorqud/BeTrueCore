@@ -108,12 +108,10 @@ All papers are timestamped and DOI-protected.
 ---
 
 ## Author
+Independent researcher.
 
-Independent researcher. Master Document available under NDA.
-
-*Master Document and Technical Specification available under NDA.*
-*VWU formula protected by Zenodo DOI + MD hash.*
-
+Master Document and Technical Specification: available under NDA.
+VWU formula: protected by Zenodo DOI timestamp + SHA-256 (OpenTimestamps).
 ---
 
 ## Contact & Discussion
