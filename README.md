@@ -45,7 +45,16 @@ The platform combines:
 - **Backend:** Node.js 20 LTS / TypeScript 5.4+
 - **AI Agents:** Python 3.11+ / FastAPI
 ## MVP Priority
+## System Architecture (L0–L5)
 
+| Layer | Technology | Function | Role |
+|---|---|---|---|
+| L0 — Identity | MPC + FaceID + Web3Auth | Biometric sovereignty, key fragmentation | SPOF elimination |
+| L1 — Proofs | zk-SNARKs + MACI | Anonymity, anti-collusion, ZK-Proof generation | Mathematical shield |
+| L2 — Execution | Optimism (L2) | Fast, low-cost operation execution | Performance layer |
+| L3 — Lock | Lit Protocol | Time-locked voting, information symmetry | Transparency layer |
+| L4 — Archive | Celestia (DA) | Storage of millions of proofs at low cost | Audit infrastructure |
+| L5 — AI Agents | Strategist / Analyst / Sentinel | Anomaly detection, Sybil identification | Observation — not decision |
 Three non-negotiable components for system launch:
 1. **MACI smart contract** — anti-collusion voting core
 2. **ZK identity proof** — circom circuit (biometric → ZK-Proof)
