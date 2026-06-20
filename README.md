@@ -101,6 +101,7 @@ All papers are timestamped and DOI-protected.
 | 3 | Dynamic Bayesian Evolution Cycle and Sociotechnical Robustness | [10.5281/zenodo.20424602](https://doi.org/10.5281/zenodo.20424602) |
 | 4 | BeTrueCore Modular System: Reflexive Analysis | [10.5281/zenodo.20468741](https://doi.org/10.5281/zenodo.20468741) |
 | 5 | Human-Compatible Collective Intelligence: BeTrueCore as Ethical Infrastructure and Self-Awareness Game in the Age of AGI | [10.5281/zenodo.20619593](https://doi.org/10.5281/zenodo.20619593) |
+| 6 | The DNA of Ethical AI Agents: How 736 Intersection Points Between Asilomar Principles and Decision Hygiene Parameters Form the Cognitive Architecture of BeTrueCore | [10.5281/zenodo.20771227](https://doi.org/10.5281/zenodo.20771227) |
 > All papers reference the source document in their headers:
 > *«BeTrueCore» Modular System. Methodological Base:*
 > *«Web3 Intuitive Symmetry Methodology» v1.2*
