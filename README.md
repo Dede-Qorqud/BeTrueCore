@@ -65,7 +65,7 @@ Three non-negotiable components for system launch:
 
 **Implementation roadmap:**
 - Phase 1 — Core: 1–2 months
-- Phase 2 — Integration: 2–3 months
+- Phase 2 — Integration (evidential layer boundary defined, ERC-8281 L1+L3 identified): 2–3 months
 - Phase 3 — Pilot (50–100 users): 1–2 months
 ## Status
 
@@ -78,7 +78,16 @@ MACI smart contract + ZK identity circuit + VWU calculation.
 > If you are a Solidity / Circom / ZK developer
 > interested in sovereign collective intelligence —
 > open an Issue or reach out via ethresear.ch
+## Current Status (June 2026)
 
+- 6 academic preprints published on Zenodo
+- 4 posts published on ethresear.ch
+- Technical partnerships established in the Ethereum ecosystem
+- Evidential layer boundary defined (v0 mapping complete)
+- ERC-8281 integration points identified at L1 and L3
+- 23×32 ethical AI matrix (736 intersection points) formalized as AI agent DNA
+
+Project stage: TRL 2 → TRL 3
 ## Vote Weight Unit (VWU)
 
 Proprietary formula. Protected by timestamp.
