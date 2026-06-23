@@ -135,7 +135,7 @@ VWU formula: protected by Zenodo DOI timestamp + SHA-256 (OpenTimestamps).
 
 ## Contact & Discussion
 
-- - **Paragraph:** [BeTrueCore publication](https://paragraph.com/@betruecore/736-intersection-points-the-formal-ethical-dna-of-betruecores-ai-agent-layer)
+- **Paragraph:** [BeTrueCore publication](https://paragraph.com/@betruecore/736-intersection-points-the-formal-ethical-dna-of-betruecores-ai-agent-layer)
 - **Zenodo profile:** https://zenodo.org
 
 ---
