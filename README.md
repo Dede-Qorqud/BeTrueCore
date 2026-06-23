@@ -77,11 +77,10 @@ MACI smart contract + ZK identity circuit + VWU calculation.
 
 > If you are a Solidity / Circom / ZK developer
 > interested in sovereign collective intelligence —
-> open an Issue or reach out via ethresear.ch
+> open an Issue or reach out via Paragraph
 ## Current Status (June 2026)
 
 - 6 academic preprints published on Zenodo
-- 4 posts published on ethresear.ch
 - Technical partnerships established in the Ethereum ecosystem
 - Evidential layer boundary defined (v0 mapping complete)
 - ERC-8281 integration points identified at L1 and L3
