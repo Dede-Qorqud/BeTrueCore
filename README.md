@@ -80,7 +80,7 @@ MACI smart contract + ZK identity circuit + VWU calculation.
 > open an Issue or reach out via Paragraph
 ## Current Status (June 2026)
 
-- 6 academic preprints published on Zenodo
+- 7 academic preprints published on Zenodo
 - Technical partnerships established in the Ethereum ecosystem
 - Evidential layer boundary defined (v0 mapping complete)
 - ERC-8281 integration points identified at L1 and L3
