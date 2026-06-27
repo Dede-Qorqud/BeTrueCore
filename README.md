@@ -30,7 +30,7 @@ The platform combines:
 | 2. Mathematical | Bayes, Stochastic Resonance, Wiener Process, VWU model |
 | 3. Methodological | Web3-ISM, Build-Measure-Learn, Tesla 3-6-9, Kintsugi Archiving |
 | 4. Technical | zk-SNARKs, MACI, Lit Protocol, Optimism L2, Celestia DA |
-
+> *Note: The mathematical layer above lists the operational stack — instruments directly employed in the system's computational logic. Broader epistemic foundations (Gödel's incompleteness, Poincaré's intuition principle, Itô calculus for continuous-time extensions) are addressed in the preprint series on Zenodo.*
 ---
 
 ## Technical Stack
