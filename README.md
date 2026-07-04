@@ -85,7 +85,10 @@ MACI smart contract + ZK identity circuit + VWU calculation.
 - Evidential layer boundary defined (v0 mapping complete)
 - ERC-8281 integration points identified at L1 and L3
 - 23×32 ethical AI matrix (736 intersection points) formalized as AI agent DNA
-
+  ## Supplementary Data
+  
+- [BeTrueCore_EthicalPriorityMap_736.xlsx](https://github.com/Dede-Qorqud/BeTrueCore/blob/main/BeTrueCore_EthicalPriorityMap_736.xlsx) — 736-point ethical priority map: 23 Asilomar Principles × 32 TDSH parameters with CRITICAL / HIGH / MEDIUM / SUPERPOSITION weights
+  
 Project stage: TRL 2 → TRL 3
 ## Vote Weight Unit (VWU)
 
