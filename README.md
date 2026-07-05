@@ -88,7 +88,23 @@ MACI smart contract + ZK identity circuit + VWU calculation.
   ## Supplementary Data
   
 - [BeTrueCore_EthicalPriorityMap_736.xlsx](https://github.com/Dede-Qorqud/BeTrueCore/blob/main/BeTrueCore_EthicalPriorityMap_736.xlsx) — 736-point ethical priority map: 23 Asilomar Principles × 32 TDSH parameters with CRITICAL / HIGH / MEDIUM / SUPERPOSITION weights
-  
+
+ ## Developer Package v0.1
+
+Smart contract suite for BeTrueCore implementation:
+
+| File | Description |
+|------|-------------|
+| [IBeTrueCore.sol](src/IBeTrueCore.sol) | Core interface — enums, structs, events, functions |
+| [BeTrueCoreCore.sol](src/BeTrueCoreCore.sol) | Main implementation — MACI, VWU, session lifecycle |
+| [EthicalMatrix.sol](src/EthicalMatrix.sol) | 736-point ethical priority map — getCellWeight(), computeVerdict() |
+| [HarmonyAgent.sol](src/HarmonyAgent.sol) | Ematch aggregation — computeFinalVerdict() |
+| [VWUEngine.sol](src/VWUEngine.sol) | VWU computation — non-linear growth + continuity adjustment |
+| [MAPPING_MODEL.md](docs/MAPPING_MODEL.md) | Evidential layer boundary — L0–L5 data flow |
+| [MACI_ENGINEER_PACKAGE.md](docs/MACI_ENGINEER_PACKAGE.md) | MACI v1.2 integration guide |
+| [BeTrueCore.t.sol](test/BeTrueCore.t.sol) | Foundry unit tests — run: forge test -v |
+| [BeTrueCore_EthicalPriorityMap_736.xlsx](BeTrueCore_EthicalPriorityMap_736.xlsx) | 736-point priority map (supplementary) | 
+
 Project stage: TRL 2 → TRL 3
 ## Vote Weight Unit (VWU)
 
