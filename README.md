@@ -103,7 +103,6 @@ Smart contract suite for BeTrueCore implementation:
 | [MAPPING_MODEL.md](docs/MAPPING_MODEL.md) | Evidential layer boundary — L0–L5 data flow |
 | [MACI_ENGINEER_PACKAGE.md](docs/MACI_ENGINEER_PACKAGE.md) | MACI v1.2 integration guide |
 | [BeTrueCore.t.sol](test/BeTrueCore.t.sol) | Foundry unit tests — run: forge test -v |
-| [BeTrueCore_EthicalPriorityMap_736.xlsx](BeTrueCore_EthicalPriorityMap_736.xlsx) | 736-point priority map (supplementary) | 
 
 Project stage: TRL 2 → TRL 3
 ## Vote Weight Unit (VWU)
