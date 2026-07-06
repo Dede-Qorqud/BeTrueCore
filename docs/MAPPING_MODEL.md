@@ -2,7 +2,7 @@
 ## Evidential Layer Boundary Definition
 
 **Version:** 0.1  
-**Author:** Farman Guliyev (Safarnur)  
+
 **Repository:** github.com/Dede-Qorqud/BeTrueCore
 
 ---
