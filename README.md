@@ -80,7 +80,7 @@ MACI smart contract + ZK identity circuit + VWU calculation.
 > open an Issue or reach out via Paragraph
 ## Current Status (June 2026)
 
-- 7 academic preprints published on Zenodo
+- 9 academic preprints published on Zenodo
 - Technical partnerships established in the Ethereum ecosystem
 - Evidential layer boundary defined (v0 mapping complete)
 - ERC-8281 integration points identified at L1 and L3
@@ -125,8 +125,8 @@ All papers are timestamped and DOI-protected.
 | 1 | From Panopticon to Panopticon-Stent | [10.5281/zenodo.20296816](https://doi.org/10.5281/zenodo.20296816) |
 | 2 | Cryptographically Enforced Collective Decision-Making | [10.5281/zenodo.20319857](https://doi.org/10.5281/zenodo.20319857) |
 | 3 | Dynamic Bayesian Evolution Cycle and Sociotechnical Robustness | [10.5281/zenodo.20424602](https://doi.org/10.5281/zenodo.20424602) |
-| 4 | The Notary Under Attack... | [10.5281/zenodo.21111544](https://doi.org/10.5281/zenodo.21111544) |
-| 5 | The Ethical Priority Map... | [10.5281/zenodo.21225420](https://doi.org/10.5281/zenodo.21225420) |
+| 8 | The Notary Under Attack... | [10.5281/zenodo.21111544](https://doi.org/10.5281/zenodo.21111544) |
+| 9 | The Ethical Priority Map... | [10.5281/zenodo.21225420](https://doi.org/10.5281/zenodo.21225420) |
 > All papers reference the source document in their headers:
 > *«BeTrueCore» Modular System. Methodological Base:*
 > *«Web3 Intuitive Symmetry Methodology» v1.2*
