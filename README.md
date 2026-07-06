@@ -126,10 +126,8 @@ All papers are timestamped and DOI-protected.
 | 1 | From Panopticon to Panopticon-Stent | [10.5281/zenodo.20296816](https://doi.org/10.5281/zenodo.20296816) |
 | 2 | Cryptographically Enforced Collective Decision-Making | [10.5281/zenodo.20319857](https://doi.org/10.5281/zenodo.20319857) |
 | 3 | Dynamic Bayesian Evolution Cycle and Sociotechnical Robustness | [10.5281/zenodo.20424602](https://doi.org/10.5281/zenodo.20424602) |
-| 4 | BeTrueCore Modular System: Reflexive Analysis | [10.5281/zenodo.20468741](https://doi.org/10.5281/zenodo.20468741) |
-| 5 | Human-Compatible Collective Intelligence: BeTrueCore as Ethical Infrastructure and Self-Awareness Game in the Age of AGI | [10.5281/zenodo.20619593](https://doi.org/10.5281/zenodo.20619593) |
-| 6 | The DNA of Ethical AI Agents: How 736 Intersection Points Between Asilomar Principles and Decision Hygiene Parameters Form the Cognitive Architecture of BeTrueCore | [10.5281/zenodo.20771227](https://doi.org/10.5281/zenodo.20771227) |
-| 7 | The Missing Layer: Authentic Human Signal as a Prerequisite for Ethical AI Governance | [10.5281/zenodo.20954283](https://doi.org/10.5281/zenodo.20954283) |
+| 8 | The Notary Under Attack: An Adversarial Model for Cryptographic Collective Intelligence | 10.5281/zenodo.21111544 |
+| 9 | The Ethical Priority Map: The mirror reflects. The notary bears witness. The matrix measures. | 10.5281/zenodo.21225420 |
 > All papers reference the source document in their headers:
 > *«BeTrueCore» Modular System. Methodological Base:*
 > *«Web3 Intuitive Symmetry Methodology» v1.2*
@@ -154,8 +152,9 @@ VWU formula: protected by Zenodo DOI timestamp + SHA-256 (OpenTimestamps).
 
 ## Contact & Discussion
 
-- **Paragraph:** [BeTrueCore publication](https://paragraph.com/@betruecore/736-intersection-points-the-formal-ethical-dna-of-betruecores-ai-agent-layer)
-- **Zenodo profile:** https://zenodo.org
+- **Paragraph:** [BeTrueCore publication](https://paragraph.com/@betruecore)
+- **ORCID:** [0009-0004-4841-594X](https://orcid.org/0009-0004-4841-594X)
+- **ethresear.ch:** [Dede-Qorqud](https://ethresear.ch/u/Dede-Qorqud)
 
 ---
 
