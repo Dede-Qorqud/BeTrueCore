@@ -2,7 +2,7 @@
 ## Minimal Anti-Collusion Infrastructure — Integration Guide
 
 **Version:** 0.1  
-**Author:** Farman Guliyev (Safarnur)  
+
 **Repository:** github.com/Dede-Qorqud/BeTrueCore  
 **MACI Reference:** appliedzkp/maci v1.2
 
