@@ -77,7 +77,7 @@ MACI smart contract + ZK identity circuit + VWU calculation.
 
 > If you are a Solidity / Circom / ZK developer
 > interested in sovereign collective intelligence —
-> open an Issue or reach out via Paragraph
+> open an Issue or reach out via ethresear.ch: https://ethresear.ch/u/Dede-Qorqud
 ## Current Status (July 2026)
 
 - 9 academic preprints published on Zenodo
