@@ -20,10 +20,19 @@ The platform combines:
 - Cheap audit infrastructure (Celestia DA)
 - AI as observer only — never as decision-maker
 
+## BeTrueCore in the Ethereum Ecosystem
+Within the Ethereum Research discussion around agent trust networks (in the context of ERC-8004), a fundamental problem was articulated: any on-chain reputation is merely a flat projection of real trust activity — not trust itself. Attempting to make all off-chain interaction fully visible on-chain produces enormous informational noise and vulnerability to manipulation by AGI agents.
+
+BeTrueCore resolves this crisis through a conceptual shift: the design goal becomes not visibility but verifiability of coordination.
+
+**1. The Verifiable Islands Principle**
+Small groups with rigid boundaries — local communities, consortiums, or sovereign cells — generate the cleanest reputation signal precisely because of their separateness, not despite it.
+
+**2. Legibility Without Exposure**
+Using zk-SNARKs, BeTrueCore proves the integrity of internal interactions without revealing their content. The protocol solves how to make small verifiable groups legible and legitimate to the global ecosystem while preserving their absolute autonomy from external observation.
 ---
 
 ## Four-Layer Architecture
-
 | Layer | Foundation |
 |---|---|
 | 1. Philosophical | Panopticon, Odyssey, Wabi-sabi, Sartre, Heidegger, Rogers, Gödel |
