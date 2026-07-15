@@ -19,9 +19,10 @@ The platform combines:
 - Time-locked voting (Lit Protocol)
 - Cheap audit infrastructure (Celestia DA)
 - AI as observer only — never as decision-maker
+
 ## BeTrueCore in the Ethereum Ecosystem
 
-Within the Ethereum Research discussion around agent trust networks (in the context of ERC-8004), a fundamental problem was articulated: any on-chain reputation is merely a flat projection of real trust activity — not trust itself. Attempting to make all off-chain interaction fully visible on-chain produces enormous informational noise and vulnerability to manipulation by AGI agents.
+The concept of Verifiable Islands is embedded in BeTrueCore's architecture from the origin of the master document. The Ethereum Research discussion around agent trust networks (ERC-8004) confirmed its relevance: any on-chain reputation is merely a flat projection of real trust activity — not trust itself. Attempting to make all off-chain interaction fully visible on-chain produces enormous informational noise and vulnerability to manipulation by AGI agents.
 
 BeTrueCore resolves this crisis through a conceptual shift: the design goal becomes not visibility but verifiability of coordination.
 
