@@ -95,6 +95,7 @@ Smart contract suite for BeTrueCore implementation:
 
 | File | Description |
 |------|-------------|
+| [PHILOSOPHY.md](docs/PHILOSOPHY.md) | Architectural foundation — myth, cryptography, six-layer patterns |
 | [IBeTrueCore.sol](src/IBeTrueCore.sol) | Core interface — enums, structs, events, functions |
 | [BeTrueCoreCore.sol](src/BeTrueCoreCore.sol) | Main implementation — MACI, VWU, session lifecycle |
 | [EthicalMatrix.sol](src/EthicalMatrix.sol) | 736-point ethical priority map — getCellWeight(), computeVerdict() |
@@ -103,7 +104,7 @@ Smart contract suite for BeTrueCore implementation:
 | [MAPPING_MODEL.md](docs/MAPPING_MODEL.md) | Evidential layer boundary — L0–L5 data flow |
 | [MACI_ENGINEER_PACKAGE.md](docs/MACI_ENGINEER_PACKAGE.md) | MACI v1.2 integration guide |
 | [BeTrueCore.t.sol](test/BeTrueCore.t.sol) | Foundry unit tests — run: forge test -v |
-| [PHILOSOPHY.md](docs/PHILOSOPHY.md) | Architectural foundation — myth, cryptography, six-layer patterns |
+
 Project stage: TRL 2 → TRL 3
 ## Vote Weight Unit (VWU)
 
