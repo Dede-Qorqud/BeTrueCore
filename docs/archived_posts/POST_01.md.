@@ -1,0 +1,49 @@
+Vitalik Buterin proposes that AI votes for us. We propose a cryptographic space where we vote — and no one is watching.
+
+In February 2026, Vitalik Buterin proposed deploying personal AI agents ("AI Stewards"), trained on users' action history, to automate voting in DAOs. The concept is designed to combat voter apathy, reduce dependence on large token holders, and simplify governance without centralized control.
+The problem he identifies is real: low turnout, concentration of power, preference falsification under social pressure.
+We agree with the diagnosis. We propose a different treatment.
+— Buterin's approach: delegate your vote to an AI agent. The machine interprets your values and votes on your behalf.
+— BeTrueCore's approach: return the vote to the human — cryptographically protected. AI is only a notary with read access. We vote. The architecture guarantees: no one is watching.
+The difference is fundamental. In Buterin's model, AI interprets your values. In BeTrueCore, you express them directly — in a space that mathematically guarantees the absence of an observer.
+
+Where does the idea come from?
+The GCP (Princeton, 1998) recorded statistically significant deviations in global RNG networks during events that deeply affected humanity — 9/11, the death of Diana, major earthquakes. The deviation from randomness reached p < 0.001. The interpretation is contested. But the question remains: if a collective signal exists — how do we measure it cleanly, without the noise of social pressure? BeTrueCore implements this principle architecturally: the Panorama at 20:00 is the moment of "collapse" from superposition to a determined result — with cryptographic guarantees of measurement integrity. A detailed analysis is in the preprint: https://doi.org/10.5281/zenodo.20319857
+
+How it works:
+The full architecture is set out in a series of preprints. Main DOI: https://doi.org/10.5281/zenodo.20424602
+Here are the key elements:
+→  ZK-Proofs + MACI: your final vote is protected by zero-knowledge encryption. Even AI agents have read-only access — they cannot de-anonymize you.
+→  Time-lock via Lit Protocol: intermediate results are invisible to everyone until synchronous decryption at 20:00. No bandwagon effect. No strategic voting.
+→  VWU (Vote Weight Unit): weight is determined not by token count, but by the quality of ethical judgments verified over time. Bayesian adaptation with exponential smoothing. The verifier is accumulated precedent D. The paradox detector blocks manipulation through gamification. Core principles are in the preprint: https://doi.org/10.5281/zenodo.20296816
+→  The White Feather Effect: when the collective signal P fails to reach the consensus threshold — the system registers a deadlock and automatically activates a stochastic exit:
+dXt = f(Xt, t)dt + g(Xt, t)dWt
+Deterministic search f(Xt,t)dt plus a Wiener process g(Xt,t)dWt — escape from local minima where formal logic runs out. Not a metaphor — Ito's equation, activated by a formal predicate P ≥ Threshold.
+
+Technical stack — five layers:
+1)	L0 — Identity: MPC + FaceID + Web3Auth — Biometric sovereignty, zero single point of failure. 
+2)	L1 — Proofs: zk-SNARKs + MACI — Anonymity, anti-collusion, ZK-Proof generation. 
+3)	L2 — Execution: Optimism Rollup — Scalability, low transaction costs. 
+4)	L3 — Time-lock: Lit Protocol — Time-lock encryption, information symmetry. 
+5)	L4 — Archive: Celestia + Ethereum — Data availability, immutable audit trail.
+
+AI agents (Strategist, Analyst, Guardian) are restricted to Read-Only access — a technically immutable property encoded in smart contracts. Final decisions always remain with ZK-cryptography.
+
+BeTrueCore is first and foremost a game.
+Each participant makes exactly 7 discrete decisions per day under conditions of complete cryptographic isolation — no chats, no intermediate results, no social pressure. The interaction takes no more than 1–2 hours, distributed at any convenient time of day or week. Activity, pace and depth of engagement depend exclusively on the participant's own inner impulse.
+Throughout the blind session, ZK-protocols guarantee absolute confidentiality. Sovereign informational atomization is a conscious choice: a "digital fortress" for introspection and inner silence. Each participant's choice is protected from external manipulative noise (Dark Noise). The principle: "My identity is my fortress."
+The AI-Metronome does not erase the incoming entropy of the human impulse — it uses it as Stochastic Resonance: creative energy that helps the system escape local deadlocks and crystallize the most coherent signal of the session. These blind sessions form the Logos L from the bottom up.
+Participant verification is built through the 23×32 framework — the Cartesian product of 23 Asilomar AI Principles and 32 parameters of Thoughtful Decision-making System Hygiene (TDSH). 736 intersection points — each a technical requirement.
+
+The result:
+Not a voting platform — an instrument for measuring collective intuition with cryptographic guarantees of measurement integrity.
+We are not competing with Buterin's proposal. We are offering an additional layer: infrastructure for moments when you need a human signal — unfiltered, immediate, sovereign.
+BeTrueCore is not a competitor to existing solutions, not a replacement, not a "better protocol." It is an infrastructure layer — the way TCP/IP does not compete with the services built on top of it. BeTrueCore can serve as the foundation for entirely new applications: from municipal democracy to corporate governance, from international humanitarian research to Web3 ecosystems.
+MVP is defined: MACI + zk-SNARK identity + VWU smart contract. Minimum team: three specialists. Technical specification is prepared.
+Reflexive analysis of the concept, including limitations: https://doi.org/10.5281/zenodo.20468741
+This is a theoretical architecture at the pre-MVP stage. Technical implementation specifications are intentionally left open for the development team. That is precisely why we are here.
+
+Open horizon:
+The system formalizes its own boundaries — the threshold predicate, the paradox detector, daily Bayesian updating of the Logos, Nash equilibrium as the calibration point. But Godel says: any sufficiently powerful formal system contains truths unprovable within it. Wabi-sabi says: the imperfect is beautiful. BeTrueCore accepts this as an architectural principle, not a defect.
+We do not know which questions remain open — precisely because they are open. Are there fundamental errors in the architecture that are invisible from the inside?
+What are we missing?
