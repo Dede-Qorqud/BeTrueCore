@@ -102,7 +102,6 @@ Smart contract suite for BeTrueCore implementation:
 
 | File | Description |
 |------|-------------|
-| Вижу — строка 105. Замени:
 | [ARCHITECTURE_FOUNDATION.md](docs/ARCHITECTURE_FOUNDATION.md) | Architectural foundation — myth, cryptography, six-layer patterns |
 | [IBeTrueCore.sol](src/IBeTrueCore.sol) | Core interface — enums, structs, events, functions |
 | [BeTrueCoreCore.sol](src/BeTrueCoreCore.sol) | Main implementation — MACI, VWU, session lifecycle |
