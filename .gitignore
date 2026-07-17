@@ -1,0 +1,12 @@
+# Foundry
+out/
+cache/
+lib/
+
+# Hardhat
+artifacts/
+build/
+
+# Временные файлы систем
+.DS_Store
+Thumbs.db
