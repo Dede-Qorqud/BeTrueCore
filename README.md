@@ -101,7 +101,6 @@ MACI smart contract + ZK identity circuit + VWU calculation.
 <div>
 <img width="250" alt="WhatsApp Image 2026-07-17 at 12 53 43" src="https://github.com/user-attachments/assets/de7b3aa6-7d74-48a1-8b8d-93e4ec7af381" /> <img width="390" alt="WhatsApp Image 2026-07-17 at 12 54 31" src="https://github.com/user-attachments/assets/eb3fed7a-1da8-46ce-9049-bf8a1753a57c" /> <img width="350" alt="WhatsApp Image 2026-07-17 at 12 54 58" src="https://github.com/user-attachments/assets/c02e9ca8-727b-4a24-8265-b96b5de1bc6f" />
 </div>
-(1) Parameter Intersection | (2) Parameter Distribution | (3) Cell Distribution
 
 
  ## Developer Package v0.1
