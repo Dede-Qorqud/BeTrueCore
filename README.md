@@ -96,14 +96,14 @@ MACI smart contract + ZK identity circuit + VWU calculation.
   
 - [BeTrueCore_EthicalPriorityMap_736.xlsx](https://github.com/Dede-Qorqud/BeTrueCore/blob/main/BeTrueCore_EthicalPriorityMap_736.xlsx) — 736-point ethical priority map: 23 Asilomar Principles × 32 TDSH parameters with CRITICAL / HIGH / MEDIUM / SUPERPOSITION weights
 
-### Структура перемножения параметров
-<img width="905" height="523" alt="WhatsApp Image 2026-07-17 at 12 53 43" src="https://github.com/user-attachments/assets/de7b3aa6-7d74-48a1-8b8d-93e4ec7af381" />
+### Parameter Intersection and Mapping Structure
+<img width="450" alt="WhatsApp Image 2026-07-17 at 12 53 43" src="https://github.com/user-attachments/assets/de7b3aa6-7d74-48a1-8b8d-93e4ec7af381" />
 
-### Распределение этических параметров по ИИ-агентам
-<img width="659" height="142" alt="WhatsApp Image 2026-07-17 at 12 54 31" src="https://github.com/user-attachments/assets/eb3fed7a-1da8-46ce-9049-bf8a1753a57c" />
+### Distribution of Ethical Parameters by AI Agents
+<img width="450" alt="WhatsApp Image 2026-07-17 at 12 54 31" src="https://github.com/user-attachments/assets/eb3fed7a-1da8-46ce-9049-bf8a1753a57c" />
 
-### Фрагмент детализации структуры матрицы
-<img width="505" height="124" alt="WhatsApp Image 2026-07-17 at 12 54 58" src="https://github.com/user-attachments/assets/c02e9ca8-727b-4a24-8265-b96b5de1bc6f" />
+### Matrix Cell Distribution by Priority and Weights
+<img width="450" alt="WhatsApp Image 2026-07-17 at 12 54 58" src="https://github.com/user-attachments/assets/c02e9ca8-727b-4a24-8265-b96b5de1bc6f" />
 
  ## Developer Package v0.1
 
