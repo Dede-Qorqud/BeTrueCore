@@ -165,10 +165,9 @@ VWU formula: protected by Zenodo DOI timestamp + SHA-256 (OpenTimestamps).
 ---
 
 ## Contact & Discussion
-
-- **Paragraph:** [BeTrueCore publication](https://paragraph.com/@betruecore)
-- **ORCID:** [0009-0004-4841-594X](https://orcid.org/0009-0004-4841-594X)
 - **ethresear.ch:** [Dede-Qorqud](https://ethresear.ch/u/Dede-Qorqud)
+- **ORCID:** [0009-0004-4841-594X](https://orcid.org/0009-0004-4841-594X)
+- **Paragraph:** [BeTrueCore](https://paragraph.com/@betruecore)
 
 ---
 
