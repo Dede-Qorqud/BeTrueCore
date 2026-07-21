@@ -87,7 +87,7 @@ MACI smart contract + ZK identity circuit + VWU calculation.
 > open an Issue or reach out via ethresear.ch: [Dede-Qorqud](https://ethresear.ch/u/Dede-Qorqud)
 ## Current Status (July 2026)
 
-- 9 academic preprints published on Zenodo
+- 10 academic preprints published on Zenodo
 - Technical partnerships established in the Ethereum ecosystem
 - Evidential layer boundary defined (v0 mapping complete)
 - ERC-8281 integration points identified at L1 and L3
@@ -142,6 +142,7 @@ All papers are timestamped and DOI-protected.
 | 3 | Dynamic Bayesian Evolution Cycle and Sociotechnical Robustness | [10.5281/zenodo.20424602](https://doi.org/10.5281/zenodo.20424602) |
 | 8 | The Notary Under Attack... | [10.5281/zenodo.21111544](https://doi.org/10.5281/zenodo.21111544) |
 | 9 | The Ethical Priority Map... | [10.5281/zenodo.21225420](https://doi.org/10.5281/zenodo.21225420) |
+| 10 | Four Principles as the Foundation of TDSH: Physical Hierarchy, Philosophical Process, and Temporal Symmetry in the BeTrueCore Architecture | [10.5281/zenodo.21466246](https://doi.org/10.5281/zenodo.21466246) |
 > All papers reference the source document in their headers:
 > *«BeTrueCore» Modular System. Methodological Base:*
 > *«Web3 Intuitive Symmetry Methodology» v1.2*
@@ -149,11 +150,13 @@ All papers are timestamped and DOI-protected.
 
 ## Core Principles
 
+- **Wabi-sabi** — imperfection as creative resource
+- **"Secret citizen, transparent decision"** — core privacy paradigm
+- **Kintsugi** — errors as golden seams of evolution
+- **"Existence itself is the signature"** — raw biometric data never leaves device
 - **"My identity is my fortress"** — biometric presence as signature
 - **"AI as notary, not judge"** — ZK-proof, not AI decision
-- **"Existence itself is the signature"** — raw biometric data never leaves device
-- **Wabi-sabi** — imperfection as creative resource
-- **Kintsugi** — errors as golden seams of evolution
+- **"The mirror reflects. The notary bears witness. The matrix measures."** — constitutional formula of BeTrueCore
 
 ---
 
