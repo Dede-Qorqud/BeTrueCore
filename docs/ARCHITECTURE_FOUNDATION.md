@@ -1,4 +1,5 @@
 # Architectural Foundation of BeTrueCore
+
 *The white paper for all integration technical documents and technologies*
 
 ---
@@ -13,11 +14,14 @@ Dede Qorqud gave the second question: who bears witness? Not judges, not governs
 
 Two epics. Two threads. One architecture.
 
+The choice of these two epics is not accidental. The Odyssey belongs to the Greek — Western — tradition. Dede Qorqud belongs to the Turkic — Azerbaijani — tradition. This East-West pairing is itself an architectural statement: the system claims universality, but its roots are not exclusively Western. Infrastructure for sovereign collective intelligence must be legible across civilisational traditions, not derived from one alone.
+
 ---
 
 ## Six Layers — Six Patterns
 
 ### L0 — Identity
+
 *Dede Qorqud: the young man's deed as the foundation of naming.*
 
 Physical presence is the only signature that cannot be delegated. Biometrics never leave the device. Existence itself is the signature.
@@ -27,6 +31,7 @@ Physical presence is the only signature that cannot be delegated. Biometrics nev
 ---
 
 ### L1 — Proofs
+
 *The Odyssey: the mast as conscious limitation of external influence.*
 
 Odysseus filled his crew's ears with wax and ordered himself tied to the mast — not because he feared, but because he knew: external pressure governs the mind. A ZK-proof does the same thing mathematically.
@@ -36,6 +41,7 @@ Odysseus filled his crew's ears with wax and ordered himself tied to the mast �
 ---
 
 ### L2 — Execution
+
 *Dede Qorqud: keeper of the naming protocol.*
 
 Raw data is translated into objective immutable identifiers. Dede Qorqud did not invent names — he read the deed and named what already was.
@@ -45,6 +51,7 @@ Raw data is translated into objective immutable identifiers. Dede Qorqud did not
 ---
 
 ### L3 — Lock
+
 *The Odyssey: the patience of Penelope.*
 
 Penelope unraveled her shroud at night — holding the decision until the legitimate moment arrived. Time-lock does the same thing cryptographically: information symmetry until the moment of revelation.
@@ -54,20 +61,36 @@ Penelope unraveled her shroud at night — holding the decision until the legiti
 ---
 
 ### L4 — Archive
+
 *Dede Qorqud: the sound of the Gopuz as a system reset trigger.*
 
-The Gopuz is not merely an instrument — it is a signal of systemic cleansing, return to original order. Celestia stores millions of proofs at low cost — an immutable audit of every decision.
+In the Dede Qorqud epic, the Gopuz is played at moments of collective crisis — when the community must remake a decision from a verified point, not from fiction or distortion. The Gopuz does not erase the past: it marks the moment of return to authentic order, so that what follows is built on what truly was.
 
-**Technology:** Celestia DA + Solidity — audit infrastructure.
+Celestia DA is the digital Gopuz of BeTrueCore. It does not allow the past to be rewritten — every vote, every proof, every divergence is stored immutably. But it enables a new count from any verified point. The archive is not a prison of history; it is the guarantee that the next decision stands on honest ground.
+
+**Technology:** Celestia DA + Solidity — immutable audit infrastructure. The memory layer.
 
 ---
 
 ### L5 — AI Agents
+
 *The Odyssey: Ithaca — return to true nature.*
 
 Ithaca is not a reward — it is the point of return to oneself. L5 makes no decisions. Nine agents (3×3: Analyst, Strategist, Sentinel) observe, record, and measure. The ethical priority map 23×32 = 736 rules — the DNA of the agents.
 
 **Technology:** Python + FastAPI, strict read-only mode.
+
+---
+
+## Two Taxonomies, One System
+
+L0–L5 and the four TDSH modules are not competing descriptions — they are different axes of the same architecture.
+
+**L0–L5** describes the technical stack: the six layers through which a collective decision is formed, protected, executed, locked, archived, and observed. This is the infrastructure.
+
+**TDSH Modules 1–4** (Verification, Ethics, Scaling, Security) describe the measurement system: the four dimensions along which the quality of collective judgment is evaluated in real time. This is the instrument.
+
+Both operate simultaneously. A developer building on BeTrueCore navigates L0–L5. A researcher studying collective judgment reads TDSH Module outputs. The same system; two lenses.
 
 ---
 
@@ -88,3 +111,6 @@ All technologies may change. The stack is updated. Contracts are rewritten. But 
 *BeTrueCore Modular System — Web3 Intuitive Symmetry Methodology (Web3-ISM) v1.2*
 *ORCID: 0009-0004-4841-594X*
 *Timestamped via OpenTimestamps (SHA-256)*
+
+**Preprint series:** Zenodo — [10.5281/zenodo.21466246](https://doi.org/10.5281/zenodo.21466246) (Preprint 10 — Four Principles as the Foundation of TDSH)
+**Repository:** [github.com/Dede-Qorqud/BeTrueCore](https://github.com/Dede-Qorqud/BeTrueCore)
