@@ -14,7 +14,7 @@ Dede Qorqud gave the second question: who bears witness? Not judges, not governs
 
 Two epics. Two threads. One architecture.
 
-The choice of these two epics is not accidental. The Odyssey belongs to the Greek — Western — tradition. Dede Qorqud belongs to the Turkic — Azerbaijani — tradition. This East-West pairing is itself an architectural statement: the system claims universality, but its roots are not exclusively Western. Infrastructure for sovereign collective intelligence must be legible across civilisational traditions, not derived from one alone.
+The choice of these two epics is not accidental. The Odyssey belongs to the Greek — Western — tradition. Dede Qorqud belongs to the Turkic — tradition. This East-West pairing is itself an architectural statement: the system claims universality, but its roots are not exclusively Western. Infrastructure for sovereign collective intelligence must be legible across civilisational traditions, not derived from one alone.
 
 ---
 
