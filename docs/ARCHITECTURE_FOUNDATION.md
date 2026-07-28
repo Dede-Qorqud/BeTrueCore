@@ -109,6 +109,8 @@ All technologies may change. The stack is updated. Contracts are rewritten. But 
 ---
 
 *BeTrueCore Modular System — Web3 Intuitive Symmetry Methodology (Web3-ISM) v1.2*
+
+**Analogy methodology:** [AAA Document](../AAA_document_EN.md)
 *ORCID: 0009-0004-4841-594X*
 *Timestamped via OpenTimestamps (SHA-256)*
 
