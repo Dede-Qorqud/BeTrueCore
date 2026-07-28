@@ -26,7 +26,7 @@ Three structural failures define the existing landscape of collective decision-m
 
 **Aggregation failure.** Simple majority voting destroys minority signals. Token-weighted governance reproduces financial hierarchy in cryptographic form. Neither mechanism reflects genuine collective intelligence — only the loudest or wealthiest fraction of it.
 
-**The Gödelian boundary.** Any sufficiently complex formal ethical system is necessarily incomplete by definition. BeTrueCore does not attempt to encode a complete ethical framework. It creates infrastructure through which people continuously and verifiably express their own values — and measures the quality of that expression over time.
+**The Gödelian boundary.** Any sufficiently complex formal system contains truths unprovable from within it. BeTrueCore accepts this as an architectural principle — not a defect: the question "is the path correct?" cannot be answered from inside the system that poses it. BeTrueCore does not attempt to encode a complete ethical framework. It creates infrastructure through which people continuously and verifiably express their own values — and measures the quality of that expression over time. *(Used here as a model analogy — structural principle only, not a transfer of mathematical proof.)*
 
 ---
 
@@ -45,6 +45,8 @@ The dominant governance model is structured differently: the state, the platform
 BeTrueCore proposes the inversion: identity is cryptographically protected at the moment of choice. The decision, formed in genuine isolation, is open and verifiable. The signal is clean — because the conditions of its formation were protected.
 
 This is not individual heroism. It is a collective and iterative process. Dede Qorqud bears witness — he does not judge. Odysseus returns to himself through anonymity — not through coercion.
+
+The participant acts simultaneously as teacher (each judgment trains the system via VWU), student (daily dilemmas develop genuine collective judgment), and judge (the anonymous voice determines the collective result). None of these roles is primary. All three operate within one cycle.
 
 ---
 
