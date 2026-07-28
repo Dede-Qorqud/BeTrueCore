@@ -110,6 +110,7 @@ Smart contract suite for BeTrueCore implementation:
 | File | Description |
 |------|-------------|
 | [ARCHITECTURE_FOUNDATION.md](docs/ARCHITECTURE_FOUNDATION.md) | Architectural foundation — myth, cryptography, six-layer patterns |
+| [AAA_document_EN.md](AAA_document_EN.md) | Applied Analogies in Architecture — analogy methodology |
 | [IBeTrueCore.sol](src/IBeTrueCore.sol) | Core interface — enums, structs, events, functions |
 | [BeTrueCoreCore.sol](src/BeTrueCoreCore.sol) | Main implementation — MACI, VWU, session lifecycle |
 | [EthicalMatrix.sol](src/EthicalMatrix.sol) | 736-point ethical priority map — getCellWeight(), computeVerdict() |
