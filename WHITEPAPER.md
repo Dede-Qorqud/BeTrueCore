@@ -2,7 +2,7 @@
 
 **Author:** Farman Guliyev (Safarnur)  
 **ORCID:** [0009-0004-4841-594X](https://orcid.org/0009-0004-4841-594X)  
-**Version:** 1.0 — July 2026  
+**Version:** 1.1 — July 2026  
 **Status:** Working Draft — TRL 2→3  
 **License:** CC BY-NC 4.0
 
@@ -26,7 +26,7 @@ Three structural failures define the existing landscape of collective decision-m
 
 **Aggregation failure.** Simple majority voting destroys minority signals. Token-weighted governance reproduces financial hierarchy in cryptographic form. Neither mechanism reflects genuine collective intelligence — only the loudest or wealthiest fraction of it.
 
-**The Gödelian boundary.** Any sufficiently complex formal system contains truths unprovable from within it. BeTrueCore accepts this as an architectural principle — not a defect: the question "is the path correct?" cannot be answered from inside the system that poses it. BeTrueCore does not attempt to encode a complete ethical framework. It creates infrastructure through which people continuously and verifiably express their own values — and measures the quality of that expression over time. *(Used here as a model analogy — structural principle only, not a transfer of mathematical proof.)*
+**The Gödelian boundary.** Any sufficiently complex formal ethical system is necessarily incomplete by definition. BeTrueCore does not attempt to encode a complete ethical framework. It creates infrastructure through which people continuously and verifiably express their own values — and measures the quality of that expression over time.
 
 ---
 
@@ -45,8 +45,6 @@ The dominant governance model is structured differently: the state, the platform
 BeTrueCore proposes the inversion: identity is cryptographically protected at the moment of choice. The decision, formed in genuine isolation, is open and verifiable. The signal is clean — because the conditions of its formation were protected.
 
 This is not individual heroism. It is a collective and iterative process. Dede Qorqud bears witness — he does not judge. Odysseus returns to himself through anonymity — not through coercion.
-
-The participant acts simultaneously as teacher (each judgment trains the system via VWU), student (daily dilemmas develop genuine collective judgment), and judge (the anonymous voice determines the collective result). None of these roles is primary. All three operate within one cycle.
 
 ---
 
@@ -89,15 +87,15 @@ L5  AI Agents        Analyst × 3 + Strategist × 3 + Sentinel × 3
 
 **L0 — Identity.** Biometric commitment is generated on-device. Raw biometric data never crosses the L0 boundary. Private keys are fragmented using Shamir Secret Sharing (threshold 2-of-3) via MPC — the single point of failure is eliminated.
 
-**L1 — Proofs.** Zero-knowledge proofs separate the act of decision-making from its social observation. MACI v1.2 provides key-rotation: a participant may change their decision any number of times before session close — only the final decision counts. Coercion and purchase of decisions are mathematically meaningless: the seller retains the ability to silently override the choice.
+**L1 — Proofs.** Zero-knowledge proofs separate the act of decision-making from its social observation. MACI v1.2 provides key-rotation: a participant may change their decision any number of times before session close — only the final decision counts. Coercion and vote purchase are rendered significantly harder to enforce: a participant retains the ability to silently override any coerced choice before session close, making purchased outcomes unverifiable by the buyer.
 
-**L2 — Execution.** Smart contracts manage the session lifecycle, VWU calculation, and result finalization. Optimism L2 provides fast, low-cost execution without compromising Ethereum-level security.
+**L2 — Execution.** Smart contracts manage the session lifecycle, VWU calculation, and result finalization. Optimism L2 provides fast, low-cost execution, inheriting Ethereum's security guarantees through the optimistic rollup mechanism and its fraud-proof settlement layer.
 
 **L3 — Lock.** Lit Protocol enforces information symmetry: no participant, administrator, or AI agent can see intermediate results during a session. The time-lock releases simultaneously for all parties at session close.
 
-**L4 — Archive.** Celestia DA stores the immutable public audit log. Any independent observer can verify the integrity of any session without trusting BeTrueCore infrastructure.
+**L4 — Archive.** Celestia DA provides a tamper-evident public audit log, with data integrity guaranteed within the Celestia consensus model. Any independent observer can verify the integrity of any session without trusting BeTrueCore infrastructure.
 
-**L5 — AI Agents.** Nine agents of three types — Analyst, Strategist, Sentinel — three agents of each type (3×3) — operate in strict read-only mode. This is not a policy — it is an architectural property encoded in smart contracts. A compromised agent gains observation rights, not action rights. The notary cannot be compelled to commit forgery.
+**L5 — AI Agents.** Nine agents of three types — Analyst, Strategist, Sentinel — three agents of each type (3×3) — operate in strict read-only mode. This is not a policy — it is an architectural property: agent access to on-chain state is enforced at the contract level, and no write path to session data, VWU balances, or consensus outcomes is exposed to the agent layer. A compromised agent gains observation rights, not action rights. The notary cannot be compelled to commit forgery.
 
 ---
 
@@ -176,7 +174,7 @@ This is not advertising. It is clean collective signal as a service.
 
 *AI as notary, not judge*
 
-The observer principle is not a declaration of intent. It is an architectural property encoded in smart contracts.
+The observer principle is not a declaration of intent. It is an architectural property: agent access to on-chain state is enforced at the contract level, and no write path to session data, VWU balances, or consensus outcomes is exposed to the agent layer.
 
 | Agent | Reads | Decides | Function |
 |---|---|---|---|
@@ -222,7 +220,7 @@ Architecture, mathematical model, and technical specification are complete and t
 
 Developer Package v0.1 includes five smart contracts, the IBeTrueCore interface, and a Foundry test suite.
 
-OCP integration points (ERC-8281) are defined at L1 — VoteProof observation envelope — and at L3 — two-point commitment structure around the Lit time-lock. OCP provides commitment integrity on the transition without access to private VWU inputs.
+Damon Zwicker (ERC-8281 – Observation Commitment Protocol) reviewed the proposed integration of ERC-8281 into BeTrueCore and helped clarify the architectural boundary between BeTrueCore's private transition logic and ERC-8281's independently verifiable commitment layer. The discussion focused on the VoteProof observation envelope at L1 and the two-point commitment structure surrounding the Lit Protocol time-lock at L3. ERC-8281 provides an independently verifiable commitment layer for those observations and transitions without requiring access to BeTrueCore's private VWU inputs, internal protocol semantics, or governance logic.
 
 Pavlo Tvardovskyi — author of ReceiptOS, a portable recomputable evidence substrate (DOI [10.5281/zenodo.21402444](https://doi.org/10.5281/zenodo.21402444)) — defined the evidential layer boundary through joint work on BeTrueCore Evidential Layer × ReceiptOS Mapping v0. ReceiptOS supplies recomputable proof references and nothing else — it does not produce, consume, or endorse VWU scoring.
 
