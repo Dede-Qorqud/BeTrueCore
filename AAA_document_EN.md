@@ -43,14 +43,25 @@ Thermodynamics, quantum mechanics, cybernetics, blockchain — each introduced c
 did not previously exist and that initially met skepticism precisely because they had no
 established precedent.
 
-TDSH (Thoughtful Decision Seeds Hygiene), VWU (Vote Weight Unit), the White Feather Effect,
-Sovereign Information Atomization, Panopticon-Stent — these are original concepts with
-specific architectural functions. The absence of prior entries in academic databases does
-not mean a concept is invented. It means the concept is new.
+TDSH (Thoughtful Decision Seeds Hygiene), VWU (Vote Weight Unit), Panopticon-Stent —
+these are original concepts with specific architectural functions. The absence of prior
+entries in academic databases does not mean a concept is invented. It means the concept
+is new.
+
+The White Feather Effect is a stochastic exit mechanism modelled through the Wiener
+differential equation — activated when the collective signal fails to reach the consensus
+threshold (Preprint 3, DOI: 10.5281/zenodo.20424602).
+Sovereign Information Atomization is the architectural principle of cryptographic isolation
+during the judgment session: each participant's choice is protected from external noise
+before the simultaneous reveal (POST_01, Paragraph).
 
 This document has one purpose: to show that the analogies on which BeTrueCore's architecture
 is built employ the same methodological instrument used by scientists when creating
 statistical mechanics, molecular genetics, and the theory of dissipative structures.
+
+*This document applies analogy methodology to GitHub documentation going forward.
+Published preprints on Zenodo (1–10) reflect the terminology of their time and are not
+revised here.*
 
 ---
 
@@ -71,7 +82,10 @@ to target domain. M. Hesse (1966): an analogy is rigorous when positive features
 governs both domains. Here the analogy becomes proof, since both phenomena obey one law.
 
 **Archetypal analogy** — transfers structures of meaning (narrative, cultural, aesthetic),
-not structures of mathematical relations. Its rigor requires separate consideration — see §2.2.
+not structures of mathematical relations. This fourth class is not present in Hesse's (1966)
+taxonomy. It is introduced here as an original extension of her framework, required to account
+for cultural and narrative sources of architectural principles in BeTrueCore.
+Its rigor requires separate consideration — see §2.2.
 
 ### 2.2 The Archetypal Analogy and Three Criteria of Rigor
 
@@ -97,6 +111,10 @@ principle. Both levels are necessary: a system without a mechanism is a utopia;
 a system without a purpose is an instrument without direction.
 
 ### 2.3 Three Criteria of Rigor for All Classes
+
+The three criteria below are derived from Hesse's (1966) framework of positive, neutral,
+and negative analogy, and reformulated for application to architectural analogies.
+The names differ; the logical content is preserved.
 
 **Relational:** is the structure of relations between elements preserved, not surface resemblance?
 
@@ -134,10 +152,9 @@ Target: molecular genetics.
 What is transferred: the structure of coding — a finite alphabet, combinatorics of triplets,
 a mechanism for translating one code into another.
 Productivity: enabled the formulation of the triplet code hypothesis before its experimental
-decipherment; created the language of bioinformatics (transcription, translation, code
-«reading»).
+decipherment; created the language of bioinformatics (transcription, translation, code reading).
 Limits: language is created with intention; DNA is the result of blind evolution. The
-semantic analogy does not hold — only the syntactic one (form, not content).
+semantic analogy does not hold — only the syntactic one.
 Class: structural analogy.
 
 **Prigogine — thermodynamics and self-organization (Nobel Prize, 1977)**
@@ -171,16 +188,14 @@ Class: model analogy.
 *Source analogy: the teacher / student relationship.*
 
 In genuine learning, the teacher does not deposit knowledge — the teacher creates conditions
-for the student to discover it themselves. The student finds what they already knew but had
-not yet articulated. This happens only in the absence of the pressure of external evaluation.
+for the student to discover it themselves. This happens only in the absence of the pressure
+of external evaluation.
 
 This structure is transferred to BeTrueCore and gives rise to the principle
 *«Secret citizen, transparent decision»*, which solves two problems simultaneously.
 
 **First: self-knowledge.** Each participant sees only their own trajectory — movement
 relative to themselves over time. Without comparison to others. Without an observer.
-The conditions are the same as those for a student discovering their own knowledge
-without the pressure of being assessed.
 
 **Second: a clean collective signal.** When each person makes a genuine personal choice
 in cryptographic silence — their sum produces an uncontaminated collective signal.
@@ -206,6 +221,11 @@ Pillsbury in the 1960s.*
 HACCP rests on a simple logic: rather than reacting to contamination in the finished
 product, identify in advance the Critical Control Points — stages of the process where
 contamination can enter — establish acceptable limits, and monitor continuously.
+
+The TDSH parameters were not derived from literature — the principle was transferred
+from professional practice of HACCP, applied also in ISO-certified food production:
+each process has its own set of critical control points with defined thresholds.
+In BeTrueCore, the parameters were defined specifically for collective judgment.
 
 What is transferred: the structure of the methodology. Collective judgment is also a
 process with stages (formation → expression → aggregation of results). At each stage,
@@ -255,6 +275,12 @@ Limits: Odysseus knew about the danger and consciously accepted the constraint. 
 BeTrueCore participant need not understand cryptography — the protocol creates the
 condition of isolation.
 Class: archetypal analogy.
+
+*Philosophical parallel: J. Krishnamurti — «The observer is the observed»
+(Freedom from the Known, 1969). When the external observer is architecturally absent,
+the observed signal is clean. This is the direct philosophical statement of the same
+principle — and where the mathematical claim of Gödel's model analogy finds
+its clearest intuitive ground.*
 
 ---
 
@@ -306,3 +332,23 @@ Class: archetypal analogy.
 | Wabi-sabi / Kintsugi | Archetypal | L4 Kintsugi Archiving | «Kintsugi — errors as golden seams» |
 | Panopticon-Stent | Structural inversion | L5 + whole system | «Secret citizen, transparent decision» |
 | Immune system → L5 agents | Structural | L5 AI Agents | «AI as notary, not judge» |
+
+---
+
+## References
+
+Hesse, M. B. (1966). *Models and Analogies in Science*. University of Notre Dame Press.
+
+Schön, D. A. (1979). Generative metaphor: A perspective on problem-setting in social policy.
+In A. Ortony (Ed.), *Metaphor and Thought*. Cambridge University Press.
+
+Krishnamurti, J. (1969). *Freedom from the Known*. Harper & Row.
+
+ASHRAE (2017). *Standard 15 — Safety Standard for Refrigeration Systems*.
+American Society of Heating, Refrigerating and Air-Conditioning Engineers.
+
+Bauman, T. P., & Stevenson, K. (1971). *HACCP: A Systematic Approach to Food Safety*.
+NASA/Pillsbury Programme Report.
+
+Guliyev, F. (2026). BeTrueCore Preprint Series (1–10). Zenodo.
+DOI series root: 10.5281/zenodo.20296816
