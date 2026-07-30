@@ -20,6 +20,12 @@ The platform combines:
 - Cheap audit infrastructure (Celestia DA)
 - AI as observer only — never as decision-maker
 
+---
+
+## Protocol Architecture
+
+[![BeTrueCore Six-Layer Protocol Architecture](docs/Six%20Layer%20Protokol%20Architecture.png)](docs/Six%20Layer%20Protokol%20Architecture.png)
+
 ## The Verifiable Digital Islands Concept
 
 The concept of Verifiable Islands is embedded in BeTrueCore's architecture from the origin of the master document. The Ethereum Research discussion around agent trust networks (ERC-8004) confirmed its relevance: any on-chain reputation is merely a flat projection of real trust activity — not trust itself. Attempting to make all off-chain interaction fully visible on-chain produces enormous informational noise and vulnerability to manipulation by AGI agents.
