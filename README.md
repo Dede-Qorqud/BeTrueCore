@@ -11,7 +11,9 @@
 BeTrueCore is an application with its own cryptographic protocol for anonymous collective decision-making.
 
 The existing principle: transparent citizen — secret decision.
+
 BeTrueCore: secret citizen — transparent decision.
+
 Collective decision verifiable. Simultaneously. Through daily dilemmas — yes or no.
 
 The platform combines:
