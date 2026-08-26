@@ -8,10 +8,11 @@
 
 ## What is BeTrueCore?
 
-BeTrueCore is a decentralised platform of sovereign collective
-will-expression. A system where human collective intuition —
-weighted through ethics, not token ownership — produces
-mathematically verifiable decisions.
+BeTrueCore is an application with its own cryptographic protocol for anonymous collective decision-making.
+
+The existing principle: transparent citizen — secret decision.
+BeTrueCore: secret citizen — transparent decision.
+Collective decision verifiable. Simultaneously. Through daily dilemmas — yes or no.
 
 The platform combines:
 - Zero-Knowledge cryptography (ZK-SNARKs + MACI)
