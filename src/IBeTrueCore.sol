@@ -47,7 +47,7 @@ interface IBeTrueCore {
     /// @notice Participant record
     /// @dev bytes32 used for identity (not address) to preserve privacy
     struct Participant {
-        bytes32 identity_commitment;  // ZK-commitment to verified identity (L0 + L1)
+        bytes32 identity_commitment;  // ZK-commitment to verified state identity (FIN-code)
         uint256 vwu;                  // Vote Weight Unit (scaled ×100)
         Status  status;               // Current status level
         uint256 session_count;        // Total sessions participated
@@ -59,11 +59,11 @@ interface IBeTrueCore {
         bytes32 dilemma_hash;         // IPFS hash of the dilemma content
         uint256 start_time;           // Session open timestamp
         uint256 end_time;             // Time lock — after this, choices are final
-        bool    finalized;            // Whether MACI has published the result
+        bool    finalized;            // Whether anti-collusion coordinator has published the result
         Verdict verdict;              // Harmony Agent verdict for this session
     }
 
-    /// @notice Session result after MACI finalization
+    /// @notice Session result after coordinator finalization
     struct SessionResult {
         uint256 session_id;
         uint256 total_weight_a;       // Σ VWU of participants choosing OPTION_A
@@ -83,7 +83,7 @@ interface IBeTrueCore {
     );
 
     /// @notice Emitted when a participant submits or changes their choice
-    /// @dev MACI key-rotation: intermediate choices are invalidated
+    /// @dev Key-rotation: intermediate choices are invalidated
     event ChoiceSubmitted(
         bytes32 indexed identity_commitment,
         uint256 indexed session_id,
@@ -91,7 +91,7 @@ interface IBeTrueCore {
         // Choice is NOT emitted — receipt-freeness preserved
     );
 
-    /// @notice Emitted when a session is finalized by MACI coordinator
+    /// @notice Emitted when a session is finalized by the coordinator
     event SessionFinalized(
         uint256 indexed session_id,
         SessionResult result
@@ -115,8 +115,8 @@ interface IBeTrueCore {
     // PARTICIPANT FUNCTIONS
     // ─────────────────────────────────────────────────────────────
 
-    /// @notice Register a new participant (requires L0 biometric + L1 ZK proof)
-    /// @param identity_commitment ZK commitment to verified biometric identity
+    /// @notice Register a new participant (requires L0 FIN-code ZK-commitment + L1 ZK proof)
+    /// @param identity_commitment ZK commitment to verified state identity (FIN-code)
     /// @param zk_proof ZK-SNARK proof of valid registration
     function register(
         bytes32 identity_commitment,
@@ -124,9 +124,9 @@ interface IBeTrueCore {
     ) external;
 
     /// @notice Submit or update choice for a session (until time lock)
-    /// @dev MACI key-rotation — only final choice counts
+    /// @dev Key-rotation — only final choice counts
     /// @param session_id Active session ID
-    /// @param encrypted_choice MACI-encrypted choice (receipt-free)
+    /// @param encrypted_choice Encrypted choice (receipt-free)
     /// @param zk_nullifier ZK nullifier preventing double-voting
     function submitChoice(
         uint256 session_id,
@@ -146,7 +146,7 @@ interface IBeTrueCore {
         uint256 duration_seconds
     ) external returns (uint256 session_id);
 
-    /// @notice Finalize a session after time lock (MACI coordinator only)
+    /// @notice Finalize a session after time lock (coordinator only)
     /// @param session_id Session to finalize
     /// @param result Aggregated result with ZK correctness proof
     function finalizeSession(
