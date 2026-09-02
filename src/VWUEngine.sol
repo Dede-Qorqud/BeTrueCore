@@ -39,13 +39,13 @@ contract VWUEngine {
     mapping(address => uint256) public sessionCount;
 
     address public owner;
-    address public maciCoordinator; // Only MACI coordinator can submit session results
+    address public coordinator; // Only anti-collusion coordinator can submit session results
 
     // ─────────────────────────────────────────────────────────────
     // STRUCTS
     // ─────────────────────────────────────────────────────────────
 
-    /// @notice Session result submitted by MACI coordinator after time lock
+    /// @notice Session result submitted by coordinator after time lock
     struct SessionResult {
         address participant;
         uint8   activity_score;   // A coefficient scaled to 0–100
@@ -75,13 +75,13 @@ contract VWUEngine {
     // CONSTRUCTOR
     // ─────────────────────────────────────────────────────────────
 
-    constructor(address _maciCoordinator) {
-        owner           = msg.sender;
-        maciCoordinator = _maciCoordinator;
+    constructor(address _coordinator) {
+        owner       = msg.sender;
+        coordinator = _coordinator;
     }
 
     modifier onlyCoordinator() {
-        require(msg.sender == maciCoordinator, "Only MACI coordinator");
+        require(msg.sender == coordinator, "Only anti-collusion coordinator");
         _;
     }
 
@@ -94,8 +94,8 @@ contract VWUEngine {
     // CORE FUNCTION
     // ─────────────────────────────────────────────────────────────
 
-    /// @notice Update VWU after a session (called by MACI coordinator)
-    /// @param result Session result from MACI after time lock
+    /// @notice Update VWU after a session (called by anti-collusion coordinator)
+    /// @param result Session result from coordinator after time lock
     function updateVWU(SessionResult memory result) external onlyCoordinator {
         address p = result.participant;
 
@@ -176,6 +176,6 @@ contract VWUEngine {
     // ─────────────────────────────────────────────────────────────
 
     function setCoordinator(address _coordinator) external onlyOwner {
-        maciCoordinator = _coordinator;
+        coordinator = _coordinator;
     }
 }
