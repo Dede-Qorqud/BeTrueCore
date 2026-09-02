@@ -16,13 +16,13 @@ The Mapping Model defines the evidential layer boundary between BeTrueCore's int
 ## Layer Architecture
 
 ```
-L0  Biometric Input         FaceID + keystroke dynamics + session timing
+L0  Identity Input          FIN-code ZK-commitment + behavioral entropy + session timing
      ↓
-L1  Cryptographic Proof     ZK-SNARKs + MACI v1.2 + ZK nullifier + Lit Protocol MPC
+L1  Cryptographic Proof     ZK-SNARKs + anti-collusion protocol (Circom/Groth16) + ZK nullifier + Lit Protocol MPC
      ↓
 L2  Execution               Optimism L2 — VWU calculation + smart contract execution
      ↓
-L3  Aggregation             Arbitrum L3 — session history + cross-session patterns
+L3  Lock                    Lit Protocol — time-lock, information symmetry until reveal
      ↓
 L4  Data Availability       Celestia DA — public audit log (immutable, independent)
      ↓
@@ -38,12 +38,12 @@ L5  AI Agent Layer          Analyst × 3 + Strategist × 3 + Sentinel × 3
 
 | Data | Direction | Format | Guarantee |
 |------|-----------|--------|-----------|
-| Biometric commitment | L0 → L1 | bytes32 hash | FaceID verified |
-| Keystroke entropy | L0 → L1 | uint256 | Behavioral pattern |
+| FIN-code ZK-commitment | L0 → L1 | bytes32 hash | State ID verified |
+| Behavioral entropy | L0 → L1 | uint256 | VWU behavioral record (see Preprint 11) |
 | Session timing | L0 → L1 | uint256 timestamp | Liveness proof |
 
-**What does NOT cross:** Raw biometric data, face images, keystroke sequences.  
-**Guarantee:** No raw biometric data ever leaves L0.
+**What does NOT cross:** Raw FIN-code, state identifier plaintext, behavioral sequences.  
+**Guarantee:** No raw FIN-code or state identifier ever leaves L0.
 
 ### L1 → L2 Boundary
 
@@ -51,8 +51,8 @@ L5  AI Agent Layer          Analyst × 3 + Strategist × 3 + Sentinel × 3
 |------|-----------|--------|-----------|
 | ZK identity proof | L1 → L2 | bytes (SNARK) | Valid registration |
 | ZK nullifier | L1 → L2 | bytes32 | No double-vote |
-| Encrypted choice | L1 → L2 | bytes (MACI) | Receipt-free |
-| ZK correctness proof | L1 → L2 | bytes (SNARK) | MACI result valid |
+| Encrypted choice | L1 → L2 | bytes (anti-collusion protocol) | Receipt-free |
+| ZK correctness proof | L1 → L2 | bytes (SNARK) | Coordinator result valid |
 
 **What does NOT cross:** Plaintext choice, participant address, intermediate choices.  
 **Guarantee:** Receipt-freeness — no verifiable proof of choice for third parties.
@@ -62,7 +62,7 @@ L5  AI Agent Layer          Analyst × 3 + Strategist × 3 + Sentinel × 3
 | Data | Direction | Format | Guarantee |
 |------|-----------|--------|-----------|
 | VWU delta | L2 → L4 | uint256 (scaled ×100) | Post-session update |
-| Session result | L2 → L4 | SessionResult struct | MACI-verified |
+| Session result | L2 → L4 | SessionResult struct | Coordinator-verified |
 | Ethical verdict | L2 → L4 | Verdict enum | Harmony Agent output |
 | CellTriggered events | L2 → L4 | Event log | Immutable audit |
 
@@ -73,7 +73,7 @@ L5  AI Agent Layer          Analyst × 3 + Strategist × 3 + Sentinel × 3
 
 | Agent | Reads from | Writes to | Function |
 |-------|-----------|-----------|----------|
-| Analyst × 3 | L0 biometrics, L1 proofs | NOTHING | Signal verification |
+| Analyst × 3 | L0 ZK-commitments, L1 proofs | NOTHING | Signal verification |
 | Strategist × 3 | L2 results, L4 audit | NOTHING | Pattern analysis |
 | Sentinel × 3 | L0–L4 all layers | NOTHING | Security monitoring |
 
@@ -82,14 +82,14 @@ L5  AI Agent Layer          Analyst × 3 + Strategist × 3 + Sentinel × 3
 
 ---
 
-## MACI Integration Points
+## Anti-Collusion Protocol Integration Points
 
 ### Key Rotation Protocol
 
 ```
 Session open
     ↓
-Participant submits encrypted choice (MACI key)
+Participant submits encrypted choice
     ↓
 Participant may rotate key + submit new choice (any number of times)
     ↓
@@ -97,7 +97,7 @@ TIME LOCK — session closes
     ↓
 Only FINAL choice counts (previous keys invalidated)
     ↓
-MACI coordinator publishes result + ZK correctness proof
+Coordinator publishes result + ZK correctness proof
     ↓
 Coordinator cannot falsify — fraudulent proof rejected by verifiers
 ```
@@ -107,7 +107,7 @@ Coordinator cannot falsify — fraudulent proof rejected by verifiers
 A participant cannot demonstrate their final choice to any external party because:
 1. All intermediate choices are equally plausible
 2. Final choice is cryptographically hidden until after time lock
-3. MACI key-rotation invalidates all intermediate proofs
+3. Key-rotation invalidates all intermediate proofs
 
 ---
 
@@ -160,5 +160,5 @@ Events logged: `CellTriggered`, `VWUUpdated`, `SessionFinalized`, `EthicalVerdic
 | Time lock | Session close — after which no choice changes are accepted |
 | ZK nullifier | Cryptographic token preventing double-voting |
 | VWU | Vote Weight Unit — non-transferable, non-marketable participation weight |
-| MACI | Minimal Anti-Collusion Infrastructure — protocol for collusion-resistant voting |
+| Anti-collusion protocol | Circom/Groth16 implementation of the MACI pattern for collusion-resistant voting. The MACI repository (appliedzkp/maci) was archived August 19, 2026; BeTrueCore builds on the underlying cryptographic standard. |
 | Ematch | Ethical match score (0–1) for each intersection cell in the 736-point matrix |
