@@ -75,7 +75,7 @@ BeTrueCore resolves this crisis through a conceptual shift: the design goal beco
 
 | Layer | Technology | Function | Role |
 |---|---|---|---|
-| L0 — Identity | MPC + FIN-code + Web3Auth | State ID sovereignty, key fragmentation | SPOF elimination |
+| L0 — Identity | MPC + NIN-code + Web3Auth | State ID sovereignty, key fragmentation | SPOF elimination |
 | L1 — Proofs | zk-SNARKs + anti-collusion protocol (Circom/Groth16) | Anonymity, anti-collusion, ZK-Proof generation | Mathematical shield |
 | L2 — Execution | Optimism (L2) | Fast, low-cost operation execution | Performance layer |
 | L3 — Lock | Lit Protocol | Time-locked voting, information symmetry | Transparency layer |
