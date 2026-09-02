@@ -60,7 +60,7 @@ is built employ the same methodological instrument used by scientists when creat
 statistical mechanics, molecular genetics, and the theory of dissipative structures.
 
 *This document applies analogy methodology to GitHub documentation going forward.
-Published preprints on Zenodo (1–10) reflect the terminology of their time and are not
+Published preprints on Zenodo (1–11) reflect the terminology of their time and are not
 revised here.*
 
 ---
@@ -350,5 +350,5 @@ American Society of Heating, Refrigerating and Air-Conditioning Engineers.
 Bauman, T. P., & Stevenson, K. (1971). *HACCP: A Systematic Approach to Food Safety*.
 NASA/Pillsbury Programme Report.
 
-Guliyev, F. (2026). BeTrueCore Preprint Series (1–10). Zenodo.
+Guliyev, F. (2026). BeTrueCore Preprint Series (1–11). Zenodo.
 DOI series root: 10.5281/zenodo.20296816
