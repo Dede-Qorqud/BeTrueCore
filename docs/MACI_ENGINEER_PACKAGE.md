@@ -1,16 +1,18 @@
-# BeTrueCore MACI Engineer Package
-## Minimal Anti-Collusion Infrastructure — Integration Guide
+# BeTrueCore Anti-Collusion Engineer Package
+## Circom/Groth16 Anti-Collusion Protocol — Integration Guide
 
 **Version:** 0.1  
 
 **Repository:** github.com/Dede-Qorqud/BeTrueCore  
-**MACI Reference:** appliedzkp/maci v1.2
+**Cryptographic standard:** Circom/Groth16 (MACI anti-collusion pattern)
+
+> *Note: The MACI repository (appliedzkp/maci) was archived August 19, 2026. BeTrueCore builds on the Circom/Groth16 cryptographic standard implementing the MACI anti-collusion pattern.*
 
 ---
 
 ## Overview
 
-This package describes how BeTrueCore integrates MACI v1.2 as the cryptographic foundation for collusion-resistant collective decision-making. MACI provides receipt-freeness, key-rotation, and ZK correctness proofs.
+This package describes how BeTrueCore implements the MACI anti-collusion pattern on the Circom/Groth16 cryptographic standard as the foundation for collusion-resistant collective decision-making. The protocol provides receipt-freeness, key-rotation, and ZK correctness proofs.
 
 **Core property:** A participant can change their binary choice multiple times until the time lock. Only the final choice counts. No intermediate choice can serve as proof of a transaction — because all are equally plausible.
 
@@ -20,7 +22,7 @@ This package describes how BeTrueCore integrates MACI v1.2 as the cryptographic 
 
 ```
 BeTrueCore L1 Layer
-├── MACI v1.2
+├── Anti-Collusion Protocol (Circom/Groth16)
 │   ├── MessageProcessor.sol    — processes encrypted messages (key rotations + votes)
 │   ├── Poll.sol                — manages active session (dilemma + time window)
 │   ├── Tally.sol               — aggregates final results with ZK proof
@@ -39,7 +41,7 @@ BeTrueCore L1 Layer
 // BeTrueCoreCore.sol calls:
 uint256 session_id = openSession(dilemma_hash, duration_seconds);
 
-// MACI Poll is deployed simultaneously:
+// Poll.sol is deployed simultaneously:
 // Poll.sol tracks: startTime, endTime, maxValues, treeDepths
 ```
 
@@ -48,7 +50,7 @@ uint256 session_id = openSession(dilemma_hash, duration_seconds);
 ```
 Participant → submitChoice(session_id, encrypted_choice, zk_nullifier)
                 ↓
-         MACI MessageProcessor
+         MessageProcessor
                 ↓
          Encrypted message stored in message tree
          (choice hidden until coordinator processes)
@@ -66,11 +68,11 @@ TIME LOCK (T=60):  Only Choice 3 (OPTION_A via key_3) is valid
 ### Phase 3: Finalization (after time lock)
 
 ```
-MACI Coordinator (Lit Protocol MPC quorum)
+Anti-Collusion Coordinator (Lit Protocol MPC quorum)
         ↓
 1. Process all messages (decrypt with coordinator key)
 2. Tally final choices weighted by VWU
-3. Generate ZK correctness proof (Groth16 / PLONK)
+3. Generate ZK correctness proof (Groth16)
 4. Publish result + proof on-chain
         ↓
 BeTrueCoreCore.finalizeSession(session_id, result)
@@ -84,9 +86,9 @@ All events logged to Celestia DA
 
 ## Black Box: VWU Calculation
 
-The VWU formula is intentionally opaque at the MACI boundary.
+The VWU formula is intentionally opaque at the protocol boundary.
 
-**MACI provides to VWUEngine:**
+**Coordinator provides to VWUEngine:**
 ```solidity
 struct SessionResult {
     address participant;        // derived from ZK identity commitment
@@ -98,7 +100,7 @@ struct SessionResult {
 
 **VWUEngine returns:** `vwu_delta` (uint256)
 
-**What MACI does NOT see:** VWU formula internals, non-linear growth factor, continuity adjustment mechanics.
+**What the coordinator does NOT see:** VWU formula internals, non-linear growth factor, continuity adjustment mechanics.
 
 ---
 
@@ -107,8 +109,8 @@ struct SessionResult {
 ### Identity Circuit (Circom)
 ```
 Inputs (private):
-  - biometric_commitment (from L0 FaceID)
-  - keystroke_entropy (behavioral fingerprint)
+  - fin_commitment (from L0 FIN-code ZK-transformation)
+  - behavioral_entropy (VWU behavioral record — see Preprint 11)
 
 Inputs (public):
   - identity_commitment (bytes32)
@@ -116,13 +118,13 @@ Inputs (public):
 Output:
   - valid_registration (bool)
 
-Constraint: biometric_commitment + entropy → identity_commitment
+Constraint: fin_commitment + entropy → identity_commitment
 ```
 
 ### Vote Proof Circuit (Circom)
 ```
 Inputs (private):
-  - maci_key (participant's current MACI key)
+  - participant_key (participant's current key)
   - choice (OPTION_A or OPTION_B)
   - nullifier_secret
 
@@ -131,12 +133,12 @@ Inputs (public):
   - session_id (uint256)
 
 Output:
-  - encrypted_message (for MACI MessageProcessor)
+  - encrypted_message (for MessageProcessor)
 
 Constraint: nullifier has not been used, key is valid for session
 ```
 
-### Tally Proof Circuit (MACI built-in)
+### Tally Proof Circuit (Groth16)
 ```
 Proves: the published tally correctly aggregates all final choices
         without revealing any individual choice
@@ -147,7 +149,7 @@ Used by: Verifier.sol (on-chain verification)
 
 ## Coordinator Security Model
 
-The MACI coordinator is protected by Lit Protocol threshold MPC:
+The coordinator is protected by Lit Protocol threshold MPC:
 
 ```
 Coordinator key = distributed across N Lit Protocol nodes
@@ -169,7 +171,7 @@ Three independent layers (must all be bypassed simultaneously):
 
 | Layer | Mechanism | What attacker needs |
 |-------|-----------|---------------------|
-| L0 | FaceID + behavioral biometrics | Physical device with unique face |
+| L0 | FIN-code ZK-commitment + MPC key split | State-registered identity on verified device |
 | L1 | ZK nullifier chain | Unique cryptographic identity per device |
 | L5 | Sentinel agent pattern detection | Behavioral diversity across hundreds of sessions |
 
@@ -193,7 +195,7 @@ There is no accepted currency for the transaction.
 
 ## Engineer Notes
 
-### MACI v1.2 Key Parameters
+### Anti-Collusion Protocol Parameters
 
 ```typescript
 // Recommended session configuration
@@ -207,22 +209,22 @@ const voteOptionTreeDepth = 2;
 
 ### Deployment Checklist
 
-- [ ] Deploy MACI contracts (PollFactory, MessageProcessorFactory, TallyFactory)
+- [ ] Deploy anti-collusion contracts (PollFactory, MessageProcessorFactory, TallyFactory)
 - [ ] Configure Lit Protocol MPC for coordinator key
-- [ ] Deploy ZK verifier contracts (Groth16 or PLONK)
-- [ ] Deploy BeTrueCoreCore with MACI coordinator address
+- [ ] Deploy ZK verifier contracts (Groth16)
+- [ ] Deploy BeTrueCoreCore with coordinator address
 - [ ] Deploy EthicalMatrix and populate 736 cells
 - [ ] Deploy HarmonyAgent connected to EthicalMatrix
-- [ ] Deploy VWUEngine connected to MACI coordinator
+- [ ] Deploy VWUEngine connected to coordinator
 - [ ] Configure Celestia DA indexer for event logging
 - [ ] Run Foundry tests (see BeTrueCore.t.sol)
 
 ### Known Constraints
 
-1. **Coordinator availability:** MACI coordinator must be online to process session. Lit Protocol MPC mitigates single point of failure but does not eliminate availability risk.
+1. **Coordinator availability:** The coordinator must be online to process sessions. Lit Protocol MPC mitigates single point of failure but does not eliminate availability risk.
 
 2. **ZK proof generation time:** Tally proof generation takes 2–10 minutes depending on session size. Plan coordinator infrastructure accordingly.
 
-3. **Gas costs:** Each MACI message costs ~50k gas on L2. For 100 participants × 3 choice changes = 15M gas per session. Optimism L2 makes this feasible.
+3. **Gas costs:** Each message costs ~50k gas on L2. For 100 participants × 3 choice changes = 15M gas per session. Optimism L2 makes this feasible.
 
 4. **Nullifier storage:** ZK nullifiers accumulate over time. Plan for nullifier registry pruning strategy after MVP phase.
