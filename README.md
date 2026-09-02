@@ -81,7 +81,12 @@ BeTrueCore resolves this crisis through a conceptual shift: the design goal beco
 | L3 — Lock | Lit Protocol | Time-locked voting, information symmetry | Transparency layer |
 | L4 — Archive | Celestia (DA) | Storage of millions of proofs at low cost | Audit infrastructure |
 | L5 — AI Agents | Strategist / Analyst / Sentinel | Anomaly detection, Sybil identification | Observation — not decision |
+## MVP Documentation
 
+- [What Questions the MVP Solves and Proves](docs/WHAT%20QUESTIONS%20THE%20MVP%20SOLVES.pdf)
+- [MVP Pilot Programme](docs/BeTrueCore_MVP%20PILOT.pdf)
+- [Product Interface](docs/PRODUCT%20INTERFACE.pdf)
+  
 Three non-negotiable components for system launch:
 1. **Anti-collusion smart contract (Circom/Groth16)** — voting core
 2. **ZK identity proof** — circom circuit (NIN-code → ZK-Proof)
