@@ -29,7 +29,7 @@ contract HarmonyAgent {
 
     /// @notice Emitted after each verdict computation
     event VerdictComputed(
-        address indexed participant,
+        bytes32 indexed identity_commitment,
         uint256 aggregate_score,
         EthicalMatrix.Verdict verdict,
         uint256 cells_activated,
@@ -50,7 +50,7 @@ contract HarmonyAgent {
     // ─────────────────────────────────────────────────────────────
 
     /// @notice Compute the final weighted Ematch verdict for a participant
-    /// @param participant Address of the participant
+    /// @param identity_commitment ZK identity commitment of the participant
     /// @param asilomar_ids Array of activated Asilomar Principle IDs
     /// @param tdsh_ids Array of activated TDSH Parameter IDs
     /// @param ematch_scores Local Ematch score for each activated cell (0–100)
@@ -58,7 +58,7 @@ contract HarmonyAgent {
     /// @return verdict RED / YELLOW / GREEN
     /// @return aggregate_score Weighted aggregate Ematch (0–100)
     function computeFinalVerdict(
-        address   participant,
+        bytes32   identity_commitment,
         uint8[]   memory asilomar_ids,
         uint8[]   memory tdsh_ids,
         uint8[]   memory ematch_scores,
@@ -89,7 +89,7 @@ contract HarmonyAgent {
 
             // Emit individual cell trigger to Celestia DA audit trail
             matrix.triggerCell(
-                participant,
+                identity_commitment,
                 asilomar_ids[i],
                 tdsh_ids[i],
                 ematch_scores[i]
@@ -98,14 +98,14 @@ contract HarmonyAgent {
 
         // If no cells activated — default GREEN (no violations detected)
         if (weight_total == 0) {
-            emit VerdictComputed(participant, 100, EthicalMatrix.Verdict.GREEN, 0, is_majority);
+            emit VerdictComputed(identity_commitment, 100, EthicalMatrix.Verdict.GREEN, 0, is_majority);
             return (EthicalMatrix.Verdict.GREEN, 100);
         }
 
         aggregate_score = weighted_sum / weight_total;
         verdict = matrix.computeVerdict(uint8(aggregate_score));
 
-        emit VerdictComputed(participant, aggregate_score, verdict, cells_active, is_majority);
+        emit VerdictComputed(identity_commitment, aggregate_score, verdict, cells_active, is_majority);
     }
 
     // ─────────────────────────────────────────────────────────────
