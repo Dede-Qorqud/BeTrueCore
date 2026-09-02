@@ -24,9 +24,9 @@ The choice of these two epics is not accidental. The Odyssey belongs to the Gree
 
 *Dede Qorqud: the young man's deed as the foundation of naming.*
 
-Physical presence is the only signature that cannot be delegated. Biometrics never leave the device. Existence itself is the signature.
+State-registered identity is the only signature that cannot be delegated. The FIN-code never leaves the device — only its ZK-transformed commitment does. Existence itself is the signature.
 
-**Technology:** MPC + FaceID + Web3Auth — biometric sovereignty, key fragmentation, elimination of single points of failure.
+**Technology:** MPC + FIN-code (ZK-transformed) + Web3Auth — state ID sovereignty, key fragmentation, elimination of single points of failure.
 
 ---
 
@@ -36,7 +36,7 @@ Physical presence is the only signature that cannot be delegated. Biometrics nev
 
 Odysseus filled his crew's ears with wax and ordered himself tied to the mast — not because he feared, but because he knew: external pressure governs the mind. A ZK-proof does the same thing mathematically.
 
-**Technology:** zk-SNARKs + MACI — anonymity, anti-collusion, ZK-proof generation. The mathematical shield.
+**Technology:** zk-SNARKs + anti-collusion protocol (Circom/Groth16) — anonymity, anti-collusion, ZK-proof generation. The mathematical shield.
 
 ---
 
@@ -79,6 +79,22 @@ Celestia DA is the digital Gopuz of BeTrueCore. It does not allow the past to be
 Ithaca is not a reward — it is the point of return to oneself. L5 makes no decisions. Nine agents (3×3: Analyst, Strategist, Sentinel) observe, record, and measure. The ethical priority map 23×32 = 736 rules — the DNA of the agents.
 
 **Technology:** Python + FastAPI, strict read-only mode.
+
+**Architectural constraint:** A01 (Research Goal) is a frozen constant of the protocol — not a variable accessible to L5 agents at runtime.
+
+---
+
+## Operator Decentralisation
+
+The protocol follows a progressive decentralisation of operator control across three phases:
+
+**Phase 1 — Human + Mathematics:** The operator initiates sessions, manages deployment, and coordinates finalization manually. Mathematics ensures correctness.
+
+**Phase 2 — Mathematics:** Lit Protocol MPC assumes the coordinator role. The human operator exits the operational loop, remaining only at the infrastructure level.
+
+**Phase 3 — Community:** The community drives the full 7-step cycle. VWU determines signal weight. HarmonyAgent observes. The operator-human remains only as an emergency mechanism at the smart contract level — absent from the decision-making process entirely.
+
+This is "AI as notary, not judge" in motion: in Phase 1 the notary is human; in Phase 3 the notary is mathematics and L5 alone.
 
 ---
 
