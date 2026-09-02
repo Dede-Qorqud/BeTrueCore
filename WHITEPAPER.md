@@ -1,4 +1,8 @@
-# BeTrueCore: Cryptographic Infrastructure for Sovereign Collective Decision-Making
+# BeTrueCore Whitepaper
+
+**BeTrueCore Modular System — Web3 Intuitive Symmetry Methodology (Web3-ISM) v1.2**
+
+Cryptographic Infrastructure for Sovereign Collective Decision-Making.
 
 **Author:** Farman Guliyev (Safarnur)  
 **ORCID:** [0009-0004-4841-594X](https://orcid.org/0009-0004-4841-594X)  
@@ -6,19 +10,19 @@
 **Status:** Working Draft — TRL 2→3  
 **License:** CC BY-NC 4.0
 
-> *The mirror reflects. The notary bears witness. The matrix measures.*
-
 ---
 
 ## Abstract
 
-BeTrueCore is a cryptographic infrastructure for sovereign collective decision-making. The protocol addresses a structural problem that precedes any governance framework: the act of expressing a preference is never truly private, and what is observed is not always authentic. BeTrueCore inverts the dominant paradigm — from *transparent citizen, secret choice* to *secret citizen, transparent decision* — through a six-layer architecture integrating ZK-SNARKs, MACI, biometric sovereignty, and a mathematically weighted participation system (Vote Weight Unit). AI agents operate exclusively in read-only mode: they observe, record, and measure. The decision remains with the human.
+*The mirror reflects. The notary bears witness. The matrix measures.*
+
+BeTrueCore is a cryptographic infrastructure for sovereign collective decision-making. The protocol addresses a structural problem that precedes any governance framework: the act of expressing a preference is never truly private, and what is observed is not always authentic. BeTrueCore inverts the dominant paradigm — from *transparent citizen, secret vote* to *secret citizen, transparent decision* — through a six-layer architecture integrating ZK-SNARKs, MACI, state-identifier sovereignty, and a mathematically weighted participation system (Vote Weight Unit). AI agents operate exclusively in read-only mode: they observe, record, and measure. The decision remains with the human.
 
 ---
 
 ## 1. The Problem
 
-*Wabi-sabi — imperfection as creative resource*
+*Wabi-sabi — imperfection as creative resource.*
 
 Three structural failures define the existing landscape of collective decision-making.
 
@@ -32,7 +36,7 @@ Three structural failures define the existing landscape of collective decision-m
 
 ## 2. The Inversion
 
-*Secret citizen — transparent decision*
+*Secret citizen — transparent decision.*
 
 Two epics. Two threads. One inversion.
 
@@ -50,7 +54,7 @@ This is not individual heroism. It is a collective and iterative process. Dede Q
 
 ## 3. The Theory of Clean Signal
 
-*Kintsugi — errors as golden seams of evolution*
+*Kintsugi — errors as golden seams of evolution.*
 
 Collective intuition exists in every group of people. The question is not whether it exists — but whether it can be measured without distortion.
 
@@ -66,42 +70,47 @@ An error in this system is not a failure. It is a golden seam. Kintsugi archives
 
 ## 4. Architecture
 
-*Existence itself is the signature*
+*Existence itself is the signature.*
 
 BeTrueCore is structured across six layers. Each layer is an independent component communicating with others through defined interfaces with cryptographic boundary guarantees.
 
 ```
-L0  Identity         FaceID + MPC + Web3Auth
-     ↓               Biometric sovereignty — raw data never leaves the device
-L1  Proofs           ZK-SNARKs + MACI v1.2
-     ↓               Anonymity, anti-collusion, receipt-freeness
-L2  Execution        Optimism L2
-     ↓               VWU calculation, smart contract execution
-L3  Lock             Lit Protocol
-     ↓               Time-locked voting, information symmetry until reveal
-L4  Archive          Celestia DA
-     ↓               Immutable public audit log
-L5  AI Agents        Analyst × 3 + Strategist × 3 + Sentinel × 3
-                     READ-ONLY — no write access to any data structure
+L0  Identity    State ID (NIN code) + ZK + MPC 2-of-3
+     ↓          State ID sovereignty — original NIN code never leaves the device
+
+L1  Proofs      ZK-SNARKs + MACI v1.2
+     ↓          Anonymity, anti-collusion, receipt-freeness
+
+L2  Execution   Optimism L2
+     ↓          VWU calculation, smart contract execution
+
+L3  Lock        Lit Protocol
+     ↓          Time-locked voting, information symmetry until reveal
+
+L4  Archive     Celestia DA
+     ↓          Immutable public audit log
+
+L5  AI Agents   Analyst × 3 + Strategist × 3 + Sentinel × 3
+                READ-ONLY — no write access to any data structure
 ```
 
-**L0 — Identity.** Biometric commitment is generated on-device. Raw biometric data never crosses the L0 boundary. Private keys are fragmented using Shamir Secret Sharing (threshold 2-of-3) via MPC — the single point of failure is eliminated.
+**L0 — Identity.** ZK commitment is generated on-device from state identifier (NIN — National Identification Number). For example: Birth number (Rodné číslo) — a unique identifier for persons in the Czech Republic. Original NIN never leaves the device. Private keys are fragmented using Shamir Secret Sharing (threshold 2-of-3) via MPC — the key is never reconstructed in a single location — the single point of failure is eliminated.
 
-**L1 — Proofs.** Zero-knowledge proofs separate the act of decision-making from its social observation. MACI v1.2 provides key-rotation: a participant may change their decision any number of times before session close — only the final decision counts. Coercion and vote purchase are rendered significantly harder to enforce: a participant retains the ability to silently override any coerced choice before session close, making purchased outcomes unverifiable by the buyer.
+**L1 — Proofs.** Zero-knowledge proofs separate the act of decision-making from its social observation. MACI v1.2 provides key-rotation: a participant may change their decision any number of times before session close — only the final decision counts. Coercion and purchase of decisions are mathematically meaningless: the seller retains the ability to silently override the choice.
 
-**L2 — Execution.** Smart contracts manage the session lifecycle, VWU calculation, and result finalization. Optimism L2 provides fast, low-cost execution, inheriting Ethereum's security guarantees through the optimistic rollup mechanism and its fraud-proof settlement layer.
+**L2 — Execution.** Smart contracts manage the session lifecycle, VWU calculation, and result finalization. Optimism L2 provides fast, low-cost execution without compromising Ethereum-level security.
 
 **L3 — Lock.** Lit Protocol enforces information symmetry: no participant, administrator, or AI agent can see intermediate results during a session. The time-lock releases simultaneously for all parties at session close.
 
-**L4 — Archive.** Celestia DA provides a tamper-evident public audit log, with data integrity guaranteed within the Celestia consensus model. Any independent observer can verify the integrity of any session without trusting BeTrueCore infrastructure.
+**L4 — Archive.** Celestia DA stores the immutable public audit log. Any independent observer can verify the integrity of any session without trusting BeTrueCore infrastructure.
 
-**L5 — AI Agents.** Nine agents of three types — Analyst, Strategist, Sentinel — three agents of each type (3×3) — operate in strict read-only mode. This is not a policy — it is an architectural property: agent access to on-chain state is enforced at the contract level, and no write path to session data, VWU balances, or consensus outcomes is exposed to the agent layer. A compromised agent gains observation rights, not action rights. The notary cannot be compelled to commit forgery.
+**L5 — AI Agents.** Nine agents of three types — Analyst, Strategist, Sentinel — three agents of each type (3×3) — operate in strict read-only mode. This is not a policy — it is an architectural property encoded in smart contracts. A compromised agent gains observation rights, not action rights. The notary cannot be compelled to commit forgery.
 
 ---
 
 ## 5. Core Mechanisms
 
-*My identity is my fortress*
+*My identity is my fortress.*
 
 Four mechanisms form the operational core of BeTrueCore.
 
@@ -109,7 +118,6 @@ Four mechanisms form the operational core of BeTrueCore.
 
 MACI v1.2 implements the impossibility of proving a decision to a third party. A participant cannot prove their choice to anyone — because all intermediate decisions are cryptographically equiprobable. Only the final decision counts.
 
-Session flow:
 ```
 Session open
      ↓
@@ -136,14 +144,12 @@ Public interface (inputs → output):
 |---|---|
 | `activity_score` | Completeness of session participation (0–100) |
 | `aligned_majority` | Whether final decision aligned with weighted majority |
-
-| Output | Description |
-|---|---|
+| **Output** | **Description** |
 | `vwu_delta` | Increment to participant VWU balance |
 
 The VWU formula is protected in the master document (OpenTimestamps SHA-256). Inputs and output are publicly disclosed — sufficient for integration. Full specification available to verified partners.
 
-Six status levels: SOLO → SELFLY → UNIVERSAL → HONORIS → LUMINARE → VERITAS\_ZK
+Six status levels: SOLO → SELFLY → UNIVERSAL → HONORIS → LUMINARE → VERITAS_ZK.
 
 ### 5.3 Ethical Priority Map — 736 Points
 
@@ -158,31 +164,39 @@ Six status levels: SOLO → SELFLY → UNIVERSAL → HONORIS → LUMINARE → VE
 
 The 32 TDSH parameters are structured as 4 modules × 8 parameters, grounded in four physical principles by structural analogy: symmetry (Module 1), thermodynamics (Module 2), electromagnetism (Module 3), gravitation (Module 4).
 
-### 5.4 Anonymous Sponsor Layer
+### 5.4 Anonymous Research Layer
 
-BeTrueCore's spatial interface architecture — three levels (Local, National, Global) — includes a dedicated sponsor screen, structurally independent from the standard user session flow and governed by the same constitutional principles of the system.
+BeTrueCore's spatial interface architecture — three levels (Local, National, Research) — includes a dedicated Research screen, structurally independent from the standard user session flow and governed by the same constitutional principles of the system.
 
-The sponsor submits a binary dilemma directly — bypassing the competitive TOP-3 mechanism. Participants see the question on a dedicated screen without knowing who commissioned it.
+The Research submits a binary dilemma directly — bypassing the competitive TOP-3 mechanism. Participants see the question on a dedicated screen without knowing who commissioned it.
 
-What the sponsor receives: the Panorama — the same cryptographically sealed result every participant receives. Nothing more. No intermediate results, no participant identities, no influence over the session.
+What the Research receives: the Panorama — the same cryptographically sealed result every participant receives. Nothing more. No intermediate results, no participant identities, no influence over the session.
 
 This is not advertising. It is clean collective signal as a service.
+
+### 5.5 ZK Security Boundary — Quantum Horizon
+
+BeTrueCore's L1 architecture uses zero-knowledge proofs based on Groth16/BN254. This raises two fundamentally distinct security questions that must not be conflated.
+
+**Current protection: opacity as a formal property.** The zero-knowledge property guarantees that no observer — human, AI analyser, or quantum system — can extract information about who voted and what they chose from a published proof. This follows not from computational hardness but from the existence of a simulator capable of generating indistinguishable proofs without knowledge of the witness. Past votes are permanently protected, regardless of future computational capabilities.
+
+**Quantum horizon: a threat to soundness, not to opacity.** Shor's algorithm on a Cryptographically Relevant Quantum Computer (CRQC) could solve the Elliptic Curve Discrete Logarithm Problem (ECDLP) underlying BN254, potentially enabling fabrication of new proofs — a soundness violation affecting future votes only. This threat is credible on a 2030–2035 horizon per NIST and G7 assessments. The migration path is defined: replacement of the L1 proof scheme from Groth16 to zk-STARK (based on collision-resistant hash functions; natively post-quantum). Levels L2–L5 remain unaffected — BeTrueCore's modular architecture was designed precisely to accommodate this substitution.
 
 ---
 
 ## 6. AI as Notary
 
-*AI as notary, not judge*
+*AI as notary, not judge.*
 
-The observer principle is not a declaration of intent. It is an architectural property: agent access to on-chain state is enforced at the contract level, and no write path to session data, VWU balances, or consensus outcomes is exposed to the agent layer.
+The observer principle is not a declaration of intent. It is an architectural property encoded in smart contracts.
 
 | Agent | Reads | Decides | Function |
 |---|---|---|---|
-| Analyst × 3 | L0 biometrics, L1 proofs | NEVER | Signal verification |
+| Analyst × 3 | L0 ZK commitments, L1 proofs | NEVER | Signal verification |
 | Strategist × 3 | L2 results, L4 audit | NEVER | Pattern analysis, Sybil detection |
 | Sentinel × 3 | L0–L4 all layers | NEVER | Security monitoring |
 
-A compromised Analyst sees biometric commitments — but cannot write to the VWU. A captured Strategist identifies coordination patterns — but cannot alter consensus outcomes. A compromised Sentinel stops flagging violations — but the anomaly becomes visible in the Celestia DA log.
+A compromised Analyst sees ZK commitments — but cannot write to the VWU. A captured Strategist identifies coordination patterns — but cannot alter consensus outcomes. A compromised Sentinel stops flagging violations — but the anomaly becomes visible in the Celestia DA log.
 
 In all scenarios the attacker gains visibility — not power.
 
@@ -210,10 +224,10 @@ Architecture, mathematical model, and technical specification are complete and t
 
 ### 8.1 Research and Specification
 
-- 10 academic preprints published on Zenodo (ORCID: 0009-0004-4841-594X)
+- 11 academic preprints published on Zenodo (ORCID: 0009-0004-4841-594X)
 - Master document: 19,012 words, protected by OpenTimestamps SHA-256 timestamp
 - 736-point Ethical Priority Map formalised
-- Evidential layer boundary defined (MAPPING\_MODEL v0)
+- Evidential layer boundary defined (MAPPING_MODEL v0)
 - ERC-8281 integration points identified at L1 and L3
 
 ### 8.2 Technical Implementation
@@ -238,9 +252,9 @@ The BTC-Lite protocol was used — a trust-based variant without blockchain. Par
 
 | Dilemma | Simple Majority | Weighted Result | Verdict |
 |---|---|---|---|
-| Who should make a risky surgical decision — doctor or patient? | B — Patient (85.7%) | B — 92.1% | 🟢 GREEN |
-| What is more important to leave children — property or values? | B — Values (100%) | B — 100% | 🟢 GREEN |
-| Should a grown child's phone be monitored or trusted? | A — Monitor (75%) | A — 74.1% | 🟢 GREEN |
+| Who should make a risky surgical decision — doctor or patient? | B — Patient (85.7%) | B — 92.1% | ✱GREEN |
+| What is more important to leave children — property or values? | B — Values (100%) | B — 100% | ✱GREEN |
+| Should a grown child's phone be monitored or trusted? | A — Monitor (75%) | A — 74.1% | ✱GREEN |
 
 All three dilemmas returned a GREEN verdict — judgment is stable. Dilemma with greatest unity: Values. Dilemma with greatest discrepancy: Monitor.
 
@@ -263,8 +277,9 @@ Current stage: TRL 2 → TRL 3
 BeTrueCore is at TRL 2 → TRL 3. Architecture, mathematical model, and specification are complete. Seeking a technical partner for core implementation.
 
 **Critical path (MVP):**
+
 1. MACI v1.2 smart contract deployment (testnet)
-2. ZK identity circuit (Circom) — biometric commitment + nullifier
+2. ZK identity circuit (Circom) — state ID commitment + nullifier
 3. VWU calculation contract integration
 
 Without these three components the system does not function. Celestia and Lit Protocol — Phase 2.
@@ -282,16 +297,18 @@ Without these three components the system does not function. Celestia and Lit Pr
 | AI agents | Python 3.11+ + FastAPI |
 
 **What is open:**
+
 - Full smart contract suite (Developer Package v0.1)
-- MACI integration specification (MACI\_ENGINEER\_PACKAGE.md)
-- Evidential layer boundary model (MAPPING\_MODEL.md)
-- Architectural foundation (ARCHITECTURE\_FOUNDATION.md)
+- MACI integration specification (MACI_ENGINEER_PACKAGE.md)
+- Evidential layer boundary model (MAPPING_MODEL.md)
+- Architectural foundation (ARCHITECTURE_FOUNDATION.md)
 - 736-point Ethical Priority Map (Excel + Solidity)
 - Foundry unit tests
 
 **What is protected:**
-- VWU non-linear growth factor and full formula
-- Master document (available to verified partners)
+
+- VWU non-linear growth factor and full formula.
+- Master document (available to verified partners).
 
 If you are a Solidity / Circom / ZK developer interested in sovereign collective intelligence — open an Issue or reach out via ethresear.ch: [Dede-Qorqud](https://ethresear.ch/u/Dede-Qorqud)
 
@@ -299,18 +316,13 @@ If you are a Solidity / Circom / ZK developer interested in sovereign collective
 
 ## 10. References
 
-**Zenodo preprints (selected):**
-- Preprint 7 — *The Missing Layer: Authentic Human Signal as a Prerequisite for Ethical AI Governance* — [10.5281/zenodo.20954283](https://doi.org/10.5281/zenodo.20954283)
-- Preprint 8 — *The Notary Under Attack: Adversarial Model* — [10.5281/zenodo.21111544](https://doi.org/10.5281/zenodo.21111544)
-- Preprint 9 — *The Ethical Priority Map: 736 Formal Rules for AI Agent Architecture* — [10.5281/zenodo.21225420](https://doi.org/10.5281/zenodo.21225420)
-- Preprint 10 — *Four Physical Principles as the Foundation of TDSH* — [10.5281/zenodo.21466246](https://doi.org/10.5281/zenodo.21466246)
-- Full list: [orcid.org/0009-0004-4841-594X](https://orcid.org/0009-0004-4841-594X)
-
 **Protocols:**
-- MACI v1.2 — [github.com/appliedzkp/maci](https://github.com/appliedzkp/maci)
+
+- MACI anti-collusion pattern (Circom/Groth16) — repository archived August 19, 2026
 - Asilomar AI Principles — [futureoflife.org/ai-principles](https://futureoflife.org/ai-principles/)
 
 **Philosophical and scientific sources:**
+
 - Kuran, T. (1995). *Private Truths, Public Lies.* Harvard University Press.
 - Foucault, M. (1975). *Surveiller et punir.* Gallimard.
 - Zuboff, S. (2019). *The Age of Surveillance Capitalism.* PublicAffairs.
@@ -318,12 +330,11 @@ If you are a Solidity / Circom / ZK developer interested in sovereign collective
 - Poincaré, H. (1908). *Science et méthode.* Flammarion.
 
 **Repository and publications:**
+
 - GitHub: [github.com/Dede-Qorqud/BeTrueCore](https://github.com/Dede-Qorqud/BeTrueCore)
 - Paragraph: [@betruecore](https://paragraph.xyz/@betruecore)
 - ethresear.ch: [Dede-Qorqud](https://ethresear.ch/u/Dede-Qorqud)
 
 ---
 
-*BeTrueCore Modular System — Web3 Intuitive Symmetry Methodology (Web3-ISM) v1.2*  
-*Farman Guliyev (Safarnur) — ORCID: 0009-0004-4841-594X*  
-*© 2026 Farman Guliyev — CC BY-NC 4.0*
+*THE MIRROR REFLECTS • THE NOTARY BEARS WITNESS • THE MATRIX MEASURES*
