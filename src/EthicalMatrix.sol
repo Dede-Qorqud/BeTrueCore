@@ -61,7 +61,7 @@ contract EthicalMatrix {
     // ─────────────────────────────────────────────────────────────
 
     event CellTriggered(
-        address indexed participant,
+        bytes32 indexed identity_commitment,
         uint8   asilomar_id,
         uint8   tdsh_id,
         uint8   ematch_score,    // 0–100 (scaled from 0.0–1.0)
@@ -166,12 +166,12 @@ contract EthicalMatrix {
 
     /// @notice Emit CellTriggered event (called by HarmonyAgent)
     function triggerCell(
-        address participant,
+        bytes32 identity_commitment,
         uint8 asilomar_id,
         uint8 tdsh_id,
         uint8 ematch_score
     ) external {
         Verdict verdict = computeVerdict(ematch_score);
-        emit CellTriggered(participant, asilomar_id, tdsh_id, ematch_score, verdict);
+        emit CellTriggered(identity_commitment, asilomar_id, tdsh_id, ematch_score, verdict);
     }
 }
