@@ -17,7 +17,7 @@ Collective decision verifiable. Simultaneously. Through daily dilemmas — yes o
 
 The platform combines:
 - Zero-Knowledge cryptography (ZK-SNARKs + anti-collusion protocol)
-- State ID sovereignty (FIN-code + MPC)
+- State ID sovereignty (NIN-code + MPC)
 - Time-locked voting (Lit Protocol)
 - Cheap audit infrastructure (Celestia DA)
 - AI as observer only — never as decision-maker
@@ -84,7 +84,7 @@ BeTrueCore resolves this crisis through a conceptual shift: the design goal beco
 
 Three non-negotiable components for system launch:
 1. **Anti-collusion smart contract (Circom/Groth16)** — voting core
-2. **ZK identity proof** — circom circuit (FIN-code → ZK-Proof)
+2. **ZK identity proof** — circom circuit (NIN-code → ZK-Proof)
 3. **VWU calculation contract** — vote weight computation
 
 > Without these three components the system does not function.
