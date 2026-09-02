@@ -11,8 +11,8 @@ import "./VWUEngine.sol";
 /// @dev Part of BeTrueCore Developer Package v0.1 / v0.2
 /// @author Farman Guliyev (Safarnur) — github.com/Dede-Qorqud/BeTrueCore
 ///
-/// Architecture: L0 (biometrics) → L1 (ZK + MACI) → L2 (Optimism) →
-///               L3 (Arbitrum) → L4 (Celestia DA) → L5 (AI agents, read-only)
+/// Architecture: L0 (FIN-code ZK) → L1 (ZK + anti-collusion protocol) → L2 (Optimism) →
+///               L3 (Lit Protocol) → L4 (Celestia DA) → L5 (AI agents, read-only)
 ///
 /// Constitutional principle: AI is the notary. The human is the author.
 /// Paradigm: secret citizen — transparent decision
@@ -29,7 +29,7 @@ contract BeTrueCoreCore is IBeTrueCore {
     /// @notice Session registry
     mapping(uint256 => Session) private sessions;
 
-    /// @notice Session results (after MACI finalization)
+    /// @notice Session results (after coordinator finalization)
     mapping(uint256 => SessionResult) private sessionResults;
 
     /// @notice ZK nullifier registry — prevents double-voting
@@ -43,7 +43,7 @@ contract BeTrueCoreCore is IBeTrueCore {
     HarmonyAgent  public harmonyAgent;
     VWUEngine     public vwuEngine;
 
-    /// @notice MACI coordinator address (only can finalize sessions)
+    /// @notice Anti-collusion coordinator address (only can finalize sessions)
     address public maciCoordinator;
 
     /// @notice Contract owner
@@ -87,7 +87,7 @@ contract BeTrueCoreCore is IBeTrueCore {
     }
 
     modifier onlyCoordinator() {
-        require(msg.sender == maciCoordinator, "Only MACI coordinator");
+        require(msg.sender == maciCoordinator, "Only anti-collusion coordinator");
         _;
     }
 
@@ -106,7 +106,7 @@ contract BeTrueCoreCore is IBeTrueCore {
     // ─────────────────────────────────────────────────────────────
 
     /// @notice Register a new participant
-    /// @dev Requires L0 biometric verification + L1 ZK proof
+    /// @dev Requires L0 FIN-code ZK-commitment + L1 ZK proof
     ///      bytes32 identity_commitment preserves privacy (not address)
     function register(
         bytes32 identity_commitment,
@@ -133,7 +133,7 @@ contract BeTrueCoreCore is IBeTrueCore {
     }
 
     /// @notice Submit or update choice within active session
-    /// @dev MACI key-rotation: participant can change choice until time lock
+    /// @dev Key-rotation: participant can change choice until time lock
     ///      Receipt-freeness: encrypted_choice not stored on-chain
     function submitChoice(
         uint256 session_id,
@@ -145,9 +145,9 @@ contract BeTrueCoreCore is IBeTrueCore {
         // Mark nullifier as used — prevents double-voting
         usedNullifiers[zk_nullifier] = true;
 
-        // encrypted_choice is forwarded to MACI coordinator off-chain
+        // encrypted_choice is forwarded to anti-collusion coordinator off-chain
         // Only the final choice (after time lock) counts
-        // Intermediate choices are cryptographically invalidated via MACI key-rotation
+        // Intermediate choices are cryptographically invalidated via key-rotation
 
         // Note: identity_commitment is derived from msg.sender via ZK proof
         // to preserve receipt-freeness
@@ -182,8 +182,8 @@ contract BeTrueCoreCore is IBeTrueCore {
         });
     }
 
-    /// @notice Finalize session after time lock (MACI coordinator only)
-    /// @dev MACI publishes ZK proof of correct counting simultaneously
+    /// @notice Finalize session after time lock (coordinator only)
+    /// @dev Coordinator publishes ZK proof of correct counting simultaneously
     ///      Coordinator can deny service but cannot falsify results
     function finalizeSession(
         uint256 session_id,
@@ -208,7 +208,7 @@ contract BeTrueCoreCore is IBeTrueCore {
     // ─────────────────────────────────────────────────────────────
 
     /// @notice Update VWU for a participant after session finalization
-    /// @dev Called internally after MACI result is published
+    /// @dev Called internally after coordinator result is published
     ///      The full VWU formula (including non-linear factor) is protected
     ///      in the BeTrueCore master document (OpenTimestamps SHA-256)
     function _updateParticipantVWU(
