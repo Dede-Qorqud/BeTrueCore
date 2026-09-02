@@ -26,9 +26,7 @@ The platform combines:
 
 ## Protocol Architecture
 
-<a href="docs/Six%20Layer%20Protoсol%20Architecture.png">
-  <img src="docs/Six%20Layer%20Protoсol%20Architecture.png" width="600" alt="BeTrueCore Six-Layer Protocol Architecture"/>
-</a>
+![BeTrueCore Six-Layer Protocol Architecture](docs/Six%20Layer%20Protocol%20Architecture.png)
 
 ## The Verifiable Digital Islands Concept
 
