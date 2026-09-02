@@ -299,7 +299,7 @@ contract BeTrueCoreTest is Test {
         });
 
         vm.prank(participant); // not the coordinator
-        vm.expectRevert("Only MACI coordinator");
+        vm.expectRevert("Only anti-collusion coordinator");
         vwuEngine.updateVWU(r);
     }
 
@@ -422,7 +422,7 @@ contract BeTrueCoreTest is Test {
     }
 
     function test_DifferentNullifiersAllowed() public {
-        // MACI key-rotation: different nullifiers = legitimate choice update
+        // Key-rotation: different nullifiers = legitimate choice update
         bytes32 dilemma_hash = keccak256("Test dilemma");
 
         vm.prank(owner);
@@ -434,7 +434,7 @@ contract BeTrueCoreTest is Test {
         core.submitChoice(session_id, hex"01", keccak256("nullifier_key_3")); // change back
         vm.stopPrank();
 
-        // Only the last choice counts — this is MACI key-rotation in action
+        // Only the last choice counts — this is key-rotation in action
         // Test passes if no revert
     }
 }
