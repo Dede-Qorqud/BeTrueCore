@@ -17,7 +17,7 @@ Collective decision verifiable. Simultaneously. Through daily dilemmas — yes o
 
 The platform combines:
 - Zero-Knowledge cryptography (ZK-SNARKs + anti-collusion protocol)
-- State ID sovereignty (NIN-code + MPC)
+- State ID sovereignty (FIN-code + MPC)
 - Time-locked voting (Lit Protocol)
 - Cheap audit infrastructure (Celestia DA)
 - AI as observer only — never as decision-maker
@@ -26,8 +26,8 @@ The platform combines:
 
 ## Protocol Architecture
 
-<a href="docs/Six%20Layer%20Protocol%20Architecture.png">
-  <img src="docs/Six%20Layer%20Protocol%20Architecture.png" width="600" alt="BeTrueCore Six-Layer Protocol Architecture"/>
+<a href="docs/Six%20Layer%20Protoсol%20Architecture.png">
+  <img src="docs/Six%20Layer%20Protoсol%20Architecture.png" width="600" alt="BeTrueCore Six-Layer Protocol Architecture"/>
 </a>
 
 ## The Verifiable Digital Islands Concept
@@ -75,21 +75,16 @@ BeTrueCore resolves this crisis through a conceptual shift: the design goal beco
 
 | Layer | Technology | Function | Role |
 |---|---|---|---|
-| L0 — Identity | MPC + NIN-code + Web3Auth | State ID sovereignty, key fragmentation | SPOF elimination |
+| L0 — Identity | MPC + FIN-code + Web3Auth | State ID sovereignty, key fragmentation | SPOF elimination |
 | L1 — Proofs | zk-SNARKs + anti-collusion protocol (Circom/Groth16) | Anonymity, anti-collusion, ZK-Proof generation | Mathematical shield |
 | L2 — Execution | Optimism (L2) | Fast, low-cost operation execution | Performance layer |
 | L3 — Lock | Lit Protocol | Time-locked voting, information symmetry | Transparency layer |
 | L4 — Archive | Celestia (DA) | Storage of millions of proofs at low cost | Audit infrastructure |
 | L5 — AI Agents | Strategist / Analyst / Sentinel | Anomaly detection, Sybil identification | Observation — not decision |
-## MVP Documentation
 
-- [What Questions the MVP Solves and Proves](docs/WHAT%20QUESTIONS%20THE%20MVP%20SOLVES.pdf)
-- [MVP Pilot Programme](docs/BeTrueCore_MVP%20PILOT.pdf)
-- [Product Interface](docs/PRODUCT%20INTERFACE.pdf)
-  
 Three non-negotiable components for system launch:
 1. **Anti-collusion smart contract (Circom/Groth16)** — voting core
-2. **ZK identity proof** — circom circuit (NIN-code → ZK-Proof)
+2. **ZK identity proof** — circom circuit (FIN-code → ZK-Proof)
 3. **VWU calculation contract** — vote weight computation
 
 > Without these three components the system does not function.
@@ -99,6 +94,12 @@ Three non-negotiable components for system launch:
 - Phase 1 — Core: 1–2 months
 - Phase 2 — Integration (evidential layer boundary defined, ERC-8281 L1+L3 identified): 2–3 months
 - Phase 3 — Pilot (50–100 users): 1–2 months
+
+## MVP Documentation
+
+- [What Questions the MVP Solves and Proves](docs/WHAT%20QUESTIONS%20THE%20MVP%20SOLVES.pdf)
+- [MVP Pilot Programme](docs/BeTrueCore_MVP%20PILOT.pdf)
+- [Product Interface](docs/PRODUCT%20INTERFACE.pdf)
 
 ## Status
 
