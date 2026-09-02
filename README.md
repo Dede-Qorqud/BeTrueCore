@@ -59,7 +59,7 @@ BeTrueCore resolves this crisis through a conceptual shift: the design goal beco
 
 - **ZK Circuits:** circom 2.0+ / snarkjs v0.7+
 - **Anti-collusion:** Circom/Groth16 (MACI-pattern)
-- **Identity:** Web3Auth MPC Core Kit + FIN-code (ZK-transformed)
+- **Identity:** Web3Auth MPC Core Kit + NIN-code (ZK-transformed)
 - **Time-lock:** Lit Protocol v6+
 - **Data Availability:** Celestia DA
 - **L2 Execution:** Optimism OP Stack
@@ -84,7 +84,7 @@ BeTrueCore resolves this crisis through a conceptual shift: the design goal beco
 
 Three non-negotiable components for system launch:
 1. **Anti-collusion smart contract (Circom/Groth16)** — voting core
-2. **ZK identity proof** — circom circuit (FIN-code → ZK-Proof)
+2. **ZK identity proof** — circom circuit (NIN-code → ZK-Proof)
 3. **VWU calculation contract** — vote weight computation
 
 > Without these three components the system does not function.
