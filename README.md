@@ -15,7 +15,7 @@ BeTrueCore: secret citizen — transparent decision.
 
 Collective decision verifiable. Simultaneously. Through daily dilemmas — yes or no.
 
-The platform combines:
+The protocol combines:
 - Zero-Knowledge cryptography (ZK-SNARKs + anti-collusion protocol)
 - State ID sovereignty (NIN-code + MPC)
 - Time-locked voting (Lit Protocol)
