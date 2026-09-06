@@ -172,6 +172,7 @@ All papers are timestamped and DOI-protected.
 | 9 | The Ethical Priority Map... | [10.5281/zenodo.21225420](https://doi.org/10.5281/zenodo.21225420) |
 | 10 | Four Principles as the Foundation of TDSH: Physical Hierarchy, Philosophical Process, and Temporal Symmetry in the BeTrueCore Architecture | [10.5281/zenodo.21466246](https://doi.org/10.5281/zenodo.21466246) |
 | 11 | From Coordination Collapse to Collective Wisdom: Extending the VWU Model | [10.5281/zenodo.22179301](https://doi.org/10.5281/zenodo.22179301) |
+| 12 | Threshold and Witness: From a Model of Collective Behavior to an Architecture of Collective Judgment | [10.5281/zenodo.22537058](https://doi.org/10.5281/zenodo.22537058) |
 
 > All papers reference the source document in their headers:
 > *«BeTrueCore» Modular System. Methodological Base:*
