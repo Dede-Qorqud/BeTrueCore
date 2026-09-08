@@ -69,6 +69,9 @@ BeTrueCore resolves this crisis through a conceptual shift: the design goal beco
 
 ## MVP Priority
 
+The MVP Pilot Programme "Immune Island" will move BeTrueCore from theoretical cryptography (TRL 2) to on-chain reality (TRL 3) within a closed ecosystem of 50–100 participants. The pilot will prove bot protection through ZK commitments, the absence of social pressure through vote unprovability, and the operation of VWU — a non-linear judgment weight mechanism that cannot be purchased or instantly reproduced.
+For further details, see the official **[BeTrueCore MVP Pilot Programme Document](docs/BeTrueCore_MVP%20PILOT.pdf)**.
+
 ## System Architecture (L0–L5)
 
 | Layer | Technology | Function | Role |
