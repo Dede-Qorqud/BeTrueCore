@@ -11,7 +11,7 @@ import "./VWUEngine.sol";
 /// @dev Part of BeTrueCore Developer Package v0.1 / v0.2
 /// @author Farman Guliyev (Safarnur) — github.com/Dede-Qorqud/BeTrueCore
 ///
-/// Architecture: L0 (FIN-code ZK) → L1 (ZK + anti-collusion protocol) → L2 (Optimism) →
+/// Architecture: L0 (NIN-code ZK) → L1 (ZK + anti-collusion protocol) → L2 (Optimism) →
 ///               L3 (Lit Protocol) → L4 (Celestia DA) → L5 (AI agents, read-only)
 ///
 /// Constitutional principle: AI is the notary. The human is the author.
@@ -106,7 +106,7 @@ contract BeTrueCoreCore is IBeTrueCore {
     // ─────────────────────────────────────────────────────────────
 
     /// @notice Register a new participant
-    /// @dev Requires L0 FIN-code ZK-commitment + L1 ZK proof
+    /// @dev Requires L0 NIN-code ZK-commitment + L1 ZK proof
     ///      bytes32 identity_commitment preserves privacy (not address)
     function register(
         bytes32 identity_commitment,
