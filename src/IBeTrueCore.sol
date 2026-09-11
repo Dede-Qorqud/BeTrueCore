@@ -47,7 +47,7 @@ interface IBeTrueCore {
     /// @notice Participant record
     /// @dev bytes32 used for identity (not address) to preserve privacy
     struct Participant {
-        bytes32 identity_commitment;  // ZK-commitment to verified state identity (FIN-code)
+        bytes32 identity_commitment;  // ZK-commitment to verified state identity (NIN-code)
         uint256 vwu;                  // Vote Weight Unit (scaled ×100)
         Status  status;               // Current status level
         uint256 session_count;        // Total sessions participated
@@ -115,8 +115,8 @@ interface IBeTrueCore {
     // PARTICIPANT FUNCTIONS
     // ─────────────────────────────────────────────────────────────
 
-    /// @notice Register a new participant (requires L0 FIN-code ZK-commitment + L1 ZK proof)
-    /// @param identity_commitment ZK commitment to verified state identity (FIN-code)
+    /// @notice Register a new participant (requires L0 NIN-code ZK-commitment + L1 ZK proof)
+    /// @param identity_commitment ZK commitment to verified state identity (NIN-code)
     /// @param zk_proof ZK-SNARK proof of valid registration
     function register(
         bytes32 identity_commitment,
