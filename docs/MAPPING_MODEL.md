@@ -16,7 +16,7 @@ The Mapping Model defines the evidential layer boundary between BeTrueCore's int
 ## Layer Architecture
 
 ```
-L0  Identity Input          FIN-code ZK-commitment + behavioral entropy + session timing
+L0  Identity Input          NIN-code ZK-commitment + behavioral entropy + session timing
      ↓
 L1  Cryptographic Proof     ZK-SNARKs + anti-collusion protocol (Circom/Groth16) + ZK nullifier + Lit Protocol MPC
      ↓
