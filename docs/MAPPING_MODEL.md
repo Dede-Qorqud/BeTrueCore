@@ -38,12 +38,12 @@ L5  AI Agent Layer          Analyst × 3 + Strategist × 3 + Sentinel × 3
 
 | Data | Direction | Format | Guarantee |
 |------|-----------|--------|-----------|
-| FIN-code ZK-commitment | L0 → L1 | bytes32 hash | State ID verified |
+| NIN-code ZK-commitment | L0 → L1 | bytes32 hash | State ID verified |
 | Behavioral entropy | L0 → L1 | uint256 | VWU behavioral record (see Preprint 11) |
 | Session timing | L0 → L1 | uint256 timestamp | Liveness proof |
 
-**What does NOT cross:** Raw FIN-code, state identifier plaintext, behavioral sequences.  
-**Guarantee:** No raw FIN-code or state identifier ever leaves L0.
+**What does NOT cross:** Raw NIN-code, state identifier plaintext, behavioral sequences.  
+**Guarantee:** No raw NIN-code or state identifier ever leaves L0.
 
 ### L1 → L2 Boundary
 
