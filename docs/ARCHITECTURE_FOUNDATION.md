@@ -26,7 +26,7 @@ The choice of these two epics is not accidental. The Odyssey belongs to the Gree
 
 State-registered identity is the only signature that cannot be delegated. The FIN-code never leaves the device — only its ZK-transformed commitment does. Existence itself is the signature.
 
-**Technology:** MPC + FIN-code (ZK-transformed) + Web3Auth — state ID sovereignty, key fragmentation, elimination of single points of failure.
+**Technology:** MPC + NIN-code (ZK-transformed) + Web3Auth — state ID sovereignty, key fragmentation, elimination of single points of failure.
 
 ---
 
