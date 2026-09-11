@@ -109,7 +109,7 @@ struct SessionResult {
 ### Identity Circuit (Circom)
 ```
 Inputs (private):
-  - fin_commitment (from L0 FIN-code ZK-transformation)
+  - fin_commitment (from L0 NIN-code ZK-transformation)
   - behavioral_entropy (VWU behavioral record — see Preprint 11)
 
 Inputs (public):
