@@ -38,6 +38,7 @@ BeTrueCore resolves this crisis through a conceptual shift: the design goal beco
 
 2. Legibility Without Exposure: Using zk-SNARKs, BeTrueCore proves the integrity of internal interactions without revealing their content. The protocol solves how to make small verifiable groups legible and legitimate to the global ecosystem while preserving their absolute autonomy from external observation.
 
+3. Immune Pockets: In civic terms, Verifiable Digital Islands become immune pockets: NGOs, civic associations, and local governance groups — the first communities where media pressure, social campaigning, and network effects can be architecturally separated from the moment of authentic expression. Not through blocking external information — but through cryptographic separation of pressure and signal. Each such pocket will become a living proof of the protocol.
 ---
 
 ## Four-Layer Architecture
