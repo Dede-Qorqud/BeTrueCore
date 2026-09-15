@@ -117,7 +117,7 @@ Anti-collusion smart contract + ZK identity circuit + VWU calculation.
 
 ## Current Status (September 2026)
 
-- 11 academic preprints published on Zenodo
+- 12 academic preprints published on Zenodo
 - Technical partnerships initiated in the Ethereum ecosystem (Phase 2 pending)
 - Evidential layer boundary defined (v0 mapping complete)
 - ERC-8281 integration points identified at L1 and L3
