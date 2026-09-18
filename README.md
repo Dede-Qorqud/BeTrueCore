@@ -86,7 +86,7 @@ For further details, see the official **[BeTrueCore MVP Pilot Programme Document
 
 Three non-negotiable components for system launch:
 1. **Anti-collusion smart contract (Circom/Groth16)** — voting core
-2. **ZK identity proof** — circom circuit (FIN-code → ZK-Proof) · draft v0.1 ✓
+2. **ZK identity proof** — circom circuit (NIN-code → ZK-Proof) · draft v0.1 ✓
 3. **VWU calculation contract** — vote weight computation
 
 > Without these three components the system does not function.
