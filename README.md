@@ -108,12 +108,14 @@ Three non-negotiable components for system launch:
 Architecture, mathematical model and technical specification
 are complete and timestamp-protected (Zenodo DOI + SHA256).
 
-**Seeking technical partner** for core implementation:
-Anti-collusion smart contract + ZK identity circuit + VWU calculation.
+**ZK Identity Layer (L0 → L1) — draft v0.1 written:**
+ZK identity circuits (Circom 2.0) → see `circuits/`
 
-> If you are a Solidity / Circom / ZK developer
-> interested in sovereign collective intelligence —
-> open an Issue or reach out via ethresear.ch: [Dede-Qorqud](https://ethresear.ch/u/Dede-Qorqud)
+The architecture is open. The circuits are written.
+The next step requires hands.
+If yours are among them — you will recognize it in the code.
+
+→ Open an Issue · ethresear.ch: [Dede-Qorqud](https://ethresear.ch/u/Dede-Qorqud)
 
 ## Current Status (September 2026)
 
@@ -149,8 +151,11 @@ Smart contract suite for BeTrueCore implementation:
 | [MAPPING_MODEL.md](docs/MAPPING_MODEL.md) | Evidential layer boundary — L0–L5 data flow |
 | [MACI_ENGINEER_PACKAGE.md](docs/MACI_ENGINEER_PACKAGE.md) | Anti-collusion protocol integration guide |
 | [BeTrueCore.t.sol](test/BeTrueCore.t.sol) | Foundry unit tests — run: forge test -v |
+| [circuits/NINCommitment.circom](circuits/NINCommitment.circom) | ZK registration: NIN → commitment (draft v0.1) |
+| [circuits/NINIdentityProof.circom](circuits/NINIdentityProof.circom) | ZK voting: Merkle membership + nullifier (draft v0.1) |
+| [contracts/NINNullifierRegistry.sol](contracts/NINNullifierRegistry.sol) | On-chain: ZK proof verification + nullifier registry |
 
-Project stage: TRL 2 → TRL 3
+Project stage: TRL 2 → TRL 3 · ZK Identity Layer: draft v0.1
 
 ## Vote Weight Unit (VWU)
 
