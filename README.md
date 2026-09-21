@@ -85,9 +85,9 @@ For further details, see the official **[BeTrueCore MVP Pilot Programme Document
 | L5 — AI Agents | Strategist / Analyst / Sentinel | Anomaly detection, Sybil identification | Observation — not decision |
 
 Three non-negotiable components for system launch:
-1. **Anti-collusion smart contract (Circom/Groth16)** — voting core
-2. **ZK identity proof** — circom circuit (NIN-code → ZK-Proof) · draft v0.1 ✓
-3. **VWU calculation contract** — vote weight computation
+1. Anti-collusion smart contract (Circom/Groth16) — voting core · draft v0.1 ✓
+2. ZK identity proof — circom circuit (NIN-code → ZK-Proof) · draft v0.1 ✓
+3. VWU calculation contract — vote weight computation · v0.4 ✓
 
 > Without these three components the system does not function.
 > Celestia and Lit Protocol added in Phase 2.
