@@ -5,22 +5,22 @@
 
 ---
 
-## Структура файлов
+## File Structure
 
 ```
-betruecore-zk/
+BeTrueCore/
 ├── circuits/
-│   ├── NINCommitment.circom       — Registration: NIN → commitment
-│   ├── NINIdentityProof.circom    — Voting:       membership + nullifier
+│   ├── NINCommitment.circom        — Registration: NIN → commitment
+│   ├── NINIdentityProof.circom     — Voting: Merkle membership + nullifier
 │   └── lib/
-│       └── BinaryMerkleTree.circom — Merkle tree helper
+│       └── BinaryMerkleTree.circom — Poseidon Merkle tree (helper library)
 └── contracts/
-    └── NINNullifierRegistry.sol   — On-chain registry + verifier interface
+    └── NINNullifierRegistry.sol    — On-chain ZK proof registry + verifier interface
 ```
 
 ---
 
-## Шаг 1 — Установка зависимостей
+## Step 1 — Install Dependencies
 
 ```bash
 # Node.js 20 LTS required
@@ -31,11 +31,11 @@ npm install --save-dev hardhat @nomicfoundation/hardhat-toolbox
 
 ---
 
-## Шаг 2 — Компиляция схемы NINIdentityProof
+## Step 2 — Compile NINIdentityProof Circuit
 
 ```bash
-# Компилируем схему → R1CS + WASM + SYM
-# -l node_modules: указываем путь к circomlib
+# Compile circuit → R1CS + WASM + SYM
+# -l node_modules: path to circomlib
 circom circuits/NINIdentityProof.circom \
   --r1cs \
   --wasm \
@@ -43,71 +43,68 @@ circom circuits/NINIdentityProof.circom \
   -l node_modules \
   -o build/
 
-# Проверяем количество ограничений (constraints)
-# Ожидаемо: ~5,000–8,000 для LEVELS=20
+# Check constraint count (expected: ~5,000–8,000 for LEVELS=20)
 snarkjs r1cs info build/NINIdentityProof.r1cs
 ```
 
-**Для пилота (50–100 участников)** — заменить в `NINIdentityProof.circom`:
+**For pilot (50–100 participants)** — change the last line of `NINIdentityProof.circom`:
 ```circom
-// Строка в конце файла:
+// Change LEVELS from 20 to 7:
 component main {public [merkle_root, external_nullifier]} = NINIdentityProof(7);
-//                                                                             ↑
-//                                                               LEVELS=7 для пилота
+// LEVELS=7 supports up to 128 participants, faster proof generation
 ```
-Это сократит количество constraints и ускорит proof generation на клиенте.
 
 ---
 
-## Шаг 3 — Trusted Setup (Powers of Tau)
+## Step 3 — Trusted Setup (Powers of Tau)
 
-Groth16 требует доверенной настройки. Для тестнета/пилота используем
-готовые файлы от Hermez (публичная церемония, ~100M участников).
+Groth16 requires a trusted setup. For testnet/pilot we use
+the Hermez public ceremony (BN254 curve, ~100M participants).
 
 ```bash
-# Скачать готовый ptau файл (Hermez BN254, достаточно для пилота)
+# Download ptau file from Hermez public ceremony (~200MB)
 curl -L https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_15.ptau \
      -o pot15_final.ptau
 
-# Phase 2 setup — специфично для нашей схемы
+# Phase 2 setup — circuit-specific
 snarkjs groth16 setup \
   build/NINIdentityProof.r1cs \
   pot15_final.ptau \
   keys/NINIdentityProof_0000.zkey
 
-# Добавить contribution (обязательно — иначе setup небезопасен)
+# Add your contribution (required — without this the setup is cryptographically unsafe)
 snarkjs zkey contribute \
   keys/NINIdentityProof_0000.zkey \
   keys/NINIdentityProof_0001.zkey \
   --name="BeTrueCore MVP contribution" \
   -v
 
-# Экспорт финального ключа верификации
+# Export verification key
 snarkjs zkey export verificationkey \
   keys/NINIdentityProof_0001.zkey \
   keys/verification_key.json
 ```
 
-> **Важно для продакшна:** Phase 2 ceremony должна быть публичной с несколькими
-> участниками. Для MVP/тестнета одного contribution достаточно.
+> **Note for production:** Phase 2 ceremony should be public with multiple
+> independent contributors. For MVP/testnet a single contribution is sufficient.
 
 ---
 
-## Шаг 4 — Генерация Verifier.sol
+## Step 4 — Generate Verifier.sol
 
 ```bash
-# snarkjs генерирует Solidity-контракт верификатора автоматически
+# snarkjs generates the Solidity verifier contract automatically
 snarkjs zkey export solidityverifier \
   keys/NINIdentityProof_0001.zkey \
   contracts/Verifier.sol
 ```
 
-Этот файл — `contracts/Verifier.sol` — реализует `IGroth16Verifier`
-из `NINNullifierRegistry.sol`. Деплоить первым.
+`contracts/Verifier.sol` implements `IGroth16Verifier` from `NINNullifierRegistry.sol`.
+**Deploy this contract first.**
 
 ---
 
-## Шаг 5 — Тестовое доказательство (локально)
+## Step 5 — Local Test
 
 ```javascript
 // test/identity_proof_test.js
@@ -115,29 +112,29 @@ const { groth16 } = require("snarkjs");
 const { poseidon } = require("circomlib");
 
 async function testProof() {
-  // Тестовые данные (не реальный NIN)
-  const nin_preimage    = BigInt("1234567");         // encode("AZE1234") → BigInt
-  const registration_salt = BigInt("0x" + require("crypto").randomBytes(31).toString("hex"));
-  const identity_secret   = BigInt("0x" + require("crypto").randomBytes(31).toString("hex"));
+  // Test data — not a real NIN
+  const nin_preimage       = BigInt("1234567");
+  const registration_salt  = BigInt("0x" + require("crypto").randomBytes(31).toString("hex"));
+  const identity_secret    = BigInt("0x" + require("crypto").randomBytes(31).toString("hex"));
 
-  // Вычислить commitment
+  // Reconstruct commitment (same logic as NINCommitment.circom)
   const nin_key    = poseidon([nin_preimage, registration_salt]);
   const commitment = poseidon([nin_key, identity_secret]);
 
-  // Merkle tree (для теста: дерево из одного листа)
+  // Single-leaf Merkle tree for testing
   const path_elements = new Array(20).fill(BigInt(0));
   const path_indices  = new Array(20).fill(0);
-  const merkle_root   = commitment; // дерево из 1 участника
+  const merkle_root   = commitment;
 
-  const session_id    = BigInt(1); // external_nullifier
+  const session_id = BigInt(1);
 
   const input = {
-    nin_preimage:      nin_preimage.toString(),
-    registration_salt: registration_salt.toString(),
-    identity_secret:   identity_secret.toString(),
-    path_elements:     path_elements.map(x => x.toString()),
-    path_indices:      path_indices,
-    merkle_root:       merkle_root.toString(),
+    nin_preimage:       nin_preimage.toString(),
+    registration_salt:  registration_salt.toString(),
+    identity_secret:    identity_secret.toString(),
+    path_elements:      path_elements.map(x => x.toString()),
+    path_indices:       path_indices,
+    merkle_root:        merkle_root.toString(),
     external_nullifier: session_id.toString(),
   };
 
@@ -147,64 +144,73 @@ async function testProof() {
     "keys/NINIdentityProof_0001.zkey"
   );
 
-  console.log("✓ Nullifier:", publicSignals[2]);
+  console.log("Nullifier:", publicSignals[2]);
 
-  const vKey = require("../keys/verification_key.json");
+  const vKey    = require("../keys/verification_key.json");
   const isValid = await groth16.verify(vKey, publicSignals, proof);
-  console.log("✓ Proof valid:", isValid); // должно быть true
+  console.log("Proof valid:", isValid); // expected: true
 }
 
 testProof();
 ```
 
+Run the test:
+```bash
+node test/identity_proof_test.js
+```
+
+Expected output: `Proof valid: true`
+
 ---
 
-## Шаг 6 — Деплой (Sepolia testnet)
+## Step 6 — Deploy to Sepolia Testnet
 
 ```bash
-# 1. Деплой Verifier.sol
+# 1. Deploy Verifier.sol first
 npx hardhat run scripts/deploy_verifier.js --network sepolia
 
-# 2. Деплой NINNullifierRegistry.sol
-# (передать адрес Verifier.sol в конструктор)
+# 2. Deploy NINNullifierRegistry.sol
+# Pass the Verifier.sol address from step 1 into the constructor
 npx hardhat run scripts/deploy_registry.js --network sepolia
 ```
 
 ---
 
-## Структура ключевых сигналов
+## Signal Privacy Reference
 
-| Сигнал | Тип | Кто знает | Где хранится |
-|--------|-----|-----------|-------------|
-| `nin_preimage` | private | только гражданин | только устройство |
-| `registration_salt` | private | только гражданин | кошелёк/localStorage |
-| `identity_secret` | private | только гражданин | кошелёк/localStorage |
-| `identity_commitment` | public | контракт, все | Merkle дерево |
-| `nullifier` | public | контракт, все | `nullifiers[sessionId]` |
-| `merkle_root` | public | все | `NINNullifierRegistry.merkleRoot` |
+| Signal | Visibility | Storage |
+|--------|-----------|---------|
+| `nin_preimage` | private — citizen only | device only, never transmitted |
+| `registration_salt` | private — citizen only | wallet / local storage |
+| `identity_secret` | private — citizen only | wallet / local storage |
+| `identity_commitment` | public | on-chain Merkle tree |
+| `nullifier` | public | `nullifiers[sessionId]` in registry |
+| `merkle_root` | public | `NINNullifierRegistry.merkleRoot` |
 
 ---
 
-## Архитектурная связь (L0 → L1)
+## Architecture: L0 → L1 Data Flow
 
 ```
-[УСТРОЙСТВО ГРАЖДАНИНА]
-  NIN (raw)
-    ↓ Poseidon(NIN, salt)    ← только на устройстве
+[CITIZEN DEVICE]
+  NIN (raw) — never leaves the device
+    ↓ Poseidon(NIN, salt)
   nin_key
     ↓ Poseidon(nin_key, secret)
-  identity_commitment ─────────────────────→ [MERKLE TREE ON-CHAIN]
-                                                      ↓
-[УСТРОЙСТВО, SESSION]                         merkle_root (public)
-  NINIdentityProof.circom
+  identity_commitment ──────────────────→ [MERKLE TREE ON-CHAIN]
+                                                   ↓
+[DEVICE, per SESSION]                      merkle_root (public)
+  NINIdentityProof circuit computes:
+    - Merkle membership proof
+    - session-specific nullifier
     ↓ Groth16 proof
   (nullifier, merkle_root, session_id) ──→ NINNullifierRegistry.sol
-                                                      ↓
-                                             verifyAndRegister()
-                                                      ↓
-                                             emit IdentityVerified
-                                                      ↓
-                                             Poll.sol → vote counted
+                                                   ↓
+                                           verifyAndRegister()
+                                                   ↓
+                                           emit IdentityVerified
+                                                   ↓
+                                           Poll.sol → vote counted
 ```
 
 ---
