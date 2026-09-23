@@ -154,8 +154,38 @@ Smart contract suite for BeTrueCore implementation:
 | [circuits/NINCommitment.circom](circuits/NINCommitment.circom) | ZK registration: NIN → commitment (draft v0.1) |
 | [circuits/NINIdentityProof.circom](circuits/NINIdentityProof.circom) | ZK voting: Merkle membership + nullifier (draft v0.1) |
 | [contracts/NINNullifierRegistry.sol](contracts/NINNullifierRegistry.sol) | On-chain: ZK proof verification + nullifier registry |
+| [docs/L5_MANAGED_AGENTS.md](docs/L5_MANAGED_AGENTS.md) | L5 AI agent layer — nine-agent architecture, Claude Managed Agents implementation spec |
+| [docs/AUTHORITY_CHAIN.md](docs/AUTHORITY_CHAIN.md) | BeTrueCore positioning in agentic AI authority chain (M-Trust / eIDAS / NIST) |
 
-Project stage: TRL 2 → TRL 3 · ZK Identity Layer: draft v0.1
+Project stage: TRL 2 → TRL 3 · ZK Identity Layer: draft v0.1 · Authority Chain: specified · L5 Agent Layer: specified
+
+## For Developers — Navigation Guide
+
+If you are evaluating BeTrueCore for technical contribution,
+start here:
+
+**Understand the architecture**
+→ [ARCHITECTURE_FOUNDATION.md](docs/ARCHITECTURE_FOUNDATION.md) — Six layers, design principles, constitutional constraints
+→ [AUTHORITY_CHAIN.md](docs/AUTHORITY_CHAIN.md) — BeTrueCore in agentic AI authority chain discourse (M-Trust / eIDAS / NIST)
+
+**Read the integration guides**
+→ [MACI_ENGINEER_PACKAGE.md](docs/MACI_ENGINEER_PACKAGE.md) — Anti-collusion protocol integration guide
+→ [MAPPING_MODEL.md](docs/MAPPING_MODEL.md) — L0–L5 data flow and evidential layer boundary
+
+**See what is already written**
+→ `circuits/` — ZK identity circuits (NINCommitment, NINIdentityProof) v0.1
+→ `src/` — Smart contracts (Anti-collusion, VWU, EthicalMatrix, HarmonyAgent) v0.1–v0.4
+
+**Understand the AI observation layer**
+→ [L5_MANAGED_AGENTS.md](docs/L5_MANAGED_AGENTS.md) — Nine-agent architecture, read-only enforcement, production implementation
+
+**What is needed next (Phase 2)**
+- Lit Protocol time-lock integration (L3)
+- Celestia DA layer (L4)
+- Web3Auth MPC integration (L0)
+- AI Analyst agent: keystroke dynamics model (L5)
+
+Minimum team: 1 Solidity+Circom dev · 1 TypeScript fullstack · 1 Python/ML engineer
 
 ## Vote Weight Unit (VWU)
 
