@@ -141,6 +141,7 @@ Smart contract suite for BeTrueCore implementation:
 
 | File | Description |
 |------|-------------|
+| [PROJECT NARRATIVE.pdf](docs/PROJECT%20NARRATIVE.pdf) | Why the problem exists independently of BeTrueCore. From diagnosis to necessity. |
 | [ARCHITECTURE_FOUNDATION.md](docs/ARCHITECTURE_FOUNDATION.md) | Architectural foundation — myth, cryptography, six-layer patterns |
 | [AAA_document_EN.md](AAA_document_EN.md) | Applied Analogies in Architecture — analogy methodology |
 | [IBeTrueCore.sol](src/IBeTrueCore.sol) | Core interface — enums, structs, events, functions |
