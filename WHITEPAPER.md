@@ -143,7 +143,8 @@ Public interface (inputs → output):
 | Input | Description |
 |---|---|
 | `activity_score` | Completeness of session participation (0–100) |
-| `aligned_majority` | Whether final decision aligned with weighted majority |
+| `previous_rating` | Participant's own cumulative rating |
+| `session_score` | Utility score of the participant's judgments in this session |
 | **Output** | **Description** |
 | `vwu_delta` | Increment to participant VWU balance |
 
@@ -224,7 +225,7 @@ Architecture, mathematical model, and technical specification are complete and t
 
 ### 8.1 Research and Specification
 
-- 11 academic preprints published on Zenodo (ORCID: 0009-0004-4841-594X)
+- 12 academic preprints published on Zenodo (ORCID: 0009-0004-4841-594X)
 - Master document: 19,012 words, protected by OpenTimestamps SHA-256 timestamp
 - 736-point Ethical Priority Map formalised
 - Evidential layer boundary defined (MAPPING_MODEL v0)
