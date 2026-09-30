@@ -11,7 +11,7 @@ import "./IBeTrueCoreAntiCollusion.sol";
  * Author:  Farman Guliyev (Safarnur)
  * ORCID:   0009-0004-4841-594X
  * GitHub:  github.com/Dede-Qorqud/BeTrueCore
- * Version: 0.1 — MVP Stub
+ * Version: 0.3 — MVP Stub
  * ═════════════════════════════════════════════════════════════════════════════
  *
  * STUB NOTICE
@@ -44,9 +44,11 @@ import "./IBeTrueCoreAntiCollusion.sol";
  *   Coordinator tallies with VWU weights
  *   Coordinator generates ZK tally proof
  *           ↓
- *   Poll.finalizePoll()                        ← result + proof on-chain
+ *   Poll.finalizePoll()                          ← result + proof on-chain
  *           ↓
- *   BeTrueCoreCore.finalizeSession()
+ *   BeTrueCoreCore.finalizeSession()             ← collective decision recorded
+ *           ↓
+ *   BeTrueCoreCore.applySessionParticipation()   ← per-participant contribution
  *           ↓
  *   VWUEngine.updateVWU()
  *
