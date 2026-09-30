@@ -1,3 +1,4 @@
+```solidity
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
@@ -9,7 +10,7 @@ pragma solidity ^0.8.24;
  * Author:  Farman Guliyev (Safarnur)
  * ORCID:   0009-0004-4841-594X
  * GitHub:  github.com/Dede-Qorqud/BeTrueCore
- * Version: 0.4
+ * Version: 0.5
  * ═════════════════════════════════════════════════════════════════════════════
  *
  * VWU — dual name, single measure:
@@ -20,18 +21,28 @@ pragma solidity ^0.8.24;
  * VWU measures not the fact of asset ownership but the trajectory of participation.
  *
  * ─────────────────────────────────────────────────────────────────────────────
- * OPEN FORMULA (preprint [11], DOI: 10.5281/zenodo.22179301):
+ * FORMULA — PUBLIC PART (preprint [11], DOI: 10.5281/zenodo.22179301;
+ * the published version describes an earlier formulation of the second
+ * component and is superseded here):
  *
- *   base_delta = 0.4 × A + 0.6 × Q
+ *   Session contribution combines two weighted components:
+ *       Activity 40% + Utility 60%
+ *
+ *   Component limits, the support-level scale, memory length and adaptation
+ *   coefficients are protected in the BeTrueCore master document
+ *   (OpenTimestamps SHA-256). NDA required.
  *
  *   A — activity coefficient ∈ [0,100]
  *       Reflects depth of the seven-step cycle:
  *       A = steps_completed × 100 / 7
  *       0 steps = 0, 7 steps = 100
  *
- *   Q — quality coefficient
- *       Q = 100 if final choice aligned with weighted majority verdict
- *       Q = 50  if final choice diverged from weighted majority verdict
+ *   Two weighted contribution components:
+ *       Activity — 40%   participation depth and agenda formation
+ *       Utility  — 60%   judgments on the dilemmas within the agenda
+ *
+ *   No running tally is exposed. The participant cannot observe the
+ *   distribution of choices at the moment of choosing.
  *
  * Full specification (non-linear factor, EMA parameters, momentum) is
  * protected in the BeTrueCore master document (OpenTimestamps SHA-256).
@@ -40,25 +51,34 @@ pragma solidity ^0.8.24;
  * ─────────────────────────────────────────────────────────────────────────────
  * KEY PROPERTIES:
  *
- *   1. Irreversibility of base score  — VWU_BASE is assigned at registration
- *                                       and cannot be reduced by any mechanism
+ *   1. Irreversibility of base score  — VWU never falls below VWU_BASE.
+ *                                       Absence does not reduce it; only a
+ *                                       recorded rational-filter violation
+ *                                       reduces the rating above that floor
  *   2. Bounded accumulation           — VWU cannot exceed VWU_CAP
  *                                       preprint [11]: «boundedness is not a
  *                                       technical constraint but a normative one»
  *   3. Non-linear growth              — diminishing returns; instantaneous
  *                                       accumulation is architecturally impossible
- *   4. Silence as sovereign decision  — absence does NOT reduce VWU;
- *                                       only the delta of the next session is adjusted
+ *   4. Silence as sovereign decision  — absence does NOT reduce VWU and does
+ *                                       NOT reduce the next session delta;
+ *                                       the rating is frozen for that period
  *   5. Non-reproducibility            — behavioral trajectory cannot be fabricated at scale
  *
  * ─────────────────────────────────────────────────────────────────────────────
- * CONTINUITY PENALTY (preprint [11]):
+ * RATIONAL FILTER:
  *
- *   ≤ 30 days absent   — full delta (factor 1.0)
- *   30–180 days        — linear reduction from 1.0 to 0.5
- *   > 180 days         — maximum penalty: delta × 0.5
+ *   The goal and the time limit are identical for every participant.
+ *   If a participant makes mutually exclusive (paradoxical) or purely chaotic
+ *   choices, the system records this as gamification abuse and the rating is
+ *   reduced.
  *
- *   VWU balance is NOT reduced. Only the next session delta is adjusted.
+ * ─────────────────────────────────────────────────────────────────────────────
+ * OPTIONAL FACTOR:
+ *
+ *   VWU reflects only the days on which the participant was genuinely active.
+ *   Inactive days do not affect the rating: it is frozen for that period, and
+ *   those days are reported to the participant as potential gains forgone.
  *
  * ─────────────────────────────────────────────────────────────────────────────
  * SEVEN-STEP CYCLE (preprint [12], DOI: 10.5281/zenodo.22537058):
@@ -83,7 +103,7 @@ contract VWUEngine {
 
     /// @notice Base score assigned at registration — «presence itself is the signature»
     /// @dev Irreversible. Preprint [11]: «this score is irreversible and non-redeemable»
-    uint256 public constant VWU_BASE = 1;
+    uint256 public constant VWU_BASE = 100; // 1.00 VWU
 
     // Status thresholds
     uint256 public constant VWU_SOLO       = 0;
@@ -94,12 +114,17 @@ contract VWUEngine {
     uint256 public constant VWU_VERITAS_ZK = 3000;  // 30.00 VWU
 
     /// @notice Upper bound on VWU accumulation — normative architectural principle
-    /// @dev Value is protected in the BeTrueCore master document (NDA required).
-    ///      Its existence is public; its exact value is not.
-    uint256 private constant VWU_CAP = 3000; // [PROTECTED]
+    /// @dev Bounded accumulation is a normative constraint, not a technical one
+    ///      — preprint [11]. The value below is a placeholder for the reference
+    ///      implementation; the operative bound follows the master document.
+    uint256 private constant VWU_CAP = 3000; // [PLACEHOLDER]
 
     /// @notice Steps in the seven-step participation cycle
     uint256 public constant CYCLE_STEPS = 7;
+
+    /// @notice Agenda topics selected collectively per session — always three
+    /// @dev Preprint [12]: steps 5–7 are binary choices over the TOP-3 agenda
+    uint256 public constant AGENDA_TOPICS = 3;
 
     // ══════════════════════════════════════════════════════════════════════
     // ENUMS
@@ -124,13 +149,13 @@ contract VWUEngine {
     ///      Preprint [11]: «VWU status is not a public attribute»
     mapping(address => uint256) private vwu;
 
-    /// @notice Last session timestamp per participant (for continuity penalty)
+    /// @notice Last session timestamp per participant
     mapping(address => uint256) public lastSessionTimestamp;
 
     /// @notice Session count per participant
     mapping(address => uint256) public sessionCount;
 
-    /// @notice Registration flag (distinguishes VWU=1 from unregistered)
+    /// @notice Registration flag (distinguishes VWU_BASE from unregistered)
     mapping(address => bool) public registered;
 
     /// @notice Count of participants at each status level
@@ -154,9 +179,16 @@ contract VWUEngine {
         ///      even when the final binary answer is identical to another participant's
         uint8   steps_completed;
 
-        /// @notice Whether the final choice aligned with the weighted majority verdict
-        /// @dev true → Q = 100, false → Q = 50
-        bool    aligned_majority;
+        /// @notice Whether the participant submitted a prompt in this session
+        bool     prompt_submitted;
+
+        /// @notice Whether the submitted prompt entered the TOP-3 agenda
+        bool     prompt_in_agenda;
+
+        /// @notice Support level recorded for each agenda dilemma
+        /// @dev Array length equals AGENDA_TOPICS. The support-level scale
+        ///      is protected in the master document.
+        uint8[3] dilemma_support;
 
         uint256 session_timestamp;
     }
@@ -173,15 +205,13 @@ contract VWUEngine {
     event VWUUpdated(
         address indexed participant,
         uint256 new_vwu,
-        uint256 delta,
-        uint8   steps_completed,
-        bool    aligned_majority
+        int256  delta,
+        uint8   steps_completed
     );
 
-    event ContinuityPenalty(
+    event RationalFilterApplied(
         address indexed participant,
-        uint256 gap_days,
-        uint256 penalty_factor
+        uint256 reduction
     );
 
     event StatusAdvanced(
@@ -228,7 +258,7 @@ contract VWUEngine {
     // ══════════════════════════════════════════════════════════════════════
 
     /// @notice Initialize a participant at registration
-    /// @dev Assigns VWU_BASE = 1 — the irreversible base score.
+    /// @dev Assigns VWU_BASE — the irreversible base score.
     ///      Called by coordinator after ZK identity proof is verified.
     ///      Preprint [11]: «Every verified participant receives a non-zero
     ///      base score upon registration. This score is irreversible.»
@@ -241,7 +271,7 @@ contract VWUEngine {
 
         registered[participant]  = true;
         vwu[participant]         = VWU_BASE;
-        statusCount[Status.SOLO]++;
+        statusCount[_computeStatus(VWU_BASE)]++;
 
         emit ParticipantInitialized(participant, VWU_BASE);
     }
@@ -251,10 +281,13 @@ contract VWUEngine {
     // ══════════════════════════════════════════════════════════════════════
 
     /// @notice Update VWU after a session (called by coordinator after time lock)
-    /// @dev Silence is sovereign — VWU balance is never reduced by absence.
-    ///      Only the delta of the next session is adjusted via continuity penalty.
+    /// @dev Silence is sovereign — absence never reduces VWU and never reduces
+    ///      the next session delta. The rating is frozen for that period.
     /// @param result Session result from the anti-collusion coordinator
-    function updateVWU(SessionResult memory result) external onlyCoordinator {
+    /// @return delta_applied Session delta applied to the participant's rating
+    function updateVWU(SessionResult memory result)
+        external onlyCoordinator returns (int256 delta_applied)
+    {
         address p = result.participant;
 
         if (!registered[p])             revert NotRegistered(p);
@@ -262,55 +295,26 @@ contract VWUEngine {
 
         Status status_before = _computeStatus(vwu[p]);
 
-        // ── Step 1: Base delta ─────────────────────────────────────────────
-        // A = steps_completed × 100 / 7  (seven-step cycle → 0..100)
-        // Preprint [12]: depth of cycle determines weight
-        uint256 A = uint256(result.steps_completed) * 100 / CYCLE_STEPS;
-        uint256 Q = result.aligned_majority ? 100 : 50;
+        // ── Step 1: Session delta ──────────────────────────────────────────
+        // Activity 40% + Utility 60%. Component limits, the support-level
+        // scale and the growth factor are protected (NDA required).
+        uint256 current = vwu[p];
+        int256  delta   = _baseDelta(result);
 
-        // base_delta = 0.4 × A + 0.6 × Q  (open part of the formula)
-        uint256 base_delta = (40 * A + 60 * Q) / 100;
+        if (delta < 0) emit RationalFilterApplied(p, uint256(-delta));
 
-        // ── Step 2: Non-linear growth factor ──────────────────────────────
-        // Diminishing returns: each additional unit requires more genuine participation.
-        // Instantaneous accumulation is architecturally impossible.
-        // Full formula is protected. This is the public approximation.
-        uint256 current       = vwu[p];
-        uint256 growth_factor = 10000 * 100 / (100 * 100 + current);
-        uint256 delta         = base_delta * growth_factor / 10000;
-
-        // ── Step 3: Continuity adjustment ─────────────────────────────────
-        // VWU balance is NOT reduced. Only the next session delta is adjusted.
-        // Preprint [11]: «Silence is a sovereign decision, not a technical error»
-        if (lastSessionTimestamp[p] > 0 &&
-            result.session_timestamp > lastSessionTimestamp[p])
-        {
-            uint256 gap_days =
-                (result.session_timestamp - lastSessionTimestamp[p]) / 1 days;
-
-            if (gap_days > 30) {
-                uint256 penalty_factor = gap_days > 180
-                    ? 50
-                    : 100 - ((gap_days - 30) * 50 / 150);
-
-                delta = delta * penalty_factor / 100;
-                emit ContinuityPenalty(p, gap_days, penalty_factor);
-            }
-        }
-
-        // ── Step 4: Apply delta with upper bound ───────────────────────────
+        // ── Step 2: Apply delta within bounds ──────────────────────────────
         // Preprint [11]: «no participant can accumulate unlimited weight»
-        uint256 new_vwu = current + delta;
+        uint256 new_vwu = _apply(current, delta);
         if (new_vwu > VWU_CAP) new_vwu = VWU_CAP;
 
         vwu[p]                  = new_vwu;
         lastSessionTimestamp[p] = result.session_timestamp;
         sessionCount[p]++;
 
-        emit VWUUpdated(p, new_vwu, delta,
-                        result.steps_completed, result.aligned_majority);
+        emit VWUUpdated(p, new_vwu, delta, result.steps_completed);
 
-        // ── Step 5: Update status distribution and emit event ──────────────
+        // ── Step 3: Update status distribution and emit event ──────────────
         // statusCount is public — shows how many stars at each level,
         // not whose they are.
         Status status_after = _computeStatus(new_vwu);
@@ -321,6 +325,10 @@ contract VWUEngine {
             statusCount[status_after]++;
             emit StatusAdvanced(p, status_after, new_vwu);
         }
+
+        // The caller learns the delta of the session it coordinated —
+        // never another participant's accumulated rating.
+        delta_applied = int256(new_vwu) - int256(current);
     }
 
     // ══════════════════════════════════════════════════════════════════════
@@ -390,19 +398,14 @@ contract VWUEngine {
     }
 
     /// @notice Preview delta without writing to state (for off-chain simulation)
-    /// @dev Uses msg.sender — caller previews their own potential delta only
-    function previewMyDelta(
-        uint8 steps_completed,
-        bool  aligned_majority
-    ) external view returns (uint256 delta) {
-        if (steps_completed > 7) return 0;
+    /// @dev Caller previews their own potential delta only
+    function previewMyDelta(SessionResult memory result)
+        external view returns (int256 delta)
+    {
+        if (result.participant != msg.sender) return 0;
+        if (result.steps_completed > 7)       return 0;
 
-        uint256 A             = uint256(steps_completed) * 100 / CYCLE_STEPS;
-        uint256 Q             = aligned_majority ? 100 : 50;
-        uint256 base_delta    = (40 * A + 60 * Q) / 100;
-        uint256 current       = vwu[msg.sender];
-        uint256 growth_factor = 10000 * 100 / (100 * 100 + current);
-        delta                 = base_delta * growth_factor / 10000;
+        delta = _baseDelta(result);
     }
 
     // ══════════════════════════════════════════════════════════════════════
@@ -419,6 +422,32 @@ contract VWUEngine {
         return Status.SOLO;
     }
 
+    /// @notice Session delta derived from the session result
+    /// @dev Return value is in VWU units ×100, the same scale as vwu[] storage.
+    ///      Composition: Activity 40% + Utility 60%. Component limits, the
+    ///      support-level scale and the non-linear growth factor are protected
+    ///      in the BeTrueCore master document (OpenTimestamps SHA-256).
+    ///      NDA required.
+    ///      The Harmony Agent traffic-light verdict is not an input here. It is
+    ///      an ethical indication displayed by the Panorama, applied to majority
+    ///      and minority alike, and it does not affect participant weight.
+    function _baseDelta(SessionResult memory result)
+        internal view returns (int256 delta)
+    {
+        // [PROTECTED — implementation per master document]
+    }
+
+    /// @notice Apply a session delta to the cumulative rating
+    /// @dev Both current and return value are in VWU units ×100.
+    ///      The result never falls below VWU_BASE — «Varlıq özü imzadır».
+    function _apply(uint256 current, int256 delta)
+        internal pure returns (uint256)
+    {
+        int256 result = int256(current) + delta;
+        if (result < int256(VWU_BASE)) return VWU_BASE;
+        return uint256(result);
+    }
+
     // ══════════════════════════════════════════════════════════════════════
     // ADMIN
     // ══════════════════════════════════════════════════════════════════════
@@ -427,3 +456,4 @@ contract VWUEngine {
         coordinator = _coordinator;
     }
 }
+```
