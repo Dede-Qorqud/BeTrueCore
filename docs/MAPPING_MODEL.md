@@ -1,7 +1,7 @@
 # BeTrueCore Mapping Model v0
 ## Evidential Layer Boundary Definition
 
-**Version:** 0.1  
+**Version:** 0.3  
 
 **Repository:** github.com/Dede-Qorqud/BeTrueCore
 
@@ -113,7 +113,8 @@ A participant cannot demonstrate their final choice to any external party becaus
 
 ## VWU Calculation Boundary
 
-The VWU formula is a **Black Box** at this boundary layer.
+The VWU formula has a defined disclosure boundary at this layer: the inputs and
+the composition weights are public, the coefficients are not.
 
 **Inputs (public):**
 - `steps_completed` (uint8, 0–7) — depth of the seven-step participation cycle
