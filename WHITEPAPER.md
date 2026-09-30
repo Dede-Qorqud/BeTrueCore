@@ -78,7 +78,7 @@ BeTrueCore is structured across six layers. Each layer is an independent compone
 L0  Identity    State ID (NIN code) + ZK + MPC 2-of-3
      ↓          State ID sovereignty — original NIN code never leaves the device
 
-L1  Proofs      ZK-SNARKs + MACI v1.2
+L1  Proofs      ZK-SNARKs + anti-collusion protocol (Circom/Groth16)
      ↓          Anonymity, anti-collusion, receipt-freeness
 
 L2  Execution   Optimism L2
@@ -96,7 +96,7 @@ L5  AI Agents   Analyst × 3 + Strategist × 3 + Sentinel × 3
 
 **L0 — Identity.** ZK commitment is generated on-device from state identifier (NIN — National Identification Number). For example: Birth number (Rodné číslo) — a unique identifier for persons in the Czech Republic. Original NIN never leaves the device. Private keys are fragmented using Shamir Secret Sharing (threshold 2-of-3) via MPC — the key is never reconstructed in a single location — the single point of failure is eliminated.
 
-**L1 — Proofs.** Zero-knowledge proofs separate the act of decision-making from its social observation. MACI v1.2 provides key-rotation: a participant may change their decision any number of times before session close — only the final decision counts. Coercion and purchase of decisions are mathematically meaningless: the seller retains the ability to silently override the choice.
+**L1 — Proofs.** Zero-knowledge proofs separate the act of choosing from its social observation. The anti-collusion protocol provides key-rotation: a participant may change their choice any number of times before session close — only the final choice counts. Coercion and purchase of choices are mathematically meaningless: the seller retains the ability to silently override the choice.
 
 **L2 — Execution.** Smart contracts manage the session lifecycle, VWU calculation, and result finalization. Optimism L2 provides fast, low-cost execution without compromising Ethereum-level security.
 
@@ -114,22 +114,21 @@ L5  AI Agents   Analyst × 3 + Strategist × 3 + Sentinel × 3
 
 Four mechanisms form the operational core of BeTrueCore.
 
-### 5.1 MACI + ZK — Protection of the Moment of Choice
+### 5.1 Anti-Collusion Protocol + ZK — Protection of the Moment of Choice
 
-MACI v1.2 implements the impossibility of proving a decision to a third party. A participant cannot prove their choice to anyone — because all intermediate decisions are cryptographically equiprobable. Only the final decision counts.
-
+The anti-collusion protocol (Circom/Groth16, MACI pattern) makes it impossible to prove a choice to a third party. A participant cannot prove their choice to anyone — because all intermediate choices are cryptographically equiprobable. Only the final choice counts.
 ```
 Session open
      ↓
-Participant submits encrypted decision (MACI key)
-     ↓
-Participant may rotate key + submit new decision (any number of times)
-     ↓
+Participant submits encrypted choice (rotating key)
+    ↓
+Participant may rotate key + submit new choice (any number of times)
+    ↓
 TIME LOCK — session closes
-     ↓
-Only FINAL decision counts (all previous keys invalidated)
-     ↓
-MACI coordinator publishes result + ZK correctness proof
+    ↓
+Only FINAL choice counts (all previous keys invalidated)
+    ↓
+Anti-collusion coordinator publishes result + ZK correctness proof
      ↓
 Coordinator cannot falsify — fraudulent proof rejected by verifiers
 ```
@@ -142,13 +141,18 @@ Public interface (inputs → output):
 
 | Input | Description |
 |---|---|
-| `activity_score` | Completeness of session participation (0–100) |
-| `previous_rating` | Participant's own cumulative rating |
-| `session_score` | Utility score of the participant's judgments in this session |
+| `steps_completed` | Depth of the seven-step participation cycle (0–7) |
+| `prompt_submitted` | Whether the participant submitted a prompt |
+| `prompt_in_agenda` | Whether that prompt entered the TOP-3 agenda |
+| `dilemma_support` | Support level per agenda dilemma; the scale is protected |
 | **Output** | **Description** |
-| `vwu_delta` | Increment to participant VWU balance |
+| `vwu_delta` | Signed change to participant VWU balance; never falls below the non-burnable base of 1 |
 
-The VWU formula is protected in the master document (OpenTimestamps SHA-256). Inputs and output are publicly disclosed — sufficient for integration. Full specification available to verified partners.
+Contribution composition is public: Activity 40% + Utility 60%. The formula itself is protected in the master document (OpenTimestamps SHA-256) — component limits, the support-level scale, and the memory and adaptation coefficients are resolved internally. The Harmony Agent traffic-light verdict is not part of this computation: it is an ethical indication displayed by the Panorama, applied to majority and minority alike, and it does not affect participant weight. Inputs and output are publicly disclosed — sufficient for integration. Full specification available to verified partners.
+
+**Rational filter.** The goal and the time limit are identical for every participant. If a participant makes mutually exclusive or purely chaotic choices, the system records this as gamification abuse and the rating is reduced. This is the only mechanism that reduces a rating — and it never falls below the non-burnable base of 1.
+
+**Silence is a sovereign decision.** VWU reflects only the days on which a participant was genuinely active. Absence reduces neither the rating nor the next session's delta: the rating is frozen for that period. Inactive days are reported to the participant alone, as potential gains forgone — for example, that over the last 90 days they did not take part in 15 sessions, during which their rating stood still.
 
 Six status levels: SOLO → SELFLY → UNIVERSAL → HONORIS → LUMINARE → VERITAS_ZK.
 
@@ -233,7 +237,7 @@ Architecture, mathematical model, and technical specification are complete and t
 
 ### 8.2 Technical Implementation
 
-Developer Package v0.1 includes five smart contracts, the IBeTrueCore interface, and a Foundry test suite.
+Developer Package v0.3 includes five smart contracts, the IBeTrueCore interface, and a Foundry test suite.
 
 Damon Zwicker (ERC-8281 – Observation Commitment Protocol) reviewed the proposed integration of ERC-8281 into BeTrueCore and helped clarify the architectural boundary between BeTrueCore's private transition logic and ERC-8281's independently verifiable commitment layer. The discussion focused on the VoteProof observation envelope at L1 and the two-point commitment structure surrounding the Lit Protocol time-lock at L3. ERC-8281 provides an independently verifiable commitment layer for those observations and transitions without requiring access to BeTrueCore's private VWU inputs, internal protocol semantics, or governance logic.
 
@@ -279,7 +283,7 @@ BeTrueCore is at TRL 2 → TRL 3. Architecture, mathematical model, and specific
 
 **Critical path (MVP):**
 
-1. MACI v1.2 smart contract deployment (testnet)
+1. Anti-collusion smart contract deployment (testnet)
 2. ZK identity circuit (Circom) — state ID commitment + nullifier
 3. VWU calculation contract integration
 
@@ -299,8 +303,8 @@ Without these three components the system does not function. Celestia and Lit Pr
 
 **What is open:**
 
-- Full smart contract suite (Developer Package v0.1)
-- MACI integration specification (MACI_ENGINEER_PACKAGE.md)
+- Full smart contract suite (Developer Package v0.3)
+- Anti-collusion integration specification (MACI_ENGINEER_PACKAGE.md)
 - Evidential layer boundary model (MAPPING_MODEL.md)
 - Architectural foundation (ARCHITECTURE_FOUNDATION.md)
 - 736-point Ethical Priority Map (Excel + Solidity)
@@ -308,7 +312,7 @@ Without these three components the system does not function. Celestia and Lit Pr
 
 **What is protected:**
 
-- VWU non-linear growth factor and full formula.
+- VWU component limits, support-level scale, memory and adaptation coefficients, non-linear growth factor, and full formula.
 - Master document (available to verified partners).
 
 If you are a Solidity / Circom / ZK developer interested in sovereign collective intelligence — open an Issue or reach out via ethresear.ch: [Dede-Qorqud](https://ethresear.ch/u/Dede-Qorqud)
