@@ -9,9 +9,9 @@ import "../src/HarmonyAgent.sol";
 import "../src/VWUEngine.sol";
 
 /// @title BeTrueCoreTest
-/// @notice Foundry unit tests for BeTrueCore Developer Package v0.2
+/// @notice Foundry unit tests for BeTrueCore Developer Package v0.3
 /// @dev Run with: forge test -v
-///      BeTrueCore Developer Package v0.2
+///      BeTrueCore Developer Package v0.3
 ///      github.com/Dede-Qorqud/BeTrueCore
 
 contract BeTrueCoreTest is Test {
@@ -51,6 +51,9 @@ contract BeTrueCoreTest is Test {
             address(harmony),
             address(vwuEngine)
         );
+
+        // Register HarmonyAgent as the only writer of audit events
+        matrix.setHarmonyAgent(address(harmony));
 
         // Populate a subset of the 736-point matrix for testing
         _populateTestMatrix();
@@ -202,107 +205,93 @@ contract BeTrueCoreTest is Test {
     // VWU ENGINE TESTS
     // ─────────────────────────────────────────────────────────────
 
-    function test_VWU_InitialBalance() public {
-        uint256 vwu = vwuEngine.getVWU(participant);
-        assertEq(vwu, 0, "Initial VWU should be 0");
+       /// @dev Helper: a session result representing a full seven-step cycle
+    function _fullSession(address p, uint256 ts)
+        internal pure returns (VWUEngine.SessionResult memory)
+    {
+        return VWUEngine.SessionResult({
+            participant:       p,
+            steps_completed:   7,
+            prompt_submitted:  true,
+            prompt_in_agenda:  true,
+            dilemma_support:   [uint8(1), uint8(1), uint8(1)],
+            session_timestamp: ts
+        });
     }
 
-    function test_VWU_UpdateAligned() public {
-        // Participant aligned with majority, full activity
-        uint256 delta = vwuEngine.previewDelta(participant, 100, true);
-        assertTrue(delta > 0, "Delta should be positive for full activity + aligned");
+    function test_VWU_UnregisteredHoldsZero() public {
+        vm.prank(participant);
+        assertEq(vwuEngine.getMyVWU(), 0, "Unregistered participant should hold 0");
     }
 
-    function test_VWU_UpdateNotAligned() public {
-        // Participant NOT aligned with majority, full activity
-        uint256 delta_aligned     = vwuEngine.previewDelta(participant, 100, true);
-        uint256 delta_not_aligned = vwuEngine.previewDelta(participant, 100, false);
-        assertTrue(delta_aligned > delta_not_aligned, "Aligned should earn more VWU than not aligned");
+        function test_VWU_BaseGrantedAtRegistration() public {
+        vm.prank(coordinator);
+        vwuEngine.initializeParticipant(participant);
+
+        vm.prank(participant);
+        assertEq(
+            vwuEngine.getMyVWU(),
+            vwuEngine.VWU_BASE(),
+            "Registration must grant the non-burnable base score"
+        );
     }
 
-    function test_VWU_NonLinearGrowth() public {
-        vm.startPrank(coordinator);
-
-        // Session 1: participant starts from 0
-        VWUEngine.SessionResult memory r1 = VWUEngine.SessionResult({
-            participant:       participant,
-            activity_score:    100,
-            aligned_majority:  true,
-            session_timestamp: block.timestamp
-        });
-        vwuEngine.updateVWU(r1);
-        uint256 vwu_after_1 = vwuEngine.getVWU(participant);
-
-        // Session 2: participant now has accumulated VWU
-        VWUEngine.SessionResult memory r2 = VWUEngine.SessionResult({
-            participant:       participant,
-            activity_score:    100,
-            aligned_majority:  true,
-            session_timestamp: block.timestamp + 1 days
-        });
-        vwuEngine.updateVWU(r2);
-        uint256 vwu_after_2 = vwuEngine.getVWU(participant);
-
-        uint256 delta_1 = vwu_after_1;
-        uint256 delta_2 = vwu_after_2 - vwu_after_1;
-
-        assertTrue(delta_1 > delta_2, "Second session delta should be smaller (non-linear growth)");
-
-        vm.stopPrank();
+    function test_VWU_UpdateRequiresRegistration() public {
+        vm.prank(coordinator);
+        vm.expectRevert(
+            abi.encodeWithSelector(VWUEngine.NotRegistered.selector, participant)
+        );
+        vwuEngine.updateVWU(_fullSession(participant, block.timestamp));
     }
-
-    function test_VWU_ContinuityPenalty() public {
-        vm.startPrank(coordinator);
-
-        // First session
-        VWUEngine.SessionResult memory r1 = VWUEngine.SessionResult({
-            participant:       participant,
-            activity_score:    100,
-            aligned_majority:  true,
-            session_timestamp: block.timestamp
-        });
-        vwuEngine.updateVWU(r1);
-        uint256 vwu_base = vwuEngine.getVWU(participant);
-
-        // Second session after 60-day gap (> 30 days threshold)
-        VWUEngine.SessionResult memory r2 = VWUEngine.SessionResult({
-            participant:       participant2, // fresh participant for comparison
-            activity_score:    100,
-            aligned_majority:  true,
-            session_timestamp: block.timestamp
-        });
-        vwuEngine.updateVWU(r2);
-        uint256 fresh_delta = vwuEngine.getVWU(participant2);
-
-        // Session with 60-day gap
-        VWUEngine.SessionResult memory r3 = VWUEngine.SessionResult({
-            participant:       participant,
-            activity_score:    100,
-            aligned_majority:  true,
-            session_timestamp: block.timestamp + 60 days
-        });
-        vwuEngine.updateVWU(r3);
-        uint256 gap_delta = vwuEngine.getVWU(participant) - vwu_base;
-
-        assertTrue(gap_delta < fresh_delta, "60-day gap should apply continuity penalty");
-
-        vm.stopPrank();
-    }
-
     function test_VWU_OnlyCoordinator() public {
-        // Non-coordinator should not be able to update VWU
-        VWUEngine.SessionResult memory r = VWUEngine.SessionResult({
-            participant:       participant,
-            activity_score:    100,
-            aligned_majority:  true,
-            session_timestamp: block.timestamp
-        });
+        vm.prank(coordinator);
+        vwuEngine.initializeParticipant(participant);
 
         vm.prank(participant); // not the coordinator
-        vm.expectRevert("Only anti-collusion coordinator");
-        vwuEngine.updateVWU(r);
+        vm.expectRevert(VWUEngine.NotCoordinator.selector);
+        vwuEngine.updateVWU(_fullSession(participant, block.timestamp));
     }
 
+    function test_VWU_NeverFallsBelowBase() public {
+        vm.startPrank(coordinator);
+        vwuEngine.initializeParticipant(participant);
+        vwuEngine.updateVWU(_fullSession(participant, block.timestamp));
+        vm.stopPrank();
+
+        vm.prank(participant);
+        assertGe(
+            vwuEngine.getMyVWU(),
+            vwuEngine.VWU_BASE(),
+            "VWU must never fall below the base score"
+        );
+    }
+
+    function test_VWU_AbsenceDoesNotReduce() public {
+        vm.startPrank(coordinator);
+        vwuEngine.initializeParticipant(participant);
+        vwuEngine.updateVWU(_fullSession(participant, block.timestamp));
+        vm.stopPrank();
+
+        vm.prank(participant);
+        uint256 before_absence = vwuEngine.getMyVWU();
+
+        vm.warp(block.timestamp + 200 days);
+
+        vm.prank(participant);
+        assertEq(
+            vwuEngine.getMyVWU(),
+            before_absence,
+            "Absence must not reduce the rating — silence is a sovereign decision"
+        );
+    }
+
+    function test_VWU_PreviewIsCallerOnly() public {
+        vm.prank(participant2);
+        int256 delta =
+            vwuEngine.previewMyDelta(_fullSession(participant, block.timestamp));
+        assertEq(delta, 0, "Preview must return 0 for another participant's result");
+    }
+  
     // ─────────────────────────────────────────────────────────────
     // CORE CONTRACT TESTS
     // ─────────────────────────────────────────────────────────────
