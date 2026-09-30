@@ -4,7 +4,7 @@ pragma solidity ^0.8.19;
 /// @title IBeTrueCore
 /// @notice Core interface for BeTrueCore — cryptographic infrastructure for
 ///         sovereign collective decision-making
-/// @dev Part of BeTrueCore Developer Package v0.1 / v0.2
+/// @dev Part of BeTrueCore Developer Package v0.3
 /// @author Farman Guliyev (Safarnur) — github.com/Dede-Qorqud/BeTrueCore
 ///
 /// Constitutional principle: AI is the notary. The human is the author.
@@ -98,10 +98,11 @@ interface IBeTrueCore {
     );
 
     /// @notice Emitted when VWU is updated after a session
+    /// @dev delta is signed — the rating may decrease; VWU never falls below VWU_BASE
     event VWUUpdated(
         bytes32 indexed identity_commitment,
         uint256 new_vwu,
-        uint256 delta
+        int256  delta
     );
 
     /// @notice Emitted when Harmony Agent issues a verdict
