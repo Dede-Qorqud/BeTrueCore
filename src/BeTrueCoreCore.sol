@@ -8,7 +8,7 @@ import "./VWUEngine.sol";
 
 /// @title BeTrueCoreCore
 /// @notice Main implementation contract for BeTrueCore
-/// @dev Part of BeTrueCore Developer Package v0.1 / v0.2
+/// @dev Part of BeTrueCore Developer Package v0.3
 /// @author Farman Guliyev (Safarnur) — github.com/Dede-Qorqud/BeTrueCore
 ///
 /// Architecture: L0 (NIN-code ZK) → L1 (ZK + anti-collusion protocol) → L2 (Optimism) →
@@ -108,6 +108,9 @@ contract BeTrueCoreCore is IBeTrueCore {
     /// @notice Register a new participant
     /// @dev Requires L0 NIN-code ZK-commitment + L1 ZK proof
     ///      bytes32 identity_commitment preserves privacy (not address)
+    ///      Registration is a single operation across both contracts: the
+    ///      participant is initialized in VWUEngine and receives the
+    ///      non-burnable base score — «Varlıq özü imzadır».
     function register(
         bytes32 identity_commitment,
         bytes calldata zk_proof
@@ -121,10 +124,17 @@ contract BeTrueCoreCore is IBeTrueCore {
         // via Circom verifier contract (external dependency)
         // _verifyRegistrationProof(identity_commitment, zk_proof);
 
+        address participant_address =
+            address(uint160(uint256(identity_commitment)));
+
+        vwuEngine.initializeParticipant(participant_address);
+
+        uint256 base = vwuEngine.VWU_BASE();
+
         participants[identity_commitment] = Participant({
             identity_commitment: identity_commitment,
-            vwu:                 0,
-            status:              Status.SOLO,
+            vwu:                 base,
+            status:              _computeStatus(base),
             session_count:       0,
             last_session:        0
         });
@@ -203,6 +213,40 @@ contract BeTrueCoreCore is IBeTrueCore {
         emit SessionFinalized(session_id, result);
     }
 
+    /// @notice Apply session participation to participant ratings
+    /// @dev Called by the coordinator after finalizeSession, once per session.
+    ///      The aggregated result records the collective decision; participation
+    ///      records what each person contributed. They are submitted separately.
+    function applySessionParticipation(
+        uint256            session_id,
+        bytes32[] calldata identity_commitments,
+        uint8[]   calldata steps_completed,
+        bool[]    calldata prompt_submitted,
+        bool[]    calldata prompt_in_agenda,
+        uint8[3][] calldata dilemma_support
+    ) external onlyCoordinator sessionExists(session_id) {
+        require(sessions[session_id].finalized, "Session not finalized");
+
+        uint256 n = identity_commitments.length;
+        require(
+            steps_completed.length  == n &&
+            prompt_submitted.length == n &&
+            prompt_in_agenda.length == n &&
+            dilemma_support.length  == n,
+            "Length mismatch"
+        );
+
+        for (uint256 i = 0; i < n; i++) {
+            _updateParticipantVWU(
+                identity_commitments[i],
+                steps_completed[i],
+                prompt_submitted[i],
+                prompt_in_agenda[i],
+                dilemma_support[i]
+            );
+        }
+    }
+
     // ─────────────────────────────────────────────────────────────
     // VWU INTERNAL UPDATE
     // ─────────────────────────────────────────────────────────────
@@ -212,31 +256,36 @@ contract BeTrueCoreCore is IBeTrueCore {
     ///      The full VWU formula (including non-linear factor) is protected
     ///      in the BeTrueCore master document (OpenTimestamps SHA-256)
     function _updateParticipantVWU(
-        bytes32 identity_commitment,
-        uint8   activity_score,
-        bool    aligned_majority
+        bytes32  identity_commitment,
+        uint8    steps_completed,
+        bool     prompt_submitted,
+        bool     prompt_in_agenda,
+        uint8[3] memory dilemma_support
     ) internal {
         // Delegate to VWUEngine (which holds the formula implementation)
         VWUEngine.SessionResult memory sr = VWUEngine.SessionResult({
             participant:       address(uint160(uint256(identity_commitment))),
-            activity_score:    activity_score,
-            aligned_majority:  aligned_majority,
+            steps_completed:   steps_completed,
+            prompt_submitted:  prompt_submitted,
+            prompt_in_agenda:  prompt_in_agenda,
+            dilemma_support:   dilemma_support,
             session_timestamp: block.timestamp
         });
 
-        vwuEngine.updateVWU(sr);
+        int256 delta = vwuEngine.updateVWU(sr);
 
-        // Update local participant record
-        uint256 new_vwu = vwuEngine.getVWU(
-            address(uint160(uint256(identity_commitment)))
-        );
+        // Update local participant record.
+        // VWUEngine reports the delta of the session it was given; accumulated
+        // balances are readable by their owner only.
+        uint256 current = participants[identity_commitment].vwu;
+        uint256 new_vwu = uint256(int256(current) + delta);
 
         participants[identity_commitment].vwu = new_vwu;
         participants[identity_commitment].status = _computeStatus(new_vwu);
         participants[identity_commitment].session_count++;
         participants[identity_commitment].last_session = block.timestamp;
 
-        emit VWUUpdated(identity_commitment, new_vwu, 0);
+        emit VWUUpdated(identity_commitment, new_vwu, delta);
     }
 
     /// @notice Compute status level from VWU balance
