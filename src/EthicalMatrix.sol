@@ -1,9 +1,10 @@
+
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.19;
 
 /// @title EthicalMatrix
 /// @notice Stores the 736-point ethical priority map (23 Asilomar Principles × 32 TDSH parameters)
-/// @dev Part of BeTrueCore Developer Package v0.2
+/// @dev Part of BeTrueCore Developer Package v0.3
 /// @author Farman Guliyev (Safarnur) — github.com/Dede-Qorqud/BeTrueCore
 
 contract EthicalMatrix {
@@ -56,6 +57,9 @@ contract EthicalMatrix {
 
     address public owner;
 
+    /// @notice The only contract permitted to write audit events
+    address public harmonyAgent;
+
     // ─────────────────────────────────────────────────────────────
     // EVENTS
     // ─────────────────────────────────────────────────────────────
@@ -86,6 +90,13 @@ contract EthicalMatrix {
     // ─────────────────────────────────────────────────────────────
     // MATRIX POPULATION
     // ─────────────────────────────────────────────────────────────
+
+    /// @notice Connect the HarmonyAgent permitted to write audit events
+    /// @dev Set once after deployment, before the first session
+    function setHarmonyAgent(address _harmonyAgent) external onlyOwner {
+        require(_harmonyAgent != address(0), "Zero address");
+        harmonyAgent = _harmonyAgent;
+    }
 
     /// @notice Populate a batch of cells
     /// @dev Called by deployer to fill the 736-point map
@@ -164,13 +175,17 @@ contract EthicalMatrix {
         return cells[uint16(asilomar_id) * 100 + uint16(tdsh_id)];
     }
 
-    /// @notice Emit CellTriggered event (called by HarmonyAgent)
+    /// @notice Emit CellTriggered event
+    /// @dev Only the connected HarmonyAgent may write to the audit trail.
+    ///      Without this restriction any address could forge audit events.
     function triggerCell(
         bytes32 identity_commitment,
         uint8 asilomar_id,
         uint8 tdsh_id,
         uint8 ematch_score
     ) external {
+        require(msg.sender == harmonyAgent, "Only HarmonyAgent");
+
         Verdict verdict = computeVerdict(ematch_score);
         emit CellTriggered(identity_commitment, asilomar_id, tdsh_id, ematch_score, verdict);
     }
