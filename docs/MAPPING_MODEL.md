@@ -61,12 +61,12 @@ L5  AI Agent Layer          Analyst × 3 + Strategist × 3 + Sentinel × 3
 
 | Data | Direction | Format | Guarantee |
 |------|-----------|--------|-----------|
-| VWU delta | L2 → L4 | uint256 (scaled ×100) | Post-session update |
+| VWU delta | L2 → L4 | int256 (scaled ×100) | Post-session update |
 | Session result | L2 → L4 | SessionResult struct | Coordinator-verified |
 | Ethical verdict | L2 → L4 | Verdict enum | Harmony Agent output |
 | CellTriggered events | L2 → L4 | Event log | Immutable audit |
 
-**What does NOT cross:** Individual choices, participant identities, VWU formula internals.  
+**What does NOT cross:** Individual choices, participant identities, VWU formula internals, individual support levels per dilemma, accumulated VWU balances of other participants.  
 **Guarantee:** Public verifiability without revealing individual choices.
 
 ### L5 Agent Boundary (read-only in all directions)
@@ -116,16 +116,27 @@ A participant cannot demonstrate their final choice to any external party becaus
 The VWU formula is a **Black Box** at this boundary layer.
 
 **Inputs (public):**
-- `activity_score` (uint8, 0–100) — completeness of session participation
-- `aligned_majority` (bool) — whether final choice aligned with weighted majority
+- `steps_completed` (uint8, 0–7) — depth of the seven-step participation cycle
+- `prompt_submitted` (bool) — whether the participant submitted a prompt
+- `prompt_in_agenda` (bool) — whether that prompt entered the TOP-3 agenda
+- `dilemma_support` (uint8[3]) — support level recorded for each agenda dilemma;
+  the scale itself is protected
 
 **Output (public):**
-- `vwu_delta` (uint256) — increment to participant's VWU balance
+- `vwu_delta` (int256) — signed change to the participant's VWU balance;
+  the balance never falls below the non-burnable base of 1
 
 **Internal mechanics (protected):**
 - Non-linear growth factor
-- Continuity adjustment algorithm
+- Component limits and the support-level scale
+- Memory length and adaptation coefficients
 - Full formula specification
+
+**Open part of the composition:** Activity 40% + Utility 60%.
+
+The Harmony Agent traffic-light verdict is not part of this calculation. It is
+an ethical indication displayed by the Panorama, applied to majority and
+minority alike, and it does not affect participant weight.
 
 **Protection:** BeTrueCore master document, timestamped via OpenTimestamps SHA-256.
 
