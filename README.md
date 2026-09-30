@@ -46,8 +46,8 @@ BeTrueCore resolves this crisis through a conceptual shift: the design goal beco
 | Layer | Foundation |
 |---|---|
 | 1. Philosophical | Panopticon, Odyssey, Wabi-sabi, Sartre, Heidegger, Rogers, Gödel |
-| 2. Mathematical | Bayes, Stochastic Resonance, Wiener Process, VWU model |
-| 3. Methodological | Web3-ISM, Build-Measure-Learn, Tesla 3-6-9, Kintsugi Archiving |
+| 2. Mathematical | Bayes, Granovetter thresholds, Stochastic Resonance, Wiener Process, VWU model |
+| 3. Methodological | Web3-ISM, Build-Measure-Learn, 3-6-9 model, Kintsugi Archiving |
 | 4. Technical | zk-SNARKs, Circom/Groth16, Lit Protocol, Optimism L2, Celestia DA |
 
 > *Note: The mathematical layer above lists the operational stack — instruments directly employed in the system's computational logic. Broader epistemic foundations (Gödel's incompleteness, Poincaré's intuition principle, Itô calculus for continuous-time extensions) are addressed in the preprint series on Zenodo.*
@@ -135,7 +135,7 @@ If yours are among them — you will recognize it in the code.
 <img width="250" alt="WhatsApp Image 2026-07-17 at 12 53 43" src="https://github.com/user-attachments/assets/de7b3aa6-7d74-48a1-8b8d-93e4ec7af381" /> <img width="390" alt="WhatsApp Image 2026-07-17 at 12 54 31" src="https://github.com/user-attachments/assets/eb3fed7a-1da8-46ce-9049-bf8a1753a57c" /> <img width="350" alt="WhatsApp Image 2026-07-17 at 12 54 58" src="https://github.com/user-attachments/assets/c02e9ca8-727b-4a24-8265-b96b5de1bc6f" />
 </div>
 
-## Developer Package v0.1
+## Developer Package v0.3
 
 Smart contract suite for BeTrueCore implementation:
 
@@ -148,7 +148,7 @@ Smart contract suite for BeTrueCore implementation:
 | [BeTrueCoreCore.sol](src/BeTrueCoreCore.sol) | Main implementation — anti-collusion protocol, VWU, session lifecycle |
 | [EthicalMatrix.sol](src/EthicalMatrix.sol) | 736-point ethical priority map — getCellWeight(), computeVerdict() |
 | [HarmonyAgent.sol](src/HarmonyAgent.sol) | Ematch aggregation — computeFinalVerdict() |
-| [VWUEngine.sol](src/VWUEngine.sol) | VWU computation — non-linear growth + continuity adjustment |
+| [VWUEngine.sol](src/VWUEngine.sol) | VWU computation — non-linear growth + rational filter |
 | [MAPPING_MODEL.md](docs/MAPPING_MODEL.md) | Evidential layer boundary — L0–L5 data flow |
 | [MACI_ENGINEER_PACKAGE.md](docs/MACI_ENGINEER_PACKAGE.md) | Anti-collusion protocol integration guide |
 | [BeTrueCore.t.sol](test/BeTrueCore.t.sol) | Foundry unit tests — run: forge test -v |
@@ -190,13 +190,15 @@ Minimum team: 1 Solidity+Circom dev · 1 TypeScript fullstack · 1 Python/ML eng
 
 ## Vote Weight Unit (VWU)
 
+The system rests on a 3×6×9 model of the participant: three focal vectors of
+intellect set the direction of judgement, six phase statuses record the level
+reached, and nine spectral badges mark the intersection of the two — forming
+the VWU profile.
+
+VWU measures the activity and the usefulness of judgement — not token ownership.
+
 Proprietary formula. Protected by timestamp.
 **Formula specification: confidential (NDA required).**
-
-VWU measures ethical judgement quality — not token ownership.
-Three intellect types × Six statuses × Nine badges.
-Design principle: N. Tesla 3-6-9.
-
 ---
 
 ## Academic Publications (Zenodo)
