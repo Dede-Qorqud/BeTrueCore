@@ -110,6 +110,7 @@ struct SessionResult {
 **What the coordinator does NOT see:** VWU formula internals, component limits, the support-level scale, memory and adaptation coefficients, the non-linear growth factor.
 
 The Harmony Agent traffic-light verdict is not an input to this computation. It is an ethical indication displayed by the Panorama, applied to majority and minority alike, and it does not affect participant weight.
+
 ---
 
 ## ZK Circuit Requirements
@@ -117,7 +118,7 @@ The Harmony Agent traffic-light verdict is not an input to this computation. It 
 ### Identity Circuit (Circom)
 ```
 Inputs (private):
-  - fin_commitment (from L0 NIN-code ZK-transformation)
+  - nin_commitment (from L0 NIN-code ZK-transformation)
   - behavioral_entropy (VWU behavioral record — see Preprint 11)
 
 Inputs (public):
@@ -126,7 +127,7 @@ Inputs (public):
 Output:
   - valid_registration (bool)
 
-Constraint: fin_commitment + entropy → identity_commitment
+Constraint: nin_commitment + entropy → identity_commitment
 ```
 
 ### Vote Proof Circuit (Circom)
