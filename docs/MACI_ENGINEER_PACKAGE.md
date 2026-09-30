@@ -1,7 +1,7 @@
 # BeTrueCore Anti-Collusion Engineer Package
 ## Circom/Groth16 Anti-Collusion Protocol — Integration Guide
 
-**Version:** 0.1  
+**Version:** 0.3  
 
 **Repository:** github.com/Dede-Qorqud/BeTrueCore  
 **Cryptographic standard:** Circom/Groth16 (MACI anti-collusion pattern)
@@ -79,29 +79,37 @@ BeTrueCoreCore.finalizeSession(session_id, result)
         ↓
 HarmonyAgent computes ethical verdict (736-point matrix)
         ↓
+BeTrueCoreCore.applySessionParticipation(...)
+   per-participant contribution submitted separately from the tally
+        ↓
 All events logged to Celestia DA
 ```
 
 ---
 
-## Black Box: VWU Calculation
+## Disclosure Boundary: VWU Calculation
 
-The VWU formula is intentionally opaque at the protocol boundary.
+The VWU formula has a defined disclosure boundary: the inputs and the
+composition weights are public, the coefficients are not.
 
 **Coordinator provides to VWUEngine:**
 ```solidity
 struct SessionResult {
-    address participant;        // derived from ZK identity commitment
-    uint8   activity_score;    // 0–100: did participant complete all 7 actions?
-    bool    aligned_majority;  // did final choice match weighted majority?
-    uint256 session_timestamp;
+    address  participant;        // derived from ZK identity commitment
+    uint8    steps_completed;    // 0–7: depth of the seven-step cycle
+    bool     prompt_submitted;   // did the participant submit a prompt?
+    bool     prompt_in_agenda;   // did that prompt enter the TOP-3 agenda?
+    uint8[3] dilemma_support;    // support level per agenda dilemma
+    uint256  session_timestamp;
 }
 ```
+**VWUEngine returns:** `delta_applied` (int256) — the delta applied to this participant's rating in this session. Accumulated balances are readable by their owner only.
 
-**VWUEngine returns:** `vwu_delta` (uint256)
+**Composition (public):** Activity 40% + Utility 60%.
 
-**What the coordinator does NOT see:** VWU formula internals, non-linear growth factor, continuity adjustment mechanics.
+**What the coordinator does NOT see:** VWU formula internals, component limits, the support-level scale, memory and adaptation coefficients, the non-linear growth factor.
 
+The Harmony Agent traffic-light verdict is not an input to this computation. It is an ethical indication displayed by the Panorama, applied to majority and minority alike, and it does not affect participant weight.
 ---
 
 ## ZK Circuit Requirements
@@ -171,7 +179,7 @@ Three independent layers (must all be bypassed simultaneously):
 
 | Layer | Mechanism | What attacker needs |
 |-------|-----------|---------------------|
-| L0 | FIN-code ZK-commitment + MPC key split | State-registered identity on verified device |
+| L0 | NIN-code ZK-commitment + MPC key split | State-registered identity on verified device |
 | L1 | ZK nullifier chain | Unique cryptographic identity per device |
 | L5 | Sentinel agent pattern detection | Behavioral diversity across hundreds of sessions |
 
@@ -214,8 +222,8 @@ const voteOptionTreeDepth = 2;
 - [ ] Deploy ZK verifier contracts (Groth16)
 - [ ] Deploy BeTrueCoreCore with coordinator address
 - [ ] Deploy EthicalMatrix and populate 736 cells
-- [ ] Deploy HarmonyAgent connected to EthicalMatrix
-- [ ] Deploy VWUEngine connected to coordinator
+- [ ] Deploy HarmonyAgent connected to EthicalMatrix, then register it in EthicalMatrix (setHarmonyAgent)
+- [ ] Deploy VWUEngine, then set BeTrueCoreCore as its coordinator (setCoordinator)
 - [ ] Configure Celestia DA indexer for event logging
 - [ ] Run Foundry tests (see BeTrueCore.t.sol)
 
