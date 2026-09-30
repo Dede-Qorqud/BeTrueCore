@@ -305,8 +305,8 @@ contract BeTrueCoreTest is Test {
 
         IBeTrueCore.Participant memory p = core.getParticipant(identity);
         assertEq(p.identity_commitment, identity, "Identity commitment should match");
-        assertEq(p.vwu, 0, "Initial VWU should be 0");
-        assertEq(uint8(p.status), uint8(IBeTrueCore.Status.SOLO), "Initial status should be SOLO");
+        assertEq(p.vwu, vwuEngine.VWU_BASE(), "Registration must grant the non-burnable base score");
+        assertEq(uint8(p.status), uint8(IBeTrueCore.Status.SELFLY), "Base score places the participant at SELFLY");
     }
 
     function test_Core_DoubleRegisterFails() public {
