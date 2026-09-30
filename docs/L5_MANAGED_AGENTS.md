@@ -149,9 +149,10 @@ receive task parameters from the contract and return structured JSON signals.
 The contract aggregates signals. No agent controls the flow — the flow is
 mathematics.
 
-This is "AI as notary, not judge" in its precise technical form: in Phase 1,
-the human operator coordinates through `HarmonyAgent.sol`; in Phase 3,
-`HarmonyAgent.sol` coordinates autonomously with community-held keys.
+This is "AI as notary, not judge" in its precise technical form. Across the
+three MVP pilot trials the orchestrator stays the same contract; only the holder
+of the coordinating role changes: the human operator with mathematical support,
+then mathematics as the operator, then the community through the protocol itself.
 
 ---
 
