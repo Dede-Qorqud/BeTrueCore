@@ -134,11 +134,23 @@ If yours are among them — you will recognize it in the code.
 
 - [BeTrueCore_EthicalPriorityMap_736.xlsx](https://github.com/Dede-Qorqud/BeTrueCore/blob/main/BeTrueCore_EthicalPriorityMap_736.xlsx) — 736-point ethical priority map: 23 Asilomar Principles × 32 TDSH parameters with CRITICAL / HIGH / MEDIUM / SUPERPOSITION weights
 
-### Ethical Priority Map: Supplementary Data Visualization
+### Ethical Priority Map: Supplementary Data
 
-<div>
-<img width="250" alt="WhatsApp Image 2026-07-17 at 12 53 43" src="https://github.com/user-attachments/assets/de7b3aa6-7d74-48a1-8b8d-93e4ec7af381" /> <img width="390" alt="WhatsApp Image 2026-07-17 at 12 54 31" src="https://github.com/user-attachments/assets/eb3fed7a-1da8-46ce-9049-bf8a1753a57c" /> <img width="350" alt="WhatsApp Image 2026-07-17 at 12 54 58" src="https://github.com/user-attachments/assets/c02e9ca8-727b-4a24-8265-b96b5de1bc6f" />
-</div>
+| Priority | Analyst | Strategist | Sentinel | TOTAL |
+|---|---|---|---|---|
+| CRITICAL | 32 | 49 | 88 | 169 |
+| HIGH | 124 | 135 | 256 | 515 |
+| MEDIUM | 23 | 0 | 24 | 47 |
+| SUPERPOSITION | 5 | 0 | 0 | 5 |
+| **TOTAL** | **184** | **184** | **368** | **736** |
+
+| Priority | Weight | Cell Count | % of Matrix |
+|---|---|---|---|
+| CRITICAL | 3 | 169 | 23.0% |
+| HIGH | 2 | 515 | 70.0% |
+| MEDIUM | 1 | 47 | 6.4% |
+| SUPERPOSITION | 0 | 5 | 0.7% |
+| **TOTAL** | — | **736** | **100%** |
 
 ## Developer Package v0.3
 
