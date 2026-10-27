@@ -7,7 +7,7 @@
 
 ## What is BeTrueCore?
 
-BeTrueCore is an application with its own cryptographic protocol for collective decision-making in which the participant is not named.
+BeTrueCore is an application with its own cryptographic protocol for collective decision-making.
 
 The existing principle: transparent citizen — secret decision.
 
