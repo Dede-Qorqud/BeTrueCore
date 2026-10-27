@@ -1,0 +1,41 @@
+name: Assertions
+
+# Runs the architectural-promise tests on every commit.
+#
+# These are not the mechanics tests. Each one is named as a sentence that this
+# architecture states in its documents — "a rating never falls below the
+# non-burnable floor", "the log never names a participant", "a critical breach
+# forces RED whatever the mean" — and a failure means the code stopped keeping
+# that promise.
+#
+# Versions are pinned on purpose. The audit figures were measured with these,
+# and on other versions the comparison "did anything change" stops working.
+#
+# forge-std is not vendored in this repository, so it is installed here. lib/
+# is ignored by .gitignore and must stay that way: a vendored copy would make
+# the pinned version above a decoration.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  assertions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Foundry
+        uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: 1.5.1
+
+      - name: Install forge-std
+        run: forge install foundry-rs/forge-std --no-git
+
+      - name: Run the assertion tests
+        run: forge test --use 0.8.24 --match-path 'test/Assertions.t.sol' -vv
+
+      - name: Run the full suite
+        run: forge test --use 0.8.24 -vv
