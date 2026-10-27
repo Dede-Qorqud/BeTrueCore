@@ -1,3 +1,8 @@
+> *Archived post. The terminology reflects the state of the project at the
+> time of writing and is not revised here. L0 identity is built on the national
+> identification number (NIN) checked at the e-government gateway — not on
+> biometrics. See WHITEPAPER.md 4 (L0 — Identity) and CLAUDE.md.*
+
 The Voice of Silence Beyond Alignment: Human Sovereign Will as the Missing Layer in AGI Governance.
 
 The Problem We Are Not Solving.
