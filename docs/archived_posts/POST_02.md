@@ -1,3 +1,8 @@
+> *Archived post. The terminology reflects the state of the project at the
+> time of writing and is not revised here. L0 identity is built on the national
+> identification number (NIN) checked at the e-government gateway — not on
+> biometrics. See WHITEPAPER.md 4 (L0 — Identity) and CLAUDE.md.*
+
 Beyond AGI Control: Sovereign Collective Intelligence as Complementary Infrastructure.
 
 Two of the most important voices on AGI risk — Stuart Russell and Leopold Aschenbrenner — agree on the diagnosis but differ on the cure.
