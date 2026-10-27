@@ -7,13 +7,15 @@
 
 ## What is BeTrueCore?
 
-BeTrueCore is an application with its own cryptographic protocol for anonymous collective decision-making.
+BeTrueCore is an application with its own cryptographic protocol for collective decision-making in which the participant is not named.
 
 The existing principle: transparent citizen — secret decision.
 
 BeTrueCore: secret citizen — transparent decision.
 
-Collective decision verifiable. Simultaneously. Through daily dilemmas — yes or no.
+Participant unnamed, collective decision verifiable — both at once. Outward, that means a community can put its decision in front of anyone and have the result recomputed, without a single participant being named.
+
+Inward, the same record lets the community see its own judgement whole — no winners, no losers, self-knowledge. Through daily dilemmas: Option A or Option B, with silence recorded as a state of its own.
 
 The protocol combines:
 - Zero-Knowledge cryptography (ZK-SNARKs + anti-collusion protocol)
@@ -62,15 +64,15 @@ BeTrueCore resolves this crisis through a conceptual shift: the design goal beco
 - **Time-lock:** Lit Protocol v6+
 - **Data Availability:** Celestia DA
 - **L2 Execution:** Optimism OP Stack
-- **Smart Contracts:** Solidity ^0.8.24 + Hardhat
+- **Smart Contracts:** Solidity ^0.8.24 + Foundry
 - **Backend:** Node.js 20 LTS / TypeScript 5.4+
 - **AI Agents:** Python 3.11+ / FastAPI
 
-> *Note: The MACI repository (appliedzkp/maci) was archived August 19, 2026. BeTrueCore builds on the Circom/Groth16 cryptographic standard implementing the MACI anti-collusion pattern.*
+> *Note: The MACI repository (appliedzkp/maci) was archived August 19, 2026. BeTrueCore builds independently on the Groth16 proving system and the Circom toolchain, implementing the MACI anti-collusion pattern, and depends on no MACI release or version.*
 
 ## MVP Priority
 
-The MVP Pilot Programme "Immune Island" will move BeTrueCore from theoretical cryptography (TRL 2) to on-chain reality (TRL 3) within a closed ecosystem of 50–100 participants. The pilot will prove bot protection through ZK commitments, the absence of social pressure through vote unprovability, and the operation of VWU — a non-linear judgment weight mechanism that cannot be purchased or instantly reproduced.
+The MVP Pilot Programme "Immune Island" will move BeTrueCore from theoretical cryptography (TRL 2) to on-chain reality (TRL 3) within a closed ecosystem of 50–100 participants. The pilot puts three things to the test. The ZK commitment layer in practice — noting that resistance to an extra entry rests on the identifier checked at the e-government gateway and is an organisational guarantee, not a cryptographic one. How far unprovability of a choice reduces social pressure, which it narrows rather than removes ([WHITEPAPER.md](WHITEPAPER.md) 5.7). And the operation of VWU — a non-linear judgment weight mechanism that cannot be purchased or instantly reproduced. A fourth thing is on trial across the programme rather than inside any one session: the coordinating role itself. While an address holds that role, that it belongs to the community is disclosed and not proved — who holds the key is named publicly, and a reader is relied upon to look. It becomes proved by disappearing: by the third phase of the pilot the community governs through the protocol itself, and there is nothing left for anyone to hold ([AUTHORITY_CHAIN.md](docs/AUTHORITY_CHAIN.md) §14).
 For further details, see the official **[BeTrueCore MVP Pilot Programme Document](docs/BeTrueCore_MVP%20PILOT.pdf)**.
 
 ## System Architecture (L0–L5)
@@ -78,18 +80,21 @@ For further details, see the official **[BeTrueCore MVP Pilot Programme Document
 | Layer | Technology | Function | Role |
 |---|---|---|---|
 | L0 — Identity | MPC + NIN-code + Web3Auth | State ID sovereignty, key fragmentation | SPOF elimination |
-| L1 — Proofs | zk-SNARKs + anti-collusion protocol (Circom/Groth16) | Anonymity, anti-collusion, ZK-Proof generation | Mathematical shield |
+| L1 — Proofs | zk-SNARKs + anti-collusion protocol (Circom/Groth16) | Participant not named, anti-collusion, ZK-Proof generation | Mathematical shield |
 | L2 — Execution | Optimism (L2) | Fast, low-cost operation execution | Performance layer |
 | L3 — Lock | Lit Protocol | Time-locked voting, information symmetry | Transparency layer |
 | L4 — Archive | Celestia (DA) | Storage of millions of proofs at low cost | Audit infrastructure |
-| L5 — AI Agents | Strategist / Analyst / Sentinel | Anomaly detection, Sybil identification | Observation — not decision |
+| L5 — AI Agents | Analyst × 3 / Strategist × 3 / Sentinel × 3 | Observation of aggregates, reported as testimony the chain checks against the map | Observation — not decision |
 
-Three non-negotiable components for system launch:
+> *Note: Sybil identification is not a function of this layer. An extra entry leaves no aggregate for an agent to notice, and registration verifies no proof on-chain; resistance rests on the identifier checked at the e-government gateway, outside the protocol. What the layer does read includes text written by participants — the dilemma of the session — and the boundary that follows is in [WHITEPAPER.md](WHITEPAPER.md) 5.8 and [AUTHORITY_CHAIN.md](docs/AUTHORITY_CHAIN.md) §13.*
+
+Four non-negotiable components for system launch:
 1. Anti-collusion smart contract (Circom/Groth16) — voting core · draft v0.1 ✓
 2. ZK identity proof — circom circuit (NIN-code → ZK-Proof) · draft v0.1 ✓
-3. VWU calculation contract — vote weight computation · v0.4 ✓
+3. On-chain verifier for the registration proof — without it registration accepts any value and the circuit of point 2 guards nothing · not written
+4. VWU calculation contract — vote weight computation · v0.8 ✓
 
-> Without these three components the system does not function.
+> Without these four components the system does not function.
 > Celestia and Lit Protocol added in Phase 2.
 
 **Implementation roadmap:**
@@ -117,13 +122,13 @@ If yours are among them — you will recognize it in the code.
 
 → Open an Issue · ethresear.ch: [Dede-Qorqud](https://ethresear.ch/u/Dede-Qorqud)
 
-## Current Status (September 2026)
+## Current Status (October 2026)
 
 - 12 academic preprints published on Zenodo
 - Technical partnerships initiated in the Ethereum ecosystem (Phase 2 pending)
-- Evidential layer boundary defined (v0 mapping complete)
+- Evidential layer boundary defined (mapping model v0.9)
 - ERC-8281 integration points identified at L1 and L3
-- 23×32 ethical AI matrix (736 intersection points) formalized as AI agent DNA
+- 23×32 ethical AI matrix (736 intersection points) formalized as the rule set by which a session outcome is read — applied to the result of a vote and to nothing else, by one agent of the nine
 
 ## Supplementary Data
 
@@ -149,6 +154,8 @@ Smart contract suite for BeTrueCore implementation:
 | [EthicalMatrix.sol](src/EthicalMatrix.sol) | 736-point ethical priority map — getCellWeight(), computeVerdict() |
 | [HarmonyAgent.sol](src/HarmonyAgent.sol) | Ematch aggregation — computeFinalVerdict() |
 | [VWUEngine.sol](src/VWUEngine.sol) | VWU computation — non-linear growth + rational filter |
+| [IBeTrueCoreAntiCollusion.sol](src/IBeTrueCoreAntiCollusion.sol) | Anti-collusion interface — poll lifecycle, message publication, session-bound nullifiers |
+| [Poll.sol](src/Poll.sol) | Poll contract — encrypted message publication and finalisation within a session |
 | [MAPPING_MODEL.md](docs/MAPPING_MODEL.md) | Evidential layer boundary — L0–L5 data flow |
 | [MACI_ENGINEER_PACKAGE.md](docs/MACI_ENGINEER_PACKAGE.md) | Anti-collusion protocol integration guide |
 | [BeTrueCore.t.sol](test/BeTrueCore.t.sol) | Foundry unit tests — run: forge test -v |
@@ -159,6 +166,24 @@ Smart contract suite for BeTrueCore implementation:
 | [docs/AUTHORITY_CHAIN.md](docs/AUTHORITY_CHAIN.md) | BeTrueCore positioning in agentic AI authority chain (M-Trust / eIDAS / NIST) |
 
 Project stage: TRL 2 → TRL 3 · ZK Identity Layer: draft v0.1 · Authority Chain: specified · L5 Agent Layer: specified
+
+## Build and Test
+
+```bash
+git clone https://github.com/Dede-Qorqud/BeTrueCore.git
+cd BeTrueCore
+forge install foundry-rs/forge-std
+forge test
+```
+
+`forge-std` is not vendored in this repository — install it once, as above,
+before the first run. Without it the build stops at the first import of
+`test/BeTrueCore.t.sol`.
+
+Contracts under `contracts/` sit outside `src/` and build under their own
+profile: `FOUNDRY_PROFILE=contracts forge build`. The ZK circuits are compiled
+separately — see [circuits/COMPILE.md](circuits/COMPILE.md).
+
 
 ## For Developers — Navigation Guide
 
@@ -175,7 +200,7 @@ start here:
 
 **See what is already written**
 → `circuits/` — ZK identity circuits (NINCommitment, NINIdentityProof) v0.1
-→ `src/` — Smart contracts (Anti-collusion, VWU, EthicalMatrix, HarmonyAgent) v0.1–v0.4
+→ `src/` — Smart contracts (anti-collusion interface, Poll, Core, VWUEngine, EthicalMatrix, HarmonyAgent) · VWUEngine v0.8, the rest draft
 
 **Understand the AI observation layer**
 → [L5_MANAGED_AGENTS.md](docs/L5_MANAGED_AGENTS.md) — Nine-agent architecture, read-only enforcement, production implementation
@@ -184,7 +209,7 @@ start here:
 - Lit Protocol time-lock integration (L3)
 - Celestia DA layer (L4)
 - Web3Auth MPC integration (L0)
-- AI Analyst agent: keystroke dynamics model (L5)
+- L5 read-only gateway to Celestia DA (the behavioural-channel model once listed here is withdrawn — see the L0 → L1 boundary in [MAPPING_MODEL.md](docs/MAPPING_MODEL.md))
 
 Minimum team: 1 Solidity+Circom dev · 1 TypeScript fullstack · 1 Python/ML engineer
 
@@ -203,7 +228,7 @@ Proprietary formula. Protected by timestamp.
 
 ## Academic Publications (Zenodo)
 
-All papers are timestamped and DOI-protected.
+All papers are timestamped and DOI-protected. Eight of the twelve are listed here; the full list is on ORCID, [0009-0004-4841-594X](https://orcid.org/0009-0004-4841-594X).
 
 | # | Title | DOI |
 |---|---|---|

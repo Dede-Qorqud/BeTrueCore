@@ -28,10 +28,35 @@ include "circomlib/circuits/mux1.circom";
  *                           0 → current node is the LEFT child
  *                           1 → current node is the RIGHT child
  *
- * Constraint enforced:
- *   computed_root(leaf, path_elements, path_indices) === root
+ * Constraints enforced:
+ *   (1) path_indices[i] is 0 or 1 at every level — see the note at that line
+ *   (2) computed_root(leaf, path_elements, path_indices) === root
  *
  * If the proof is invalid → constraint fails → proof rejected on-chain.
+ *
+ * WHAT THIS TEMPLATE DOES NOT PROVE — state it this way wherever membership
+ * is described. It proves that a leaf lies under the root it was given. It
+ * says nothing about where that root came from. A transition from one root to
+ * the next — that the new root is the old one with exactly the announced
+ * commitments inserted, and nothing else — is not expressed here, and no
+ * published artefact of this project expresses it today. The tree is built
+ * off-chain and only its root reaches the contract, so a root carrying a leaf
+ * nobody chose verifies exactly as well as an honest one, and every proof
+ * against it succeeds.
+ * Membership therefore rests on trust in whoever computes the root, and that
+ * is to be named as organisational wherever the roster is called closed. The
+ * primitive still absent is a third-party-verifiable proof of set equality
+ * that discloses no counts; it is the `not established` row of the
+ * requirements table (WHITEPAPER.md 5.6, docs/AUTHORITY_CHAIN.md §14).
+ *
+ * NO DOMAIN SEPARATION between leaves and internal nodes: both are outputs of
+ * Poseidon(2), and nothing in this template tells them apart. Today that is
+ * harmless only because of how the caller builds the leaf — in
+ * NINIdentityProof.circom the leaf is Poseidon(Poseidon(nin, salt), secret),
+ * so passing an internal node off as a leaf would require a Poseidon preimage.
+ * The protection lives in the caller, not here. If the leaf construction ever
+ * changes — a single-layer leaf, or a commitment accepted as a free input —
+ * this template will accept an internal node as a leaf without any warning.
  * ─────────────────────────────────────────────────────────────────────────────
  */
 template BinaryMerkleTree(LEVELS) {
@@ -52,6 +77,10 @@ template BinaryMerkleTree(LEVELS) {
     for (var i = 0; i < LEVELS; i++) {
 
         // ── Binary constraint: path_indices[i] must be 0 or 1 ───────────
+        // Mux1 does NOT constrain its selector: its output is linear in s,
+        // so a non-binary s would blend the two inputs and let a prover steer
+        // the computed root. This line is the only thing that forbids it —
+        // it is not redundant with the multiplexers below.
         path_indices[i] * (1 - path_indices[i]) === 0;
 
         // ── Select which value is the LEFT input to the hash ─────────────

@@ -52,7 +52,7 @@ These circuits fill that slot:
 | Circuit | Fills which slot |
 |---------|-----------------|
 | `NINCommitment.circom` | Produces `identity_commitment` that `BeTrueCoreCore` stores |
-| `NINIdentityProof.circom` | Implements `_verifyRegistrationProof` — proves commitment is valid |
+| `NINIdentityProof.circom` | Runs once per voting session: proves the commitment is a leaf under the Merkle root the registry currently holds, and derives a session-bound nullifier |
 | `NINNullifierRegistry.sol` | Replaces the bare `usedNullifiers` mapping with ZK-verified nullifier storage |
 
 ---
@@ -62,14 +62,16 @@ These circuits fill that slot:
 **NINCommitment.circom** — registration phase:
 - NIN code is hashed client-side, never sent to any server
 - Commitment = `Poseidon(Poseidon(NIN, salt), secret)` — two-layer binding
-- Output: `identity_commitment` → stored as leaf in on-chain Merkle tree
+- Output: `identity_commitment` → a leaf of a Merkle tree built off-chain; only the root of that tree is written on-chain. Nothing proves that the root carries exactly the announced commitments and nothing else: that proof is the primitive named as `not established` in the requirements table of `docs/AUTHORITY_CHAIN.md`, §14, and until it exists a closed roster rests on trust in whoever computes the root
 
-**NINIdentityProof.circom** — voting phase:
-- Prover knows the `(NIN, salt, secret)` behind a valid Merkle leaf → `UNIQUENESS`
-- Which leaf is used is not revealed → `ANONYMITY`  
-- Same citizen cannot enter the same session twice (Sybil prevention) → `ANTI-SYBIL`
-- Different sessions → different nullifiers → sessions are unlinkable → `UNLINKABILITY`
-- Multiple choice changes within a session are **explicitly permitted** (key rotation via Poll.sol) → `ANTI-COERCION`
+**NINIdentityProof.circom** — voting phase. Each line states what the circuit
+establishes, and the label names that and nothing wider:
+
+- Prover knows the `(NIN, salt, secret)` behind a valid Merkle leaf → `MEMBERSHIP`. That one leaf corresponds to one person is not established by the circuit: registration verifies no proof on-chain, and the root is computed off-chain.
+- Which leaf is used is not revealed → `LEAF PRIVACY`. Not anonymity in the legal sense — the tree of commitments is pseudonymisation, and pseudonymised data remains personal data (`docs/AUTHORITY_CHAIN.md`, §11).
+- The same nullifier cannot be spent twice in one session → `ONE ENTRY PER SESSION`. Sybil resistance is a different property and rests elsewhere: on the identifier checked at the e-government gateway, in the client, outside this protocol. It is an organisational guarantee and is named as one.
+- Different sessions → different nullifiers → `NULLIFIERS DO NOT LINK SESSIONS`. The link that remains is the sending address: one wallet links that person's sessions whatever the nullifier scheme does (§11, *No Linkage*, partial correspondence).
+- Multiple choice changes within a session are **explicitly permitted** (key rotation via Poll.sol) → `EARLIER CHOICE UNPROVABLE`. This is not resistance to coercion. It makes an earlier choice prove nothing afterwards; a coercer who watches the moment of choosing, or who holds the message key, is untouched by it (`docs/AUTHORITY_CHAIN.md`, §12).
 
 ---
 
@@ -81,7 +83,8 @@ These circuits fill that slot:
     ↓ Poseidon(NIN, salt)
   nin_key
     ↓ Poseidon(nin_key, secret)
-  identity_commitment ──────────────────────→ Merkle tree on-chain
+  identity_commitment ──────────────────────→ [MERKLE TREE — BUILT OFF-CHAIN]
+                                               only its root is written on-chain
                                                       ↓ merkle_root
 [DEVICE, per SESSION]                         NINNullifierRegistry.sol
   NINIdentityProof circuit                          ↓ verifyAndRegister()
@@ -115,10 +118,11 @@ See `circuits/COMPILE.md` for the full compilation and deployment guide.
 ## Dependencies
 
 ```bash
-npm install circomlib snarkjs
+npm install circomlib circomlibjs snarkjs
 ```
 
-- `circomlib` — Poseidon hash, Mux1 selector (used in BinaryMerkleTree)
+- `circomlib` — Poseidon hash, Mux1 selector (used in BinaryMerkleTree); a `.circom` library, reached at compile time through `-l node_modules`
+- `circomlibjs` — the JavaScript implementation of Poseidon, used by the test script. It is a separate package on purpose: `circomlib` exports nothing from JavaScript, so `require("circomlib").poseidon` is undefined
 - `snarkjs` — proof generation, verification, Verifier.sol export
 - Circom 2.0 compiler — [docs.circom.io](https://docs.circom.io/getting-started/installation/)
 
