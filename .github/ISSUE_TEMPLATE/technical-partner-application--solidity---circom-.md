@@ -13,8 +13,8 @@ assignees: ''
 ### Technical Stack Experience
 - **Solidity Experience (Years/Projects):** 
 - **Circom / ZK-SNARKs Experience:** 
-- **Foundry / Hardhat Frameworks:** 
-- **Other relevant stack (e.g., Lit Protocol, Celestia DA, MACI):** 
+- **Foundry (this project uses Foundry only):**
+- **Other relevant stack (e.g., Lit Protocol, Celestia DA, anti-collusion patterns):**
 
 ### Relevant Work
 *Please provide links to your GitHub repositories, repositories you've contributed to, or smart contracts deployed on-chain.*
@@ -23,7 +23,8 @@ assignees: ''
 *Which part of the BeTrueCore architecture (TRL 2 -> TRL 3) are you most interested in developing first?*
 - [ ] Core Circuit Design (Circom)
 - [ ] Smart Contract Suite (Solidity/Foundry)
-- [ ] Integration (MACI, Lit Protocol)
+- [ ] Integration (Lit Protocol, Celestia DA)
+- [ ] The open primitive — a third-party-verifiable proof of Merkle root transition
 - [ ] Other (please specify)
 
 ### Contact Information
