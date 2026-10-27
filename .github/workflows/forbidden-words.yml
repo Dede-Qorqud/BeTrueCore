@@ -37,23 +37,30 @@ jobs:
         run: |
           set -uo pipefail
 
+          # Matched anywhere in a line, in any text file.
           PHRASE_RE='anonymity preserved|behaviou?ral entropy'
+
+          # Architecture terms. Whole words, any text file.
           ARCH_RE='biometrics?|faceid|face id|is_majority|aligned_majority'
+
+          # Role names. Whole words, code files only, with comments stripped first:
+          # "owner" is a legitimate English word in a comment, a forbidden role in code.
           ROLE_RE='admin|owner'
+
+          # Market vocabulary. Whole words, code files only: the documents name it in
+          # order to distance the protocol from it, which is the intended use.
           MARKET_RE='payments?|fees?|commissions?'
 
           # Becomes forbidden at stage D (Phase -> Trial). Uncomment then.
           # ARCH_RE="$ARCH_RE|phases?"
 
           # Lines allowed despite a match, each for a stated reason.
-          #  - "biometric data under EU law": the legal term, in a statement of
-          #    law in docs/MAPPING_MODEL.md. No substitute exists for it.
+          #  - "biometric data under EU law": the legal term in a statement of law.
           ALLOW_RE='biometric data under EU law'
 
-          # CLAUDE.md names the forbidden terms on purpose, in its
-          # "never use" column.
-          # docs/archived_posts/ holds dated posts whose terminology is
-          # superseded; each carries a note saying so.
+          # CLAUDE.md names the forbidden terms on purpose, in its "never use" column.
+          # docs/archived_posts/ holds dated posts whose terminology is superseded;
+          # each carries a note saying so.
           EXCLUDE_RE='^(\.github/workflows/forbidden-words\.yml|CLAUDE\.md|docs/archived_posts/)'
           BINARY_RE='\.(png|jpe?g|gif|svg|pdf|xlsx|docx|zip|ptau|ttf|woff2?)$'
           CODE_RE='\.(sol|circom|toml|ya?ml|sh|js|ts|py)$'
@@ -67,17 +74,16 @@ jobs:
             [[ "$f" =~ $BINARY_RE ]] && continue
             [ -f "$f" ] || continue
 
-            grep -nIiE "$PHRASE_RE" "$f" | sed "s|^|$f:|" >> "$hits"
-            grep -nIiE "\b($ARCH_RE)\b" "$f" | sed "s|^|$f:|" >> "$hits"
+            grep -nIiE "$PHRASE_RE" "$f" | sed "s|^|$f:|" >> "$hits" || true
+            grep -nIiE "\b($ARCH_RE)\b" "$f" | sed "s|^|$f:|" >> "$hits" || true
 
             if [[ "$f" =~ $CODE_RE ]]; then
               if [[ "$f" =~ $COMMENTED_RE ]]; then
-                sed 's|//.*||' "$f" \
-                  | grep -nIiE "\b($ROLE_RE)\b" | sed "s|^|$f:|" >> "$hits"
+                sed 's|//.*||' "$f" | grep -nIiE "\b($ROLE_RE)\b" | sed "s|^|$f:|" >> "$hits" || true
               else
-                grep -nIiE "\b($ROLE_RE)\b" "$f" | sed "s|^|$f:|" >> "$hits"
+                grep -nIiE "\b($ROLE_RE)\b" "$f" | sed "s|^|$f:|" >> "$hits" || true
               fi
-              grep -nIiE "\b($MARKET_RE)\b" "$f" | sed "s|^|$f:|" >> "$hits"
+              grep -nIiE "\b($MARKET_RE)\b" "$f" | sed "s|^|$f:|" >> "$hits" || true
             fi
           done < <(git ls-files)
 
