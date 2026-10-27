@@ -1,12 +1,14 @@
 # Foundry
 out/
 cache/
-lib/
+/lib/
 
-# Hardhat
-artifacts/
+# Node and circuits
+node_modules/
 build/
+keys/
+*.ptau
 
-# Временные файлы систем
+# System temp files
 .DS_Store
 Thumbs.db
