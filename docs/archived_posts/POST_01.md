@@ -1,3 +1,8 @@
+> *Archived post. The terminology reflects the state of the project at the
+> time of writing and is not revised here. L0 identity is built on the national
+> identification number (NIN) checked at the e-government gateway — not on
+> biometrics. See WHITEPAPER.md 4 (L0 — Identity) and CLAUDE.md.*
+
 Vitalik Buterin proposes that AI votes for us. We propose a cryptographic space where we vote — and no one is watching.
 
 In February 2026, Vitalik Buterin proposed deploying personal AI agents ("AI Stewards"), trained on users' action history, to automate voting in DAOs. The concept is designed to combat voter apathy, reduce dependence on large token holders, and simplify governance without centralized control.
