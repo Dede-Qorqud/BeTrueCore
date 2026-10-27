@@ -1,13 +1,25 @@
 name: Forbidden words
 
 # Fails a commit that reintroduces a term the architecture has ruled out.
-# Two classes of term are checked. Phrases are matched anywhere in a line.
-# Single words are matched as whole words only, so "ownership", "commissioner"
-# and "commissioned" are not flagged while "owner" and "commission" are.
 #
-# Scope: text files tracked by git. Binary files and the files listed under
-# EXCLUDE are skipped. CLAUDE.md is excluded because its vocabulary table
-# names the forbidden terms on purpose, in the "never use" column.
+# Terms are checked in four classes, because the same word can be a violation
+# in one place and correct usage in another:
+#
+#   PHRASE_RE  - matched anywhere in a line, in any text file.
+#   ARCH_RE    - architecture terms, whole words, any text file.
+#   ROLE_RE    - role names, whole words, code files only, comments stripped
+#                first: "owner" is an ordinary English word in a comment and a
+#                forbidden role in code. "address public owner;" is caught,
+#                "its rightful owner is turned away" is not.
+#   MARKET_RE  - market vocabulary, whole words, code files only: the documents
+#                name it in order to distance the protocol from it (PSD2,
+#                ERC-4337), which is the intended use.
+#
+# Whole-word matching keeps "ownership", "commissioner", "commissioned" and
+# "administrator" out of the results while catching "owner" and "commission".
+#
+# Two paths are excluded, each for a stated reason, and ALLOW_RE lists the
+# individual lines that are allowed despite a match.
 
 on:
   push:
@@ -26,25 +38,53 @@ jobs:
           set -uo pipefail
 
           PHRASE_RE='anonymity preserved|behaviou?ral entropy'
-          WORD_RE='biometrics?|faceid|face id|is_majority|aligned_majority|admin|owner|payments?|fees?|commissions?'
+          ARCH_RE='biometrics?|faceid|face id|is_majority|aligned_majority'
+          ROLE_RE='admin|owner'
+          MARKET_RE='payments?|fees?|commissions?'
 
-          # Terms that become forbidden at stage D (Phase -> Trial).
-          # Uncomment the next line once the rename is done.
-          # WORD_RE="$WORD_RE|phases?"
+          # Becomes forbidden at stage D (Phase -> Trial). Uncomment then.
+          # ARCH_RE="$ARCH_RE|phases?"
 
-          EXCLUDE='^(\.github/workflows/forbidden-words\.yml|CLAUDE\.md)$'
-          BINARY='\.(png|jpe?g|gif|svg|pdf|xlsx|zip|ptau|ttf|woff2?)$'
+          # Lines allowed despite a match, each for a stated reason.
+          #  - "biometric data under EU law": the legal term, in a statement of
+          #    law in docs/MAPPING_MODEL.md. No substitute exists for it.
+          ALLOW_RE='biometric data under EU law'
 
-          status=0
+          # CLAUDE.md names the forbidden terms on purpose, in its
+          # "never use" column.
+          # docs/archived_posts/ holds dated posts whose terminology is
+          # superseded; each carries a note saying so.
+          EXCLUDE_RE='^(\.github/workflows/forbidden-words\.yml|CLAUDE\.md|docs/archived_posts/)'
+          BINARY_RE='\.(png|jpe?g|gif|svg|pdf|xlsx|docx|zip|ptau|ttf|woff2?)$'
+          CODE_RE='\.(sol|circom|toml|ya?ml|sh|js|ts|py)$'
+          COMMENTED_RE='\.(sol|circom|js|ts)$'
+
+          hits="$(mktemp)"
+          kept="$(mktemp)"
+
           while IFS= read -r f; do
-            [[ "$f" =~ $EXCLUDE ]] && continue
-            [[ "$f" =~ $BINARY ]] && continue
+            [[ "$f" =~ $EXCLUDE_RE ]] && continue
+            [[ "$f" =~ $BINARY_RE ]] && continue
             [ -f "$f" ] || continue
-            grep -IinE "$PHRASE_RE" "$f" | sed "s|^|$f:|" && status=1
-            grep -IinE "\b($WORD_RE)\b" "$f" | sed "s|^|$f:|" && status=1
+
+            grep -nIiE "$PHRASE_RE" "$f" | sed "s|^|$f:|" >> "$hits"
+            grep -nIiE "\b($ARCH_RE)\b" "$f" | sed "s|^|$f:|" >> "$hits"
+
+            if [[ "$f" =~ $CODE_RE ]]; then
+              if [[ "$f" =~ $COMMENTED_RE ]]; then
+                sed 's|//.*||' "$f" \
+                  | grep -nIiE "\b($ROLE_RE)\b" | sed "s|^|$f:|" >> "$hits"
+              else
+                grep -nIiE "\b($ROLE_RE)\b" "$f" | sed "s|^|$f:|" >> "$hits"
+              fi
+              grep -nIiE "\b($MARKET_RE)\b" "$f" | sed "s|^|$f:|" >> "$hits"
+            fi
           done < <(git ls-files)
 
-          if [ "$status" -ne 0 ]; then
+          grep -viE "$ALLOW_RE" "$hits" | sort -u > "$kept" || true
+
+          if [ -s "$kept" ]; then
+            cat "$kept"
             echo ""
             echo "Forbidden terms found in the lines above."
             echo "Each one names something this architecture has ruled out."
