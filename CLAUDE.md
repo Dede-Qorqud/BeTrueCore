@@ -31,7 +31,8 @@ src/              IBeTrueCore, IBeTrueCoreAntiCollusion, BeTrueCoreCore,
 contracts/        NINNullifierRegistry  (outside src/ — separate build profile)
 circuits/         NINCommitment.circom, NINIdentityProof.circom,
                   lib/BinaryMerkleTree.circom, COMPILE.md, README.md
-test/             BeTrueCore.t.sol — 38 tests
+test/             BeTrueCore.t.sol — 38 tests of mechanics
+                  Assertions.t.sol — 27 tests of architectural promises
 docs/             ARCHITECTURE_FOUNDATION, AUTHORITY_CHAIN, MAPPING_MODEL,
                   MACI_ENGINEER_PACKAGE, L5_MANAGED_AGENTS
 ```
@@ -41,7 +42,7 @@ docs/             ARCHITECTURE_FOUNDATION, AUTHORITY_CHAIN, MAPPING_MODEL,
 ## 2. Build and test
 
 ```bash
-forge test            # src/ + test/ — 38 tests, all passing
+forge test            # src/ + test/ — 65 tests, all passing
 forge build           # src/ only
 FOUNDRY_PROFILE=contracts forge build    # contracts/ — separate profile
 ```
@@ -119,6 +120,14 @@ either to make a fixture pass.
 `BeTrueCoreCore`, `Poll`, `EthicalMatrix`, `HarmonyAgent`, `VWUEngine` and
 `NINNullifierRegistry` all follow this shape. A one-step setter would hand the
 role to a mistyped address with no way back.
+
+**A new public value is recorded when it is added.** No public field, event or
+getter goes in without a line in `CHANGELOG_LENSES.md` saying what it discloses
+beside what is already published. Write it at the moment of adding, while the
+answer is still obvious. Read a figure against its neighbours, never alone: two
+counts under one session id subtract, and an exact weight sum over a known
+roster narrows to its parts. Every figure now published was added for a good
+reason; what their sum yields was asked only at the audit.
 
 ---
 
