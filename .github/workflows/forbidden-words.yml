@@ -1,0 +1,55 @@
+name: Forbidden words
+
+# Fails a commit that reintroduces a term the architecture has ruled out.
+# Two classes of term are checked. Phrases are matched anywhere in a line.
+# Single words are matched as whole words only, so "ownership", "commissioner"
+# and "commissioned" are not flagged while "owner" and "commission" are.
+#
+# Scope: text files tracked by git. Binary files and the files listed under
+# EXCLUDE are skipped. CLAUDE.md is excluded because its vocabulary table
+# names the forbidden terms on purpose, in the "never use" column.
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Scan tracked text files
+        shell: bash
+        run: |
+          set -uo pipefail
+
+          PHRASE_RE='anonymity preserved|behaviou?ral entropy'
+          WORD_RE='biometrics?|faceid|face id|is_majority|aligned_majority|admin|owner|payments?|fees?|commissions?'
+
+          # Terms that become forbidden at stage D (Phase -> Trial).
+          # Uncomment the next line once the rename is done.
+          # WORD_RE="$WORD_RE|phases?"
+
+          EXCLUDE='^(\.github/workflows/forbidden-words\.yml|CLAUDE\.md)$'
+          BINARY='\.(png|jpe?g|gif|svg|pdf|xlsx|zip|ptau|ttf|woff2?)$'
+
+          status=0
+          while IFS= read -r f; do
+            [[ "$f" =~ $EXCLUDE ]] && continue
+            [[ "$f" =~ $BINARY ]] && continue
+            [ -f "$f" ] || continue
+            grep -IinE "$PHRASE_RE" "$f" | sed "s|^|$f:|" && status=1
+            grep -IinE "\b($WORD_RE)\b" "$f" | sed "s|^|$f:|" && status=1
+          done < <(git ls-files)
+
+          if [ "$status" -ne 0 ]; then
+            echo ""
+            echo "Forbidden terms found in the lines above."
+            echo "Each one names something this architecture has ruled out."
+            echo "See CLAUDE.md for the replacement vocabulary."
+            exit 1
+          fi
+
+          echo "No forbidden terms found."
