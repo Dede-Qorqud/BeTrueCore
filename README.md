@@ -242,23 +242,20 @@ Proprietary formula. Protected by timestamp.
 
 ## Academic Publications (Zenodo)
 
-All papers are timestamped and DOI-protected. Eight of the twelve are listed here; the full list is on ORCID, [0009-0004-4841-594X](https://orcid.org/0009-0004-4841-594X).
+Thirteen papers are published; six are listed here. The full list is on ORCID, [0009-0004-4841-594X](https://orcid.org/0009-0004-4841-594X).
 
 | # | Title | DOI |
 |---|---|---|
-| 1 | From Panopticon to Panopticon-Stent | [10.5281/zenodo.20296816](https://doi.org/10.5281/zenodo.20296816) |
-| 2 | Cryptographically Enforced Collective Decision-Making | [10.5281/zenodo.20319857](https://doi.org/10.5281/zenodo.20319857) |
-| 3 | Dynamic Bayesian Evolution Cycle and Sociotechnical Robustness | [10.5281/zenodo.20424602](https://doi.org/10.5281/zenodo.20424602) |
-| 8 | The Notary Under Attack... | [10.5281/zenodo.21111544](https://doi.org/10.5281/zenodo.21111544) |
-| 9 | The Ethical Priority Map... | [10.5281/zenodo.21225420](https://doi.org/10.5281/zenodo.21225420) |
-| 10 | Four Principles as the Foundation of TDSH: Physical Hierarchy, Philosophical Process, and Temporal Symmetry in the BeTrueCore Architecture | [10.5281/zenodo.21466246](https://doi.org/10.5281/zenodo.21466246) |
-| 11 | From Coordination Collapse to Collective Wisdom: Extending the VWU Model | [10.5281/zenodo.22179301](https://doi.org/10.5281/zenodo.22179301) |
-| 12 | Threshold and Witness: From a Model of Collective Behavior to an Architecture of Collective Judgment | [10.5281/zenodo.22537058](https://doi.org/10.5281/zenodo.22537058) |
+| What Leaves No Trace: Completeness of the Participant Set in Collective Decision-Making | [10.5281/zenodo.23924763](https://doi.org/10.5281/zenodo.23924763) |
+| Threshold and Witness: From a Model of Collective Behavior to an Architecture of Collective Judgment | [10.5281/zenodo.22537058](https://doi.org/10.5281/zenodo.22537058) |
+| From Coordination Collapse to Collective Wisdom: Extending the VWU Model | [10.5281/zenodo.22179301](https://doi.org/10.5281/zenodo.22179301) |
+| The Ethical Priority Map: The Mirror Reflects. The Notary Bears Witness. The Matrix Measures | [10.5281/zenodo.21225420](https://doi.org/10.5281/zenodo.21225420) |
+| Dynamic Bayesian Evolution Cycle and Sociotechnical Robustness in the BeTrueCore Modular System | [10.5281/zenodo.20424602](https://doi.org/10.5281/zenodo.20424602) |
+| BeTrueCore: A Cryptographically Enforced Collective Decision-Making Protocol with Intuition-Weighted Voting and Ethical AI Governance | [10.5281/zenodo.20319857](https://doi.org/10.5281/zenodo.20319857) |
 
-> All papers reference the source document in their headers:
-> *«BeTrueCore» Modular System. Methodological Base:*
-> *«Web3 Intuitive Symmetry Methodology» v1.2*
-> *Timestamped via OpenTimestamps (SHA-256).*
+> Each paper carries the colophon of the source document:
+> *«BeTrueCore» Modular System. Methodological Base: «Web3 Intuitive Symmetry Methodology» v1.2*
+> *— timestamped via OpenTimestamps (SHA-256).*
 
 ## Core Principles
 
