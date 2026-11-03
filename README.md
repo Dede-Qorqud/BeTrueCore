@@ -244,8 +244,8 @@ Proprietary formula. Protected by timestamp.
 
 Thirteen papers are published; six are listed here. The full list is on ORCID, [0009-0004-4841-594X](https://orcid.org/0009-0004-4841-594X).
 
-| # | Title | DOI |
-|---|---|---|
+| Title | DOI |
+|---|---|
 | What Leaves No Trace: Completeness of the Participant Set in Collective Decision-Making | [10.5281/zenodo.23924763](https://doi.org/10.5281/zenodo.23924763) |
 | Threshold and Witness: From a Model of Collective Behavior to an Architecture of Collective Judgment | [10.5281/zenodo.22537058](https://doi.org/10.5281/zenodo.22537058) |
 | From Coordination Collapse to Collective Wisdom: Extending the VWU Model | [10.5281/zenodo.22179301](https://doi.org/10.5281/zenodo.22179301) |
