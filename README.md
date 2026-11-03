@@ -28,9 +28,9 @@ The protocol combines:
 
 ## Protocol Architecture
 
-<img src="docs/protocol-architecture-l0-l5.png" alt="BeTrueCore — protocol architecture, L0 to L5"/>
+<img src="docs/protocol-architecture-l0-l5.png" width="650" alt="BeTrueCore — protocol architecture, L0 to L5"/>
 
-<img src="docs/boundaries-panorama-736.png" alt="BeTrueCore — boundaries, result panorama and the 736 map"/>
+<img src="docs/boundaries-panorama-736.png" width="650" alt="BeTrueCore — boundaries, result panorama and the 736 map"/>
 
 ## The Verifiable Digital Islands Concept
 
