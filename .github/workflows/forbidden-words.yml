@@ -51,8 +51,18 @@ jobs:
           # order to distance the protocol from it, which is the intended use.
           MARKET_RE='payments?|fees?|commissions?'
 
-          # Becomes forbidden at stage D (Phase -> Trial). Uncomment then.
-          # ARCH_RE="$ARCH_RE|phases?"
+          # Stage D renamed the pilot stages to Trial 1-3. The bare word "phase"
+          # is NOT forbidden: it remains correct for the development roadmap
+          # (Phase 1 Core, Phase 2 Integration, Phase 3 Pilot), for the Groth16
+          # trusted-setup ceremony, for the steps of one session and for the six
+          # VWU phase statuses. Only the wordings that named the pilot stages are
+          # forbidden, so that a later edit cannot quietly bring them back.
+          LADDER_RE='phases of decentralisation|phase [123] decentralisation'
+          LADDER_RE="$LADDER_RE|phase [123] of the pilot|phase [123] — (human|mathematics|community)"
+          LADDER_RE="$LADDER_RE|by phase [123] the community|the phase [123] path|in phase [123], the"
+          LADDER_RE="$LADDER_RE|three phases|phase [123] (accepts|keeps|budgeting)|phase [123]: community"
+          LADDER_RE="$LADDER_RE|phase [123] the notary|governance \(phase [123]\)"
+          PHRASE_RE="$PHRASE_RE|$LADDER_RE"
 
           # Lines allowed despite a match, each for a stated reason.
           #  - "biometric data under EU law": the legal term in a statement of law.
