@@ -341,7 +341,7 @@ agent, interrupted or not, has no write path to L0–L4 to begin with.
 
 ---
 
-## Self-Hosted Sandboxes → Phase 3 Decentralisation
+## Self-Hosted Sandboxes → Trial 3 Decentralisation
 
 Claude Managed Agents supports **self-hosted sandboxes**, under the same
 `managed-agents-2026-04-01` beta: tool execution moves to infrastructure you
@@ -352,15 +352,15 @@ Pre-built workers ship with the `ant` CLI and the Python, TypeScript and Go
 SDKs, and Anthropic publishes platform guides for Cloudflare, Modal, Vercel,
 Daytona, E2B and others. The published documentation states no release date.
 
-This is the Phase 3 path for BeTrueCore:
+This is the Trial 3 path for BeTrueCore:
 
-| Phase | L5 Infrastructure | Operator Role |
+| Trial | L5 Infrastructure | Operator Role |
 |---|---|---|
-| Phase 1 | Anthropic-managed sandboxes | Human operator coordinates |
-| Phase 2 | Anthropic or self-hosted | Lit Protocol MPC assumes coordinator role |
-| Phase 3 | Community-owned sandbox fleet | Contract-driven; the one human action left is `user.interrupt`, available to whoever holds the API credentials |
+| Trial 1 | Anthropic-managed sandboxes | Human operator coordinates |
+| Trial 2 | Anthropic or self-hosted | Lit Protocol MPC assumes coordinator role |
+| Trial 3 | Community-owned sandbox fleet | Contract-driven; the one human action left is `user.interrupt`, available to whoever holds the API credentials |
 
-In Phase 3, the sandbox fleet is owned and operated by the BeTrueCore community,
+In Trial 3, the sandbox fleet is owned and operated by the BeTrueCore community,
 and the nine agents execute their tool calls on community infrastructure. The
 dependency is narrowed, not removed, and this document says so plainly: the model
 itself still runs on Anthropic's side, and every tool input and output still
@@ -368,8 +368,8 @@ passes through Anthropic's control plane, because the model has to read each
 result to decide what to do next. Self-hosting controls where the agent's code
 executes, not who runs the agent.
 
-Phase 1 accepts Anthropic as the infrastructure provider for
-speed-to-production. Phase 3 keeps tool execution, session files and network
+Trial 1 accepts Anthropic as the infrastructure provider for
+speed-to-production. Trial 3 keeps tool execution, session files and network
 egress inside community infrastructure, while the model request remains
 external. Removing that last dependency would mean observation by a model the
 community itself runs, which is outside the scope of this specification.
@@ -380,7 +380,7 @@ is disclosed, not proved: who holds the key is named publicly, and a reader is
 relied upon to look. No statute closes this — a community has no legal
 personality and needs none, and the statutes of the association that operates
 the application are the association's, not the community's. The role becomes
-proved by disappearing: by Phase 3 the community governs through the protocol
+proved by disappearing: by Trial 3 the community governs through the protocol
 itself, and there is nothing left for anyone to hold. Every transfer of the role
 runs in two steps — the holder nominates, the nominee accepts — and both steps
 emit events, so a change of hands is visible rather than silent. The full
@@ -447,7 +447,7 @@ running keep the configuration they started with; sessions created afterwards
 get the restored one. Nothing is lost, because every earlier version stays in
 the history.
 
-**Upgrade governance (Phase 3):** agent version upgrades are approved through a
+**Upgrade governance (Trial 3):** agent version upgrades are approved through a
 BeTrueCore session, so the upgrade path is governed by the same protocol that
 governs collective decisions — recursive constitutional coherence. The key that
 applies an approved upgrade is held by an address, and that this address answers
@@ -562,7 +562,7 @@ def collect_signals(session_ids: list[str]) -> list[dict]:
 
 ## Cost Model
 
-For reference during Phase 1 budgeting. A round here is one voting session of
+For reference during Trial 1 budgeting. A round here is one voting session of
 the protocol — one dilemma, from `openSession` to `finalizeSession` — with the
 nine agent sessions above running inside it, one per agent. The code calls the
 same thing `voting_session_id`.
@@ -613,7 +613,7 @@ A common question: why not just use Claude Projects with custom instructions?
 | Agent persistence | Session-local | Cross-session persistent agent definitions |
 | Multi-agent coordination | No | Nine parallel isolated sessions per voting round |
 | Versioning | None | Full version history, auditable |
-| Self-hosting | No | Phase 3: community infrastructure |
+| Self-hosting | No | Trial 3: community infrastructure |
 | Orchestration | Human | `HarmonyAgent.sol` (smart contract) |
 | TDSH matrix operationalisation | Prompt suggestion | Outcomes rubric with self-evaluation loop |
 | Audit trail | None | Full event log per session in developer console |
