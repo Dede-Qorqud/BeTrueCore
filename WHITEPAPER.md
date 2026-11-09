@@ -265,7 +265,7 @@ Several roles in this architecture are held by an address: the coordinator of th
 
 **What does not hold, and is not claimed.** That a role belongs to the community cannot be proved while an address holds it. It is disclosed, not proved: who holds the key is named publicly, and a reader is relied upon to look. No document closes this gap, and none is offered as closing it. A community has no legal personality and needs none — it comes into being on the initiative of any citizen, and the statutes of the association that operates the application are the association's, not the community's. To rest the claim on those statutes would cut the root of authority this architecture begins from: the root of a mandate is the decision procedure itself, not a register entry.
 
-**How it becomes proved.** By the role disappearing. By Phase 3 of the pilot the community governs through the protocol itself, and there is nothing left for anyone to hold. This is not a limitation worked around — it is the direction the whole construction runs in, and the measure of its completion.
+**How it becomes proved.** By the role disappearing. By Trial 3 of the pilot the community governs through the protocol itself, and there is nothing left for anyone to hold. This is not a limitation worked around — it is the direction the whole construction runs in, and the measure of its completion.
 
 The same boundary, expressed for the contracts, is in `docs/AUTHORITY_CHAIN.md`, §14.
 
