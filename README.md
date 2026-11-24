@@ -128,11 +128,11 @@ If yours are among them — you will recognize it in the code.
 
 **Three issues are open, each with acceptance criteria rather than a wish:**
 
-| Issue | What | Blocked by |
-|---|---|---|
-| [#2](https://github.com/Dede-Qorqud/BeTrueCore/issues/2) | `Verifier.sol` — generate the Groth16 verifier and wire it to `NINNullifierRegistry` | nothing; this one can start today |
-| [#3](https://github.com/Dede-Qorqud/BeTrueCore/issues/3) | `MessageProcessor.sol` — encrypted messages with key rotation | #2 |
-| [#1](https://github.com/Dede-Qorqud/BeTrueCore/issues/1) | `Tally.sol` — six values, a blinded commitment, a ZK proof of the tally | #2, #3 |
+| Step | Issue | What | Blocked by |
+|---|---|---|---|
+| 1 | [#2](https://github.com/Dede-Qorqud/BeTrueCore/issues/2) | `Verifier.sol` — generate the Groth16 verifier and wire it to `NINNullifierRegistry` | nothing; this one can start today |
+| 2 | [#3](https://github.com/Dede-Qorqud/BeTrueCore/issues/3) | `MessageProcessor.sol` — process encrypted messages with key rotation | #2 |
+| 3 | [#1](https://github.com/Dede-Qorqud/BeTrueCore/issues/1) | `Tally.sol` — aggregate six values with a blinded commitment and a ZK proof | #2, #3 |
 
 → Open an Issue · ethresear.ch: [Dede-Qorqud](https://ethresear.ch/u/Dede-Qorqud)
 
