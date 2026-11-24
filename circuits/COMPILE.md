@@ -71,11 +71,18 @@ circom circuits/NINIdentityProof.circom \
 snarkjs r1cs info build/NINIdentityProof.r1cs
 ```
 
-**For pilot (50–100 participants)** — change the last line of `NINIdentityProof.circom`:
+**Depth is settled: LEVELS stays at 20**, pilot included. Decided 24 November
+2026, once the first compilation had measured both: 11,951 constraints at depth
+20 against 5,191 at depth 7. Depth 20 costs about twice the proving time on the
+participant's device and about twice the size of the proving key, and costs
+nothing at all in proof size, in gas, or in on-chain verification. It holds
+1,048,576 participants where depth 7 holds 128, and changing depth after launch
+is a restart of the registry rather than an edit — see the note below.
+
+The alternative is kept here for reference only, and is NOT in use:
 ```circom
-// Change LEVELS from 20 to 7:
+// NOT IN USE. LEVELS = 7 supports up to 128 participants:
 component main {public [merkle_root, external_nullifier]} = NINIdentityProof(7);
-// LEVELS=7 supports up to 128 participants, faster proof generation
 ```
 
 > **The depth is part of the definition of the root.** The same set of
@@ -86,6 +93,19 @@ component main {public [merkle_root, external_nullifier]} = NINIdentityProof(7);
 > and only while registration is stopped, because the registry holds a single
 > root and accepts no earlier ones. The test script below carries the same
 > number; change it there too.
+
+**LEVELS is not the seven-step cycle and not the message limit.** Three numbers
+in this project look alike and mean different things. They are set out together
+here because confusing them is easy and the consequences are not:
+
+| Number | What it is | Where it lives |
+|---|---|---|
+| 7 steps | one prompt, three agenda choices, three dilemma choices | `steps_completed` (0-7) and `AGENDA_TOPICS = 3` in `src/` |
+| 20 messages | how many times one participant may resubmit a choice within a session, before the time lock | `maxMessages = 20`, `docs/MACI_ENGINEER_PACKAGE.md` |
+| LEVELS = 20 | the depth of the composition tree, that is the ceiling on participants: 2^20 = 1,048,576 | this file and the last line of `NINIdentityProof.circom` |
+
+LEVELS says nothing about how a session runs. It says how many people fit in
+one community. The two other numbers say nothing about the tree.
 
 ---
 
