@@ -66,11 +66,11 @@ pragma solidity ^0.8.24;
  *   for the commands and for the ceremony file. They used to name
  *   pot20_final.ptau while the guide names the degree-15 file; the guide
  *   decides, and two documents of one project must not disagree on which is
- *   used. Which degree suffices cannot be stated yet: the circuits have not
- *   been compiled, the constraint count is therefore unknown, and the figure
- *   of 11,951 that stood here was never measured. Read the count from
- *   snarkjs r1cs info on the first build and check it against the ceiling of
- *   the chosen file — degree 15 covers 32,768 constraints. A single
+ *   used. The circuits were first compiled on 24 November 2026: 11,951
+ *   constraints at LEVELS = 20, 5,191 at LEVELS = 7. The figure of 11,951
+ *   that stood here unmeasured proved to be the right one. Degree 15 covers
+ *   32,768 constraints, so pot15_final.ptau serves both depths with room to
+ *   spare; circuits/COMPILE.md carries the measurement. A single
  *   contribution leaves the setup forgeable by the contributor: see the
  *   ceremony note in COMPILE.md before the first real session.
  *
@@ -95,10 +95,11 @@ interface IGroth16Verifier {
     ///               [0] = nullifier          (circuit output)
     ///               [1] = merkle_root        (public input)
     ///               [2] = external_nullifier (public input, = session_id)
-    ///               The circuits have not been compiled, so this rests on the
-    ///               language rule and on the source, not on a symbol file.
-    ///               Confirm it against the generated .sym before the verifier
-    ///               is deployed.
+    ///               Confirmed against the generated symbol file on
+    ///               24 November 2026, so this no longer rests on the language
+    ///               rule alone: witness 1 = nullifier, 2 = merkle_root,
+    ///               3 = external_nullifier — the order above. Re-check the
+    ///               .sym if the circuit's signals ever change.
     /// @return true if proof is valid
     function verifyProof(
         uint256[2]    calldata a,
