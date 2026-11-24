@@ -138,7 +138,7 @@ If yours are among them — you will recognize it in the code.
 
 ## Current Status (November 2026)
 
-- 13 academic preprints published on Zenodo
+- 14 academic preprints published on Zenodo
 - Technical partnerships initiated in the Ethereum ecosystem (Phase 2 pending)
 - Evidential layer boundary defined (mapping model v0.9)
 - ERC-8281 integration points identified at L1 and L3
@@ -272,16 +272,15 @@ Proprietary formula. Protected by timestamp.
 
 ## Academic Publications (Zenodo)
 
-Thirteen papers are published; six are listed here. The full list is on ORCID, [0009-0004-4841-594X](https://orcid.org/0009-0004-4841-594X).
+Fourteen papers are published; five are listed here. The full list is on ORCID, [0009-0004-4841-594X](https://orcid.org/0009-0004-4841-594X)
 
 | Title | DOI |
 |---|---|
+| Communities Without Legal Personality: Emergence, Structure, Multiplication | [10.5281/zenodo.24497600](https://doi.org/10.5281/zenodo.24497600) |
 | What Leaves No Trace: Completeness of the Participant Set in Collective Decision-Making | [10.5281/zenodo.23924763](https://doi.org/10.5281/zenodo.23924763) |
 | Threshold and Witness: From a Model of Collective Behavior to an Architecture of Collective Judgment | [10.5281/zenodo.22537058](https://doi.org/10.5281/zenodo.22537058) |
 | From Coordination Collapse to Collective Wisdom: Extending the VWU Model | [10.5281/zenodo.22179301](https://doi.org/10.5281/zenodo.22179301) |
 | The Ethical Priority Map: The Mirror Reflects. The Notary Bears Witness. The Matrix Measures | [10.5281/zenodo.21225420](https://doi.org/10.5281/zenodo.21225420) |
-| Dynamic Bayesian Evolution Cycle and Sociotechnical Robustness in the BeTrueCore Modular System | [10.5281/zenodo.20424602](https://doi.org/10.5281/zenodo.20424602) |
-| BeTrueCore: A Cryptographically Enforced Collective Decision-Making Protocol with Intuition-Weighted Voting and Ethical AI Governance | [10.5281/zenodo.20319857](https://doi.org/10.5281/zenodo.20319857) |
 
 > Each paper carries the colophon of the source document:
 > *«BeTrueCore» Modular System. Methodological Base: «Web3 Intuitive Symmetry Methodology» v1.2*
