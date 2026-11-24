@@ -56,14 +56,18 @@ circom circuits/NINIdentityProof.circom \
   -l node_modules \
   -o build/
 
-# Record the constraint count on the first successful compilation and compare
-# every later build against it. The circuits have not been compiled yet, so
-# there is no measured figure to put here.
-# What the source fixes, and what must hold on that first build:
-#   1 public output (nullifier), 2 public inputs (merkle_root, external_nullifier)
-#   43 private inputs (3 secrets + 20 path elements + 20 path indices)
-# A later count far from the first one means the circuit itself changed — find
-# out why before going on.
+# First successful compilation: 24 November 2026, circom 2.2.3, this guide's
+# Steps 1-2 with --inspect. Both depths were built.
+# Measured at LEVELS = 20: 11,951 constraints (5,649 non-linear + 6,302 linear),
+#   11,976 wires, 18,073 labels, curve BN254, and the figures the source fixes:
+#   1 public output (nullifier), 2 public inputs (merkle_root, external_nullifier),
+#   43 private inputs (3 secrets + 20 path elements + 20 path indices).
+# Measured at LEVELS = 7 (pilot): 5,191 constraints (2,451 + 2,740), 5,203 wires,
+#   7,829 labels, 17 private inputs (3 secrets + 7 path elements + 7 path indices).
+# --inspect raised no CA01 warning at either depth.
+# Compare every later build against the figure for the depth it was built at.
+# A count far from it means the circuit itself changed — find out why before
+# going on.
 snarkjs r1cs info build/NINIdentityProof.r1cs
 ```
 
@@ -92,9 +96,12 @@ the Hermez public ceremony (BN254 curve, ~100M participants).
 
 ```bash
 # Download the ptau file from the Hermez public ceremony.
-# final_15 covers circuits up to 2^15 = 32,768 constraints. Check the count
-# that snarkjs r1cs info prints in Step 2 against that ceiling before running
-# setup: a circuit above it needs a larger ptau, and setup fails outright.
+# final_15 covers circuits up to 2^15 = 32,768 constraints. Measured in Step 2:
+# 11,951 constraints at LEVELS = 20 and 5,191 at LEVELS = 7, so this file covers
+# both, with room to spare — the smallest that would serve is degree 14 and
+# degree 13 respectively. Re-check the count against the ceiling whenever the
+# circuit changes: a circuit above it needs a larger ptau, and setup fails
+# outright.
 curl -L https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_15.ptau \
      -o pot15_final.ptau
 
