@@ -115,18 +115,30 @@ Four non-negotiable components for system launch:
 Architecture, mathematical model and technical specification
 are complete and timestamp-protected (Zenodo DOI + SHA256).
 
-**ZK Identity Layer (L0 → L1) — draft v0.1 written:**
+**ZK Identity Layer (L0 → L1) — circuits written and compiled:**
 ZK identity circuits (Circom 2.0) → see `circuits/`
 
-The architecture is open. The circuits are written.
+First compiled 24 November 2026 with circom 2.2.3: 11,951 constraints at
+LEVELS = 20, 5,191 at LEVELS = 7, no CA01 warning at either depth. Figures,
+commands and the ceremony step: [`circuits/COMPILE.md`](circuits/COMPILE.md).
+
+The architecture is open. The circuits compile.
 The next step requires hands.
 If yours are among them — you will recognize it in the code.
+
+**Three issues are open, each with acceptance criteria rather than a wish:**
+
+| Issue | What | Blocked by |
+|---|---|---|
+| [#2](https://github.com/Dede-Qorqud/BeTrueCore/issues/2) | `Verifier.sol` — generate the Groth16 verifier and wire it to `NINNullifierRegistry` | nothing; this one can start today |
+| [#3](https://github.com/Dede-Qorqud/BeTrueCore/issues/3) | `MessageProcessor.sol` — encrypted messages with key rotation | #2 |
+| [#1](https://github.com/Dede-Qorqud/BeTrueCore/issues/1) | `Tally.sol` — six values, a blinded commitment, a ZK proof of the tally | #2, #3 |
 
 → Open an Issue · ethresear.ch: [Dede-Qorqud](https://ethresear.ch/u/Dede-Qorqud)
 
 ## Current Status (October 2026)
 
-- 12 academic preprints published on Zenodo
+- 13 academic preprints published on Zenodo
 - Technical partnerships initiated in the Ethereum ecosystem (Phase 2 pending)
 - Evidential layer boundary defined (mapping model v0.9)
 - ERC-8281 integration points identified at L1 and L3
