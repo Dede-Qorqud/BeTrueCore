@@ -1,11 +1,15 @@
 # Foundry
 out/
+out-contracts/
 cache/
 /lib/
 
 # Node and circuits
 node_modules/
 build/
+build20/
+build7/
+proof/
 keys/
 *.ptau
 
