@@ -122,8 +122,19 @@ the Hermez public ceremony (BN254 curve, ~100M participants).
 # degree 13 respectively. Re-check the count against the ceiling whenever the
 # circuit changes: a circuit above it needs a larger ptau, and setup fails
 # outright.
-curl -L https://hermez.s3-eu-west-1.amazonaws.com/powersOfTau28_hez_final_15.ptau \
+#
+# Hermez's own buckets stopped serving the file in September 2026: the S3 one
+# answers AccessDenied, storage.googleapis.com/zkevm/ptau answers 403. The
+# ceremony is unchanged — only the download moved. Any mirror will do, because
+# the two checks after the download identify the file instead of trusting the
+# host: its size, and the blake2b-512 that snarkjs publishes for it. A copy that
+# fails either check is not this ceremony's: stop, and find another.
+# Downloaded and checked this way on 25 November 2026.
+curl -L https://github.com/hilawe/dash-mno-verify/releases/download/ptau-hermez-v1/powersOfTau28_hez_final_15.ptau \
      -o pot15_final.ptau
+stat -c %s pot15_final.ptau   # expected: 37831832
+b2sum pot15_final.ptau        # blake2b-512, expected:
+# 982372c867d229c236091f767e703253249a9b432c1710b4f326306bfa2428a17b06240359606cfe4d580b10a5a1f63fbed499527069c18ae17060472969ae6e
 
 # Phase 2 setup — circuit-specific
 snarkjs groth16 setup \
