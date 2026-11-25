@@ -23,14 +23,31 @@ BeTrueCore/
 ## Step 1 — Install Dependencies
 
 ```bash
-# Node.js 20 LTS required
-npm init -y
+# Node.js 20 LTS required. package.json and package-lock.json are in this
+# repository, so there is nothing to initialise and nothing to choose: npm ci
+# installs exactly what the lock file records, and fails outright if the two
+# files disagree. Never npm init or npm install here — either one floats the
+# versions again.
+npm ci
 
 # circomlib   — the .circom circuit library, used by -l node_modules at compile time
 # circomlibjs — the JavaScript implementation of Poseidon, used by the test script.
 #               circomlib exports NOTHING from JavaScript: its index.js is empty,
 #               so require("circomlib").poseidon is undefined.
-npm install circomlib circomlibjs snarkjs
+#
+# Pinned: circomlib 2.0.5, circomlibjs 0.1.7, snarkjs 0.7.6. Every figure in
+# Step 2 was measured with these, on 25 November 2026, and the circuit still
+# compiles to the same 11,951 constraints after a clean npm ci.
+#
+# Why these three are pinned where a Node project usually floats: circomlib
+# defines Poseidon inside the circuit, circomlibjs defines it outside, and the
+# tree root is built with the second while every proof is built against the
+# first. They must agree to the digit. circomlib already ships
+# poseidon_old.circom beside poseidon.circom, so that hash has changed once
+# before. Drift does not break the build — the circuit compiles, the constraint
+# count holds, the test suite passes — and surfaces only as an on-chain
+# verification that fails for no visible reason. Raising a version is therefore
+# a deliberate act: raise it, re-run Steps 2-4, re-check the counts.
 ```
 
 The contracts are a Foundry project — see `foundry.toml` at the repository
