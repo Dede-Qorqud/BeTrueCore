@@ -126,6 +126,52 @@ one community. The two other numbers say nothing about the tree.
 
 ---
 
+## Step 2b — Compile NINCommitment Circuit
+
+The registration circuit, and a separate step because it is a separate circuit:
+its own key, its own verifier, its own public signal. `register` in
+`src/BeTrueCoreCore.sol` reads a proof of this one, never of the voting circuit.
+
+```bash
+circom circuits/NINCommitment.circom \
+  --r1cs \
+  --wasm \
+  --sym \
+  --inspect \
+  -l node_modules \
+  -o build/commitment/
+
+# First successful compilation: 25 November 2026, circom 2.2.3, this step with
+# --inspect. Measured: 1,034 constraints (486 non-linear + 548 linear),
+#   1,038 wires, 1,540 labels, curve BN254, and the figures the source fixes:
+#   1 public output (identity_commitment), 0 public inputs,
+#   3 private inputs (nin_preimage, registration_salt, identity_secret).
+# --inspect raised no CA01 warning: "Everything went okay".
+# No depth enters this circuit. It hashes three values and has no tree, so the
+# count does not move with LEVELS and there is nothing here to rebuild when the
+# composition tree changes.
+snarkjs r1cs info build/commitment/NINCommitment.r1cs
+```
+
+**The one public signal is the commitment.** `NINCommitment` declares no public
+input, and circom makes an output signal public by the definition of the
+language, so the public list is exactly `[identity_commitment]` —
+`build/commitment/NINCommitment.sym`, witness 1 = `main.identity_commitment`.
+The verifier of Step 4b therefore takes `uint[1]` where the voting circuit's
+takes `uint[3]`: the two verifiers are not interchangeable, and the compiler
+says so rather than letting one stand in for the other.
+
+**What a proof of this circuit says, and what it does not.** It says its prover
+knew a `nin_preimage`, a `registration_salt` and an `identity_secret` whose
+Poseidon chain equals the commitment. It does not say that the number inside was
+ever shown to the e-government gateway, and it binds nothing to an address. One
+person who generates two secrets holds two provable commitments. So this proof
+closes the free entry under a commitment nobody holds the preimages of, and
+Sybil-resistance at L0 stays organisational — name it as organisational
+wherever it is claimed.
+
+---
+
 ## Step 3 — Trusted Setup (Powers of Tau)
 
 Groth16 requires a trusted setup. For testnet/pilot we use
@@ -189,12 +235,21 @@ snarkjs zkey export verificationkey \
 > First, this ceremony: a single contributor can forge a membership proof for
 > a leaf that is not in the tree. Second, the registry root: it is written by
 > one address, the tree is built off-chain, and a root carrying a leaf nobody
-> chose verifies exactly as well as an honest one. Third, and widest,
-> `register` in `src/BeTrueCoreCore.sol`: it is external and unguarded, any
-> address may call it with any 32-byte value, the proof argument is accepted
-> and never read, and the number of calls is bounded by nothing — so there an
-> extra entry costs one call to anyone at all, while the first two doors are
-> reachable by one party each.
+> chose verifies exactly as well as an honest one. Third, `register` in
+> `src/BeTrueCoreCore.sol` — until 25 November 2026 the widest of the three,
+> and now the narrowest. It used to be unguarded: any address could call it
+> with any 32-byte value, the proof argument was accepted and never read, and
+> the number of calls was bounded by nothing, so an extra entry cost one call
+> to anyone at all. Since then it verifies a proof of NINCommitment against the
+> commitment being registered (Steps 2b and 4b), so an extra entry costs a
+> proof. No ceiling on the roster was added and none is to be: a limit on the
+> size of a community would turn size from a reading into a norm. What keeps
+> an extra entry from being worth making is the rule by which weight arises,
+> not a count. What it still does not do, and no
+> version of it could: tell two commitments made by one person from two made by
+> two people. So the first two doors stand open and reachable by one party
+> each, the third now costs a proof, and the roster is not closed by any of
+> this.
 >
 > What the roster actually rests on is therefore organisational and lies
 > outside cryptography: the client that is supposed to check the number at the
@@ -218,6 +273,68 @@ snarkjs zkey export solidityverifier \
 
 `contracts/Verifier.sol` implements `IGroth16Verifier` from `NINNullifierRegistry.sol`.
 **Deploy this contract first.**
+
+---
+
+## Step 4b — Generate RegistrationVerifier.sol
+
+The same four commands as Step 3 and Step 4, over the registration circuit.
+Run them after Step 2b, and before deploying `BeTrueCoreCore`.
+
+```bash
+snarkjs groth16 setup \
+  build/commitment/NINCommitment.r1cs \
+  pot15_final.ptau \
+  keys/NINCommitment_0000.zkey
+
+# Required. Without a contribution the setup is cryptographically unsafe.
+snarkjs zkey contribute \
+  keys/NINCommitment_0000.zkey \
+  keys/NINCommitment_0001.zkey \
+  --name="BeTrueCore registration contribution" -v
+
+snarkjs zkey verify \
+  build/commitment/NINCommitment.r1cs \
+  pot15_final.ptau \
+  keys/NINCommitment_0001.zkey          # expect: ZKey Ok!
+
+snarkjs zkey export verificationkey \
+  keys/NINCommitment_0001.zkey \
+  keys/registration_vkey.json
+
+snarkjs zkey export solidityverifier \
+  keys/NINCommitment_0001.zkey \
+  contracts/RegistrationVerifier.sol
+```
+
+**Then rename the contract, and rename nothing else.** snarkjs names every
+verifier it exports `Groth16Verifier`, and `contracts/Verifier.sol` from Step 4
+already holds that name; two contracts under one name in one project collide.
+Open `contracts/RegistrationVerifier.sol` and change its single declaration
+line to `contract RegistrationVerifier {`. That rename is the only edit this
+file takes, and a regeneration brings the generated name back — rename it
+again, and leave everything else exactly as generated. Do not rename the
+committed `contracts/Verifier.sol`: no name here carries cryptographic weight,
+and that file is already tested and referenced by name.
+
+**One ptau for both circuits.** By the rule of Step 3 — the smallest degree
+whose 2^k covers the count — 1,034 constraints need degree 11 where the voting
+circuit needs 14, so `pot15_final.ptau` covers both with room to spare.
+
+**The ceremony note of Step 3 applies here unchanged,** and for this circuit it
+reads: a single Phase 2 contributor can forge a proof for a commitment whose
+preimages nobody knows, which is an entry in the roster behind which there is
+no one. Acceptable only while the deployment is a test with no real community
+behind it; before the first session with real participants, run Phase 2 in
+public with several independent contributors and deploy the verifier built from
+that run.
+
+**Where the address goes.** `contracts/RegistrationVerifier.sol` implements
+`IRegistrationVerifier`, declared in `src/BeTrueCoreCore.sol`. The address is a
+constructor argument of `BeTrueCoreCore` and there is no setter for it — a
+setter would be a role able to point registration at a verifier that accepts
+anything. So this verifier is deployed before the core contract, and a
+constructor given the zero address is refused outright.
 
 ---
 
