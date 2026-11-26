@@ -219,11 +219,25 @@ and the records of them are not untidiness to be cleaned up.
    `finalizeSession` in `BeTrueCoreCore.sol` stores the verdicts it receives and
    compares them with nothing. The function exists; the guarantee does not.
 
-3. **`register` verifies nothing on chain.** It is external and unguarded, the
-   proof argument is accepted and never read, and the number of calls is bounded
-   by nothing. Resistance to an extra entry rests on the identifier checked at
-   the e-government gateway, in the client — an organisational guarantee, and it
-   is named as one wherever it is claimed.
+3. **`register` proves knowledge of a commitment, not a person.** Closed in
+   part on 25 November 2026, and the part that is closed is named precisely, so
+   that the rest is not read as closed with it. What was open: the function was
+   external and unguarded, the proof argument was accepted and never read, and
+   the number of calls was bounded by nothing. What holds now: a proof of
+   `NINCommitment` is verified on chain against the commitment being
+   registered, before the registry is touched, so an extra entry costs a proof.
+   No ceiling on the roster stands behind it and none is to be added: a limit
+   on the size of a community would turn size from a reading into a norm, and
+   what keeps an extra entry from being worth making is the rule by which
+   weight arises — everyone enters at the same non-burnable floor score. What
+   stays open, and what no version of this function could close: one person who
+   generates two secrets holds two provable commitments, and nothing here tells
+   two commitments made by one person from two made by two people. Resistance to
+   an extra person therefore still rests on the identifier checked at the
+   e-government gateway, in the client — an organisational guarantee, and it is
+   named as one wherever it is claimed. Binding the leaf to the gateway's
+   confirmation is not the missing step but the step the architecture refuses:
+   the party issuing numbers would then link a person to a record.
 
 **How not to close them.** The failure mode here is editing the text rather than
 the code: deleting `not established`, or writing that the verdict is recomputed
