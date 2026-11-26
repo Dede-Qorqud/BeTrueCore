@@ -7,6 +7,8 @@ import "../src/BeTrueCoreCore.sol";
 import "../src/EthicalMatrix.sol";
 import "../src/HarmonyAgent.sol";
 import "../src/VWUEngine.sol";
+import "../contracts/RegistrationVerifier.sol";
+import "./RegistrationFixtures.sol";
 
 /// @title BeTrueCoreTest
 /// @notice Foundry unit tests for BeTrueCore Developer Package v0.3
@@ -14,7 +16,7 @@ import "../src/VWUEngine.sol";
 ///      BeTrueCore Developer Package v0.3
 ///      github.com/Dede-Qorqud/BeTrueCore
 
-contract BeTrueCoreTest is Test {
+contract BeTrueCoreTest is Test, RegistrationFixtures {
 
     // ─────────────────────────────────────────────────────────────
     // CONTRACTS
@@ -40,12 +42,16 @@ contract BeTrueCoreTest is Test {
     // Deliberately NOT derived from any address: a commitment that anyone
     // can recompute from an address is not a pseudonym.
 
-    bytes32 constant IDENTITY_1 = keccak256("test identity commitment 1");
-    bytes32 constant IDENTITY_2 = keccak256("test identity commitment 2");
+    // IDENTITY_1 and IDENTITY_2 come from RegistrationFixtures: since
+    // register() reads its proof, an identity has to be a real output of
+    // NINCommitment.circom with the proof that goes with it. Still derived
+    // from no address.
 
     // ─────────────────────────────────────────────────────────────
     // SETUP
     // ─────────────────────────────────────────────────────────────
+
+    RegistrationVerifier internal registrationVerifier;
 
     function setUp() public {
         vm.startPrank(deployer);
@@ -54,11 +60,13 @@ contract BeTrueCoreTest is Test {
         matrix    = new EthicalMatrix();
         vwuEngine = new VWUEngine(coordinator);
         harmony   = new HarmonyAgent(address(matrix));
+        registrationVerifier = new RegistrationVerifier();
         core      = new BeTrueCoreCore(
             coordinator,
             address(matrix),
             address(harmony),
-            address(vwuEngine)
+            address(vwuEngine),
+            address(registrationVerifier)
         );
 
         // Register HarmonyAgent as the only writer of audit events
@@ -380,7 +388,7 @@ contract BeTrueCoreTest is Test {
     // ─────────────────────────────────────────────────────────────
 
     function test_Core_RegisterParticipant() public {
-        bytes memory zk_proof = hex""; // placeholder
+        bytes memory zk_proof = _registrationProof1();
 
         vm.prank(participant);
         core.register(IDENTITY_1, zk_proof);
@@ -389,19 +397,19 @@ contract BeTrueCoreTest is Test {
     }
 
     function test_Core_RegistryIsAggregateOnly() public {
-        bytes memory zk_proof = hex"";
+        bytes memory zk_proof = _registrationProof1();
 
         vm.prank(participant);
         core.register(IDENTITY_1, zk_proof);
         vm.prank(participant2);
-        core.register(IDENTITY_2, zk_proof);
+        core.register(IDENTITY_2, _registrationProof2());
 
         // The contract reports how many are registered, never who.
         assertEq(core.getParticipantCount(), 2, "Registry should hold two participants");
     }
 
     function test_Core_RegisterGrantsBaseScore() public {
-        bytes memory zk_proof = hex"";
+        bytes memory zk_proof = _registrationProof1();
 
         vm.prank(participant);
         core.register(IDENTITY_1, zk_proof);
@@ -417,7 +425,7 @@ contract BeTrueCoreTest is Test {
     }
 
     function test_Core_DoubleRegisterFails() public {
-        bytes memory zk_proof = hex"";
+        bytes memory zk_proof = _registrationProof1();
 
         vm.startPrank(participant);
         core.register(IDENTITY_1, zk_proof);
@@ -474,12 +482,12 @@ contract BeTrueCoreTest is Test {
 
     /// @dev Helper: register two participants and open a session over them.
     function _sessionOverTwo() internal returns (uint256 session_id) {
-        bytes memory zk_proof = hex"";
+        bytes memory zk_proof = _registrationProof1();
 
         vm.prank(participant);
         core.register(IDENTITY_1, zk_proof);
         vm.prank(participant2);
-        core.register(IDENTITY_2, zk_proof);
+        core.register(IDENTITY_2, _registrationProof2());
 
         vm.prank(coordinator);
         session_id = core.openSession(keccak256("Test dilemma"), 3600);
@@ -559,7 +567,7 @@ contract BeTrueCoreTest is Test {
     }
 
     function test_Core_RosterIsFixedWhenSessionOpens() public {
-        bytes memory zk_proof = hex"";
+        bytes memory zk_proof = _registrationProof1();
 
         vm.prank(participant);
         core.register(IDENTITY_1, zk_proof);
@@ -570,7 +578,7 @@ contract BeTrueCoreTest is Test {
         // A registration arriving while the session is open belongs to the
         // next session, not to this one.
         vm.prank(participant2);
-        core.register(IDENTITY_2, zk_proof);
+        core.register(IDENTITY_2, _registrationProof2());
 
         IBeTrueCore.Session memory s = core.getSession(session_id);
         assertEq(s.roster_count, 1, "The roster is taken at open and does not move");
@@ -582,7 +590,7 @@ contract BeTrueCoreTest is Test {
     }
 
     function test_Core_FinalizeRejectsRowsThatMissTheRoster() public {
-        bytes memory zk_proof = hex"";
+        bytes memory zk_proof = _registrationProof1();
 
         vm.prank(participant);
         core.register(IDENTITY_1, zk_proof);

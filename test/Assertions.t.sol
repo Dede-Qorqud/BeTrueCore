@@ -7,6 +7,8 @@ import "../src/BeTrueCoreCore.sol";
 import "../src/EthicalMatrix.sol";
 import "../src/HarmonyAgent.sol";
 import "../src/VWUEngine.sol";
+import "../contracts/RegistrationVerifier.sol";
+import "./RegistrationFixtures.sol";
 
 /// @title AssertionsTest
 /// @notice Tests of architectural promises, not of arithmetic.
@@ -29,7 +31,7 @@ import "../src/VWUEngine.sol";
 /// nothing here to assert. Those are listed at the end of this file as the
 /// promises the suite does not cover, rather than left to look covered.
 
-contract AssertionsTest is Test {
+contract AssertionsTest is Test, RegistrationFixtures {
 
     EthicalMatrix  public matrix;
     HarmonyAgent   public harmony;
@@ -47,10 +49,14 @@ contract AssertionsTest is Test {
     address outsider    = address(0xBAD);
     address successor   = address(0x5);
 
-    bytes32 constant IDENTITY_1 = keccak256("test identity commitment 1");
-    bytes32 constant IDENTITY_2 = keccak256("test identity commitment 2");
-
+    // IDENTITY_1 and IDENTITY_2 come from RegistrationFixtures: since
+    // register() reads its proof, an identity has to be a real output of
+    // NINCommitment.circom with the proof that goes with it. Still derived
+    // from no address.
+    
     uint256 constant DURATION = 1 days;
+
+    RegistrationVerifier internal registrationVerifier;
 
     function setUp() public {
         vm.startPrank(deployer);
@@ -58,11 +64,13 @@ contract AssertionsTest is Test {
         matrix  = new EthicalMatrix();
         engine  = new VWUEngine(coordinator);
         harmony = new HarmonyAgent(address(matrix));
+        registrationVerifier = new RegistrationVerifier();
         core    = new BeTrueCoreCore(
             coordinator,
             address(matrix),
             address(harmony),
-            address(engine)
+            address(engine),
+            address(registrationVerifier)
         );
 
         matrix.setHarmonyAgent(address(harmony));
@@ -179,7 +187,7 @@ contract AssertionsTest is Test {
         vm.recordLogs();
 
         vm.prank(outsider);
-        core.register(IDENTITY_1, "");
+        core.register(IDENTITY_1, _registrationProof1());
 
         Vm.Log[] memory entries = vm.getRecordedLogs();
         assertGt(entries.length, 0, "a registration emits something");
@@ -230,13 +238,13 @@ contract AssertionsTest is Test {
     /// Whoever registers while a session is open joins from the next one.
     function test_the_roster_is_fixed_when_a_session_opens() public {
         vm.prank(outsider);
-        core.register(IDENTITY_1, "");
+        core.register(IDENTITY_1, _registrationProof1());
 
         vm.prank(coordinator);
         uint256 session_id = core.openSession(keccak256("dilemma"), DURATION);
 
         vm.prank(outsider);
-        core.register(IDENTITY_2, "");
+        core.register(IDENTITY_2, _registrationProof2());
 
         IBeTrueCore.Session memory s = core.getSession(session_id);
         assertEq(s.roster_count, 1, "the roster does not grow once the session is open");
@@ -504,7 +512,7 @@ contract AssertionsTest is Test {
         returns (uint256 session_id, uint256 roster_weight)
     {
         vm.prank(outsider);
-        core.register(IDENTITY_1, "");
+        core.register(IDENTITY_1, _registrationProof1());
 
         vm.prank(coordinator);
         session_id = core.openSession(keccak256("dilemma"), DURATION);

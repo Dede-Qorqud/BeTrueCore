@@ -28,7 +28,8 @@ BeTrueCore L1 Layer
 │   ├── MessageProcessor.sol    — processes encrypted messages (key rotations + votes) [NOT WRITTEN]
 │   ├── Poll.sol                — manages active session (dilemma + time window) [written]
 │   ├── Tally.sol               — aggregates final results with ZK proof [NOT WRITTEN]
-│   └── Verifier.sol            — verifies ZK correctness proofs on-chain [NOT WRITTEN]
+│   ├── Verifier.sol            — verifies the voting circuit's proofs on-chain, 3 public signals [written 25.11.2026]
+│   └── RegistrationVerifier.sol — verifies the registration circuit's proofs on-chain, 1 public signal [written 25.11.2026]
 ├── Lit Protocol MPC            — threshold key management for coordinator [Phase 2]
 └── ZK Nullifier Registry       — prevents double-voting across sessions
                                   (contracts/NINNullifierRegistry.sol) [written]
@@ -361,12 +362,12 @@ const voteOptionTreeDepth = 2;
 
 - [ ] Deploy anti-collusion contracts (PollFactory, MessageProcessorFactory, TallyFactory)
 - [ ] Configure Lit Protocol MPC for coordinator key
-- [ ] Deploy ZK verifier contracts (Groth16)
+- [ ] Deploy ZK verifier contracts (Groth16) — there are two, and they are not interchangeable: `contracts/Verifier.sol` for the voting circuit, three public signals, and `contracts/RegistrationVerifier.sol` for the registration circuit, one. See `circuits/COMPILE.md`, Steps 4 and 4b
 - [ ] Deploy NINNullifierRegistry with the verifier address and the initial Merkle root
 - [ ] Point the registry at Poll.sol (setPoll) — until this is done, verifyAndRegister reverts with OnlyPoll and nobody can enter a session
 - [ ] After each registration batch, write the new root into the registry (updateMerkleRoot) — a proof is valid only against the root the registry holds at that moment, so registration stays frozen for the duration of a session
 - [ ] Carry that freeze through to the participant: someone who registers while a session is open is registered and joins from the next session, and the application tells them so at that moment — admission is confirmed when the current session ends. The contract side of this is the roster fixed by openSession (`src/IBeTrueCore.sol`, Session); do not let a late registrant be counted into a session whose roster was already taken
-- [ ] Deploy BeTrueCoreCore with coordinator address
+- [ ] Deploy BeTrueCoreCore with the coordinator address and the address of `contracts/RegistrationVerifier.sol` — the verifier is a constructor argument with no setter behind it, so it is deployed first and cannot be changed afterwards; a zero address is refused at deployment rather than at the first registration
 - [ ] Deploy EthicalMatrix and populate 736 cells
 - [ ] Deploy HarmonyAgent connected to EthicalMatrix, then register it in EthicalMatrix (setHarmonyAgent)
 - [ ] Set the coordinator in HarmonyAgent (setCoordinator) — without it no verdict can be issued

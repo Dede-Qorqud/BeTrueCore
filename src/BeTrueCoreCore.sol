@@ -40,6 +40,29 @@ import "./VWUEngine.sol";
 /// it fixes which text was in force. The boundary itself is in
 /// docs/AUTHORITY_CHAIN.md, §13.
 
+/// @title IRegistrationVerifier
+/// @notice The on-chain half of the registration circuit, NINCommitment.circom.
+/// @dev Declared here and not imported, for the reason NINNullifierRegistry.sol
+///      declares IGroth16Verifier itself: src/ and contracts/ are two Foundry
+///      profiles, and a generated verifier is reached by its shape, not by a
+///      path. The implementation is contracts/RegistrationVerifier.sol,
+///      exported by snarkjs from the zkey of NINCommitment and renamed there,
+///      because the generated name collides with contracts/Verifier.sol.
+///
+///      One public signal, and it is the commitment: circom makes an output
+///      signal public by definition of the language, and NINCommitment
+///      declares no public input. Hence uint[1] here, against the uint[3] of
+///      the voting circuit — the two verifiers are not interchangeable, and
+///      the compiler says so.
+interface IRegistrationVerifier {
+    function verifyProof(
+        uint[2]    calldata _pA,
+        uint[2][2] calldata _pB,
+        uint[2]    calldata _pC,
+        uint[1]    calldata _pubSignals
+    ) external view returns (bool);
+}
+
 contract BeTrueCoreCore is IBeTrueCore {
 
     // ─────────────────────────────────────────────────────────────
@@ -65,6 +88,16 @@ contract BeTrueCoreCore is IBeTrueCore {
     EthicalMatrix public ethicalMatrix;
     HarmonyAgent  public harmonyAgent;
     VWUEngine     public vwuEngine;
+
+    /// @notice Verifier of the registration proof — fixed at deployment
+    /// @dev Immutable on purpose, and the choice is not a matter of taste. A
+    ///      setter here would be a new role: whoever held it could point this
+    ///      contract at a verifier that accepts anything, and registration
+    ///      would be back where it was with the text still claiming otherwise.
+    ///      This contract states that no role stands above participants, so the
+    ///      address is given once, in the constructor, and the Deployment
+    ///      Checklist carries it as a third step.
+    IRegistrationVerifier public immutable registrationVerifier;
 
     /// @notice Anti-collusion coordinator address (only can finalize sessions)
     address public maciCoordinator;
@@ -250,12 +283,19 @@ contract BeTrueCoreCore is IBeTrueCore {
         address _maciCoordinator,
         address _ethicalMatrix,
         address _harmonyAgent,
-        address _vwuEngine
+        address _vwuEngine,
+        address _registrationVerifier
     ) {
         maciCoordinator  = _maciCoordinator;
         ethicalMatrix    = EthicalMatrix(_ethicalMatrix);
         harmonyAgent     = HarmonyAgent(_harmonyAgent);
         vwuEngine        = VWUEngine(_vwuEngine);
+
+        // Zero here would make every registration revert on the call to a
+        // non-existent contract, which is a confusing way to learn that the
+        // verifier was forgotten. It is refused at deployment instead.
+        require(_registrationVerifier != address(0), "Registration verifier required");
+        registrationVerifier = IRegistrationVerifier(_registrationVerifier);
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -336,47 +376,90 @@ contract BeTrueCoreCore is IBeTrueCore {
     ///      hidden either: it is a public argument of this call, bound to
     ///      the sender for anyone watching the network, from the moment of
     ///      registration and before any block holds it.
-    ///      Consequence: the registry is keyed by the commitment, so the
-    ///      first check below answers "is C registered?" to anyone who
-    ///      simulates this call locally — no transaction, no trace. The
-    ///      read path closed in stage A is reachable this way. Closing it
-    ///      needs the registration proof verified on-chain (lens B7); it
-    ///      is not closed by anything in this file.
+    ///      Consequence, and why the checks below stand in this order: the
+    ///      registry is keyed by the commitment, so a check on the registry
+    ///      placed first would answer "is C registered?" to anyone who
+    ///      simulates this call locally — no transaction, no trace. That is
+    ///      the read path closed in stage A, reachable here. Since
+    ///      25 November 2026 the proof is verified before the registry is
+    ///      touched, so a local simulation separates "registered" from "not
+    ///      registered" only for a commitment whose preimages the caller
+    ///      already knows, which is to say for its own. Do not reorder these
+    ///      requires for readability: the order is the guarantee (lens B7).
     ///      Registration is a single operation across both contracts: the
     ///      participant is initialized in VWUEngine and receives the
     ///      non-burnable base score — «Varlıq özü imzadır».
     ///
-    ///      Cost of one extra participant (lens B7). Zero. This function is
-    ///      external and unguarded: any address may call it with any 32-byte
-    ///      value, the proof argument is accepted and never read, and the
-    ///      number of calls is bounded by nothing. This is the widest of the
-    ///      three doors into the roster — the Phase 2 ceremony of the trusted
-    ///      setup and updateMerkleRoot in NINNullifierRegistry.sol are each
-    ///      reachable by one party, this one by every address. The three are
-    ///      listed together in circuits/COMPILE.md, because closing one and
-    ///      leaving the others open changes nothing. Nothing between a caller
-    ///      and an extra entry costs
-    ///      work, stake, a vouch, a synchronous ceremony, or a test telling a
-    ///      human from a machine. Cheaper imitation of a human therefore does
-    ///      not change this price: there is no test here for an agent to pass.
-    ///      What the price actually rests on lies outside this contract and
-    ///      outside cryptography — the client that is supposed to check the
-    ///      number at the e-government gateway, and whoever computes the tree
-    ///      root. Both guarantees are organisational, and they are to be
-    ///      named as organisational everywhere Sybil-resistance is claimed
-    ///      for L0. See the corresponding block in NINCommitment.circom.
+    ///      Cost of one extra participant (lens B7), restated 25 November 2026.
+    ///      No longer zero, and still not a person. This function reads the
+    ///      proof: a caller has to know a nin_preimage, a registration_salt and
+    ///      an identity_secret whose Poseidon chain equals the commitment it is
+    ///      registering, and the pairing is checked on chain by
+    ///      contracts/RegistrationVerifier.sol. What that removes is the free
+    ///      entry under a commitment whose preimages nobody holds, and with it
+    ///      the read path above.
+    ///      What it does not remove, and what no version of this function
+    ///      could: a caller who knows the preimages of two commitments
+    ///      registers twice. The salt and the secret are generated freely on
+    ///      the device, and nothing here ties either of them to a number
+    ///      checked at the gateway — binding the leaf to the gateway's
+    ///      confirmation is what the architecture refuses, because the party
+    ///      issuing numbers would then link a person to a record. So the price
+    ///      of an extra entry is now a proof, not a human: there is still no
+    ///      test here for an agent to pass, and cheaper imitation of a human
+    ///      does not change the price.
+    ///      No ceiling on the roster is set here, and none is to be added. By
+    ///      §6.4 of the preprint on communities without legal personality,
+    ///      neither an upper nor a lower limit on the size of a community is
+    ///      set, because a limit turns size from a reading into a norm. What
+    ///      bounds this function is not a count but a gain: one entry per
+    ///      registered secret, enforced by the check on the commitment below,
+    ///      and the rule by which weight arises — everyone enters at the same
+    ///      non-burnable floor score, so a hundred entries give a hundred
+    ///      beginners and no influence.
+    ///      What distinctness of persons actually rests on therefore lies
+    ///      outside this contract and outside cryptography — the client that is
+    ///      supposed to check the number at the e-government gateway, and
+    ///      whoever computes the tree root. Both guarantees are organisational,
+    ///      and they are to be named as organisational everywhere
+    ///      Sybil-resistance is claimed for L0.
+    ///      Of the three doors into the roster listed in circuits/COMPILE.md
+    ///      this was the widest and is now the narrowest. The other two stand
+    ///      open and untouched: the Phase 2 ceremony of the trusted setup, and
+    ///      updateMerkleRoot in NINNullifierRegistry.sol. Closing one while two
+    ///      stand open changes little, and this entry is not to be read as the
+    ///      roster being closed. See the corresponding block in
+    ///      NINCommitment.circom.
     function register(
         bytes32 identity_commitment,
         bytes calldata zk_proof
     ) external override {
+        // abi.encode of the three fixed-size arrays of a Groth16 proof is
+        // exactly eight words. Anything else is not a proof for this circuit,
+        // and saying so here is clearer than letting abi.decode revert without
+        // a word.
+        require(zk_proof.length == 256, "Malformed registration proof");
+
+        (
+            uint256[2]    memory pA,
+            uint256[2][2] memory pB,
+            uint256[2]    memory pC
+        ) = abi.decode(zk_proof, (uint256[2], uint256[2][2], uint256[2]));
+
+        // The one public signal is the commitment being registered. Passing it
+        // from the argument, rather than from anything the proof carries, is
+        // what makes the proof about this registration and not another.
+        uint256[1] memory public_signals = [uint256(identity_commitment)];
+
+        require(
+            registrationVerifier.verifyProof(pA, pB, pC, public_signals),
+            "Invalid registration proof"
+        );
+
         require(
             participants[identity_commitment].identity_commitment == bytes32(0),
             "Already registered"
         );
-
-        // ZK proof verification would be performed here
-        // via Circom verifier contract (external dependency)
-        // _verifyRegistrationProof(identity_commitment, zk_proof);
 
         address participant_address =
             address(uint160(uint256(identity_commitment)));
