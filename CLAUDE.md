@@ -28,15 +28,16 @@ What is here:
 ```
 src/              IBeTrueCore, IBeTrueCoreAntiCollusion, BeTrueCoreCore,
                   Poll, EthicalMatrix, HarmonyAgent, VWUEngine
-contracts/        NINNullifierRegistry, Verifier, RegistrationVerifier
-                  (outside src/ — separate build profile)
+contracts/        NINNullifierRegistry, Verifier, RegistrationVerifier,
+                  CompositionTree (outside src/ — separate build profile)
 circuits/         NINCommitment.circom, NINIdentityProof.circom,
                   lib/BinaryMerkleTree.circom, COMPILE.md, README.md
 test/             BeTrueCore.t.sol — 38 tests of mechanics
-                  Assertions.t.sol — 27 tests of architectural promises
+                  Assertions.t.sol — 32 tests of architectural promises
                   VerifierRegistry.t.sol — 7 tests of the voting verifier
                   RegistrationProof.t.sol — 11 tests of the registration proof
                   RegistrationFixtures.sol — two real proofs, no tests of its own
+                  CompositionTreeStub.sol — a stand-in for the tree, no tests
 docs/             ARCHITECTURE_FOUNDATION, AUTHORITY_CHAIN, MAPPING_MODEL,
                   MACI_ENGINEER_PACKAGE, L5_MANAGED_AGENTS
 ```
@@ -46,7 +47,7 @@ docs/             ARCHITECTURE_FOUNDATION, AUTHORITY_CHAIN, MAPPING_MODEL,
 ## 2. Build and test
 
 ```bash
-forge test            # src/ + test/ — 83 tests, all passing
+forge test            # src/ + test/ — 88 tests, all passing
 forge build           # src/ only
 FOUNDRY_PROFILE=contracts forge build    # contracts/ — separate profile
 ```
@@ -128,6 +129,15 @@ either to make a fixture pass.
 `BeTrueCoreCore`, `Poll`, `EthicalMatrix`, `HarmonyAgent`, `VWUEngine` and
 `NINNullifierRegistry` all follow this shape. A one-step setter would hand the
 role to a mistyped address with no way back.
+
+**The coordinator decides when, never who.** `commitRegistrationsToTree`
+takes no list of commitments: the leaves come from the core's own queue, from
+the front, in registration order, and `max_leaves` bounds a batch without
+choosing its members. A parameter naming which entries go in would hand the
+role the composition of the community — the one power this architecture says
+it does not hold. The restriction to the coordinator is there for the entrant
+and not for authority: open to everyone, the queue would be emptied after every
+single registration and each batch would show one person entering alone.
 
 **A new public value is recorded when it is added.** No public field, event or
 getter goes in without a line in `CHANGELOG_LENSES.md` saying what it discloses
@@ -217,10 +227,19 @@ holding one threshold is how they drift apart.
 Three gaps are recorded in this repository as open. They are not oversights,
 and the records of them are not untidiness to be cleaned up.
 
-1. **Set equality is not proved.** The Merkle tree is built off-chain and only
-   its root reaches the contract. No published artefact shows a new root to be
-   the old one with exactly the announced commitments inserted. Marked
-   `not established` in the requirements table of `docs/AUTHORITY_CHAIN.md`.
+1. **Set equality is not proved where the vote checks it.** Two trees now
+   describe the same set, and the vote is checked against the weaker one.
+   The composition tree is built on chain: `BeTrueCoreCore` keeps every
+   registration in a queue and hands leaves to `contracts/CompositionTree.sol`
+   from the front, in order, and the tree computes the root itself — so for
+   that tree a new root is demonstrably the old one with exactly the
+   registered commitments inserted. The root the voting circuit verifies
+   against is not that one. It is `merkleRoot` in
+   `contracts/NINNullifierRegistry.sol`, still written by a single address
+   under no proof, and nothing compares the two. Until the registry reads the
+   tree, what the chain can show about the composition and what a vote is
+   checked against are different things. Marked `not established` in the
+   requirements table of `docs/AUTHORITY_CHAIN.md`.
 
 2. **The verdict recomputation is not on the session path.**
    `HarmonyAgent` can recompute a verdict from the submitted cells, but
