@@ -28,11 +28,15 @@ What is here:
 ```
 src/              IBeTrueCore, IBeTrueCoreAntiCollusion, BeTrueCoreCore,
                   Poll, EthicalMatrix, HarmonyAgent, VWUEngine
-contracts/        NINNullifierRegistry  (outside src/ — separate build profile)
+contracts/        NINNullifierRegistry, Verifier, RegistrationVerifier
+                  (outside src/ — separate build profile)
 circuits/         NINCommitment.circom, NINIdentityProof.circom,
                   lib/BinaryMerkleTree.circom, COMPILE.md, README.md
 test/             BeTrueCore.t.sol — 38 tests of mechanics
                   Assertions.t.sol — 27 tests of architectural promises
+                  VerifierRegistry.t.sol — 7 tests of the voting verifier
+                  RegistrationProof.t.sol — 11 tests of the registration proof
+                  RegistrationFixtures.sol — two real proofs, no tests of its own
 docs/             ARCHITECTURE_FOUNDATION, AUTHORITY_CHAIN, MAPPING_MODEL,
                   MACI_ENGINEER_PACKAGE, L5_MANAGED_AGENTS
 ```
@@ -42,7 +46,7 @@ docs/             ARCHITECTURE_FOUNDATION, AUTHORITY_CHAIN, MAPPING_MODEL,
 ## 2. Build and test
 
 ```bash
-forge test            # src/ + test/ — 65 tests, all passing
+forge test            # src/ + test/ — 83 tests, all passing
 forge build           # src/ only
 FOUNDRY_PROFILE=contracts forge build    # contracts/ — separate profile
 ```
