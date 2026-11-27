@@ -312,6 +312,80 @@ contract AssertionsTest is Test, RegistrationFixtures {
         assertEq(tree.currentRoot(), STUB_ROOT + 1, "the tree did move");
     }
 
+    /// The tree is filled from the front of the queue, in the order people
+    /// registered. The coordinator decides when a batch is written; it does not
+    /// decide who is in it. With two registrations waiting, a batch bounded to
+    /// one takes the first — never the second.
+    function test_the_tree_is_filled_from_the_front_of_the_queue() public {
+        vm.prank(outsider);
+        core.register(IDENTITY_1, _registrationProof1());
+        vm.prank(outsider);
+        core.register(IDENTITY_2, _registrationProof2());
+
+        assertEq(core.pendingTreeRegistrations(), 2, "both are waiting");
+        assertEq(tree.receivedCount(), 0, "nothing has reached the tree yet");
+
+        vm.prank(coordinator);
+        uint256 written = core.commitRegistrationsToTree(1);
+
+        assertEq(written, 1, "the batch was bounded to one");
+        assertEq(tree.receivedCount(), 1, "one leaf reached the tree");
+        assertEq(
+            tree.received(0),
+            uint256(IDENTITY_1),
+            "the FIRST registration went in, not the second"
+        );
+        assertEq(core.pendingTreeRegistrations(), 1, "the second is still waiting");
+
+        vm.prank(coordinator);
+        core.commitRegistrationsToTree(0);
+
+        assertEq(tree.receivedCount(), 2, "the second leaf followed");
+        assertEq(
+            tree.received(1),
+            uint256(IDENTITY_2),
+            "and it went in behind the first, in registration order"
+        );
+        assertEq(core.pendingTreeRegistrations(), 0, "the queue is empty");
+    }
+
+    /// A registration reaches the tree once. The head of the queue only moves
+    /// forward, so a second call with nothing waiting writes nothing at all
+    /// rather than writing the same leaf again.
+    function test_a_registration_reaches_the_tree_once_and_only_once() public {
+        vm.prank(outsider);
+        core.register(IDENTITY_1, _registrationProof1());
+
+        vm.prank(coordinator);
+        core.commitRegistrationsToTree(0);
+        assertEq(tree.receivedCount(), 1, "the one registration went in");
+
+        vm.prank(coordinator);
+        vm.expectRevert("Nothing waiting for the tree");
+        core.commitRegistrationsToTree(0);
+
+        assertEq(tree.receivedCount(), 1, "and it did not go in twice");
+    }
+
+    /// Writing the tree is the coordinator's act. Were it open to everyone, a
+    /// stranger would empty the queue after each registration and every batch
+    /// would be a batch of one — which is the entry of one person, standing
+    /// alone, shown to anyone watching.
+    function test_only_the_coordinator_writes_the_tree() public {
+        vm.prank(outsider);
+        core.register(IDENTITY_1, _registrationProof1());
+
+        vm.prank(outsider);
+        vm.expectRevert("Only anti-collusion coordinator");
+        core.commitRegistrationsToTree(0);
+
+        vm.prank(deployer);
+        vm.expectRevert("Only anti-collusion coordinator");
+        core.commitRegistrationsToTree(0);
+
+        assertEq(tree.receivedCount(), 0, "nothing reached the tree");
+    }
+
     /// A session carries no verdict before it has been judged — not GREEN.
     function test_a_session_opens_undetermined_not_green() public {
         vm.prank(coordinator);
@@ -634,13 +708,21 @@ contract AssertionsTest is Test, RegistrationFixtures {
     //    a verdict per option and none for silence.
     //  - The participant does not see the distribution while choosing. Kept by
     //    the Lit Protocol time lock, off-chain; nothing on-chain to assert.
+    //  - The coordinator cannot choose who enters the composition. Kept by the
+    //    signature of commitRegistrationsToTree, which has no parameter for it:
+    //    there is no call to assert against. What is asserted above is the
+    //    observable consequence — a bounded batch takes the front of the queue
+    //    and never a later entry.
     //  - The set of participants is the set fixed for the session. Not kept
     //    anywhere: the count is checked, the membership is not. A session now
-    //    snapshots a root as well, and two tests above check that it keeps the
-    //    one it took — but no function in this package verifies a membership
+    //    snapshots a root as well, and the tests above check that it keeps the
+    //    one it took and that the tree is filled from the core's own record of
+    //    registrations — but no function in this package verifies a membership
     //    proof against that root, so what the snapshot makes possible is a
-    //    check by a third party, not a check by the chain. That is the
-    //    set-equality primitive recorded as not established.
+    //    check by a third party, not a check by the chain. The root the voting
+    //    circuit actually verifies against is a different one, written by hand
+    //    into NINNullifierRegistry and compared with this tree by nothing. That
+    //    is the set-equality primitive recorded as not established.
     //  - The chain's recomputation binds the verdict. Not kept: no contract
     //    calls computeFinalVerdict, and finalizeSession compares the submitted
     //    verdicts with nothing. A test asserting it would fail, and correctly.
