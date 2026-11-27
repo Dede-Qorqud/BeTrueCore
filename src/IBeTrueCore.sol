@@ -164,21 +164,35 @@ interface IBeTrueCore {
     ///      before mutual observation begins, which is the part of completeness
     ///      this protocol can hold.
     ///
-    ///      These two figures publish nothing new. The number of registered
+    ///      Those two figures publish nothing new. The number of registered
     ///      participants is already emitted on every registration, and the
     ///      weight of the roster follows from the three sums of any session's
     ///      result. What they add is a fixed point to check those against.
+    ///
+    ///      roster_root is the third part of the snapshot, and the one a third
+    ///      party checks a membership proof against. It is the root of the
+    ///      community's composition tree as it stood the minute this session
+    ///      opened, and it is kept for ever: a past Panorama goes on bearing
+    ///      witness to the composition of its own session, not to the one that
+    ///      stands today. Proofs for a session verify against the root kept
+    ///      here and never against the tree's current root, which is what lets
+    ///      the tree go on growing while a session runs — registration no
+    ///      longer has to be frozen for the duration of one. It publishes
+    ///      nothing a reader could not already fetch: the same root is public
+    ///      in CompositionTree.sol at that moment. What it adds is which root
+    ///      belonged to which session, so that a later root cannot be presented
+    ///      as the one a past session was decided on.
     struct Session {
         bytes32 dilemma_hash;         // 32-byte commitment to the dilemma text; see AUTHORITY_CHAIN.md §13
         uint256 start_time;           // Session open timestamp
         uint256 end_time;             // Time lock — after this, choices are final
         uint256 roster_count;         // Participants registered when the session opened
         uint256 roster_weight;        // Σ VWU of that roster, at that moment
+        uint256 roster_root;          // Root of the composition tree at that moment — kept for ever
         bool    finalized;            // Whether anti-collusion coordinator has published the result
         Verdict verdict_option_a;     // Harmony Agent verdict for Option A
         Verdict verdict_option_b;     // Harmony Agent verdict for Option B
     }
-
     /// @notice Session result after coordinator finalization — the Panorama,
     ///         as numbers
     /// @dev What the six figures disclose, stated in full here because this is
