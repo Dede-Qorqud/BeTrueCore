@@ -51,8 +51,12 @@ forge build           # src/ only
 FOUNDRY_PROFILE=contracts forge build    # contracts/ — separate profile
 ```
 
-`contracts/` sits outside `src/` and builds under its own profile in
-`foundry.toml`. A plain `forge build` does not touch it.
+`contracts/` is a source root only under its own profile in `foundry.toml`.
+It is still reached by relative imports, and four test files import from it,
+so `forge test` compiles those contracts as dependencies of the suite. The
+consequence: a file in `contracts/` that no test imports is not compiled by
+`forge test` at all, and can be broken while the Assertions check passes.
+The same rule, with the four imports named, is in `foundry.toml`.
 
 Toolchain, fixed in `foundry.toml`: Solidity 0.8.24, EVM `shanghai`, optimizer
 on at 200 runs. Every contract declares `pragma solidity ^0.8.24`.
