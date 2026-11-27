@@ -63,6 +63,15 @@ interface IRegistrationVerifier {
     ) external view returns (bool);
 }
 
+/// @notice The community's composition tree, declared here rather than imported
+/// @dev Same reason as IRegistrationVerifier above: contracts/ and src/ are two
+///      Foundry profiles, and src/ does not reach across into contracts/. Only
+///      the two calls this contract makes are declared.
+interface ICompositionTree {
+    function currentRoot() external view returns (uint256);
+    function registrar()   external view returns (address);
+}
+
 contract BeTrueCoreCore is IBeTrueCore {
 
     // ─────────────────────────────────────────────────────────────
@@ -99,6 +108,31 @@ contract BeTrueCoreCore is IBeTrueCore {
     ///      Checklist carries it as a third step.
     IRegistrationVerifier public immutable registrationVerifier;
 
+    /// @notice The community's composition tree — the snapshot a session takes
+    /// @dev This is the ONE wire the architecture could not make immutable, and
+    ///      the reason is the order of deployment, not a preference. The tree
+    ///      names this contract as its registrar and takes that address in its
+    ///      own constructor, so the tree cannot exist until this contract does,
+    ///      and this contract cannot be given the tree's address in its
+    ///      constructor. One of the two has to be wired afterwards.
+    ///
+    ///      What keeps it from becoming a standing power. It can be set once
+    ///      and never again. It is refused unless the tree offered names THIS
+    ///      contract as its registrar, so a mistyped or hostile address cannot
+    ///      be wired: a contract that does not answer registrar() reverts the
+    ///      call, and one that answers with another address is refused. And
+    ///      until it is set, openSession reverts, so a deployment that forgets
+    ///      this step cannot quietly run a session against nothing.
+    ///
+    ///      What remains, stated rather than left out: the coordinator chooses
+    ///      which conforming tree is wired, and a tree it deployed itself
+    ///      conforms. Nothing here distinguishes the community's tree from an
+    ///      empty one built to pass this check, and nothing in this contract
+    ///      can — the community's tree is the one the community registered
+    ///      into, which is a fact outside the chain. The Deployment Checklist
+    ///      carries this as a step of the same continuous run, and the
+    ///      published address is the thing a reader checks. Audit lens B8.
+    ICompositionTree public compositionTree;
     /// @notice Anti-collusion coordinator address (only can finalize sessions)
     address public maciCoordinator;
 
@@ -296,6 +330,32 @@ contract BeTrueCoreCore is IBeTrueCore {
         // verifier was forgotten. It is refused at deployment instead.
         require(_registrationVerifier != address(0), "Registration verifier required");
         registrationVerifier = IRegistrationVerifier(_registrationVerifier);
+    }
+
+    // ─────────────────────────────────────────────────────────────
+    // COMPOSITION TREE WIRE
+    // ─────────────────────────────────────────────────────────────
+
+    /// @notice Emitted once, when the composition tree is wired to this core
+    event CompositionTreeSet(address composition_tree);
+
+    /// @notice Wire the composition tree. Once, and never again.
+    /// @dev See the note at the compositionTree field for why this wire cannot
+    ///      be a constructor argument and what keeps it from being a standing
+    ///      power. The check below is the whole guarantee: the tree must name
+    ///      this contract as its registrar, which a mistyped address cannot do.
+    /// @param _compositionTree Address of the community's CompositionTree
+    function setCompositionTree(address _compositionTree) external onlyCoordinator {
+        require(address(compositionTree) == address(0), "Composition tree already set");
+        require(_compositionTree != address(0), "Composition tree required");
+        require(
+            ICompositionTree(_compositionTree).registrar() == address(this),
+            "Tree does not name this core as registrar"
+        );
+
+        compositionTree = ICompositionTree(_compositionTree);
+
+        emit CompositionTreeSet(_compositionTree);
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -565,6 +625,11 @@ contract BeTrueCoreCore is IBeTrueCore {
         bytes32 dilemma_hash,
         uint256 duration_seconds
     ) external override onlyCoordinator returns (uint256 session_id) {
+        // Until the tree is wired a session cannot open at all. A deployment
+        // that forgets the wire therefore fails here, loudly, rather than
+        // running a session whose snapshot came from nothing.
+        require(address(compositionTree) != address(0), "Composition tree not set");
+
         sessionCounter++;
         session_id = sessionCounter;
 
@@ -599,6 +664,12 @@ contract BeTrueCoreCore is IBeTrueCore {
             // revision rather than a correction.
             roster_count:  participantCount,
             roster_weight: rosterWeightTotal,
+            // The third part of the snapshot, and the one a third party checks
+            // a membership proof against. Read here and kept for ever: proofs
+            // for this session verify against this value and never against the
+            // tree's current root, so the tree may go on growing while the
+            // session runs. See roster_root in IBeTrueCore.sol.
+            roster_root:   compositionTree.currentRoot(),
             finalized:    false,
             // Not GREEN at opening. A session that has not been judged yet
             // carries the state of having no measurement, on both sides: GREEN
