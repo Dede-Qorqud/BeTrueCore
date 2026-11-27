@@ -9,6 +9,7 @@ import "../src/HarmonyAgent.sol";
 import "../src/VWUEngine.sol";
 import "../contracts/RegistrationVerifier.sol";
 import "./RegistrationFixtures.sol";
+import "./CompositionTreeStub.sol";
 
 /// @title AssertionsTest
 /// @notice Tests of architectural promises, not of arithmetic.
@@ -56,7 +57,18 @@ contract AssertionsTest is Test, RegistrationFixtures {
     
     uint256 constant DURATION = 1 days;
 
+    /// @dev The value the stand-in tree answers currentRoot() with. Deliberately
+    ///      a small plain number and not a hash: nothing here is a Merkle root
+    ///      of anything, and a root-shaped value would invite a reader to think
+    ///      otherwise. What these tests check is that a session keeps the value
+    ///      it took, whatever it was.
+    uint256 constant STUB_ROOT = 1234;
+
     RegistrationVerifier internal registrationVerifier;
+
+    /// @dev Stands in for the composition tree. See test/CompositionTreeStub.sol
+    ///      for why these suites do not deploy the real one.
+    CompositionTreeStub public tree;
 
     function setUp() public {
         vm.startPrank(deployer);
@@ -73,12 +85,23 @@ contract AssertionsTest is Test, RegistrationFixtures {
             address(registrationVerifier)
         );
 
+        // The tree takes the core's address in its own constructor, so it
+        // cannot exist until the core does — which is the whole reason the
+        // wire below is a call and not a constructor argument.
+        tree = new CompositionTreeStub(address(core), STUB_ROOT);
+
         matrix.setHarmonyAgent(address(harmony));
         engine.setCoordinator(address(core));
 
         _populateCells();
 
         vm.stopPrank();
+
+        // Wired by the coordinator, not by the deployer: setCompositionTree is
+        // onlyCoordinator, and the deployer has no say over this contract once
+        // the constructor has run.
+        vm.prank(coordinator);
+        core.setCompositionTree(address(tree));
 
         engineDirect = new VWUEngine(address(this));
     }
@@ -249,6 +272,44 @@ contract AssertionsTest is Test, RegistrationFixtures {
         IBeTrueCore.Session memory s = core.getSession(session_id);
         assertEq(s.roster_count, 1, "the roster does not grow once the session is open");
         assertEq(core.getParticipantCount(), 2, "the registry does grow");
+    }
+
+    /// A session cannot open at all while the composition tree is not wired.
+    /// A deployment that forgets the wire fails here, loudly, rather than
+    /// opening a session whose snapshot came from nothing.
+    function test_a_session_cannot_open_without_the_composition_tree() public {
+        vm.prank(deployer);
+        BeTrueCoreCore unwired = new BeTrueCoreCore(
+            coordinator,
+            address(matrix),
+            address(harmony),
+            address(engine),
+            address(registrationVerifier)
+        );
+
+        vm.prank(coordinator);
+        vm.expectRevert("Composition tree not set");
+        unwired.openSession(keccak256("dilemma"), DURATION);
+    }
+
+    /// A session keeps the root it took when it opened. The tree goes on
+    /// growing while the session runs and the snapshot does not follow it,
+    /// which is why registration is not frozen for the duration of a session.
+    function test_a_session_keeps_the_root_it_opened_with() public {
+        vm.prank(coordinator);
+        uint256 session_id = core.openSession(keccak256("dilemma"), DURATION);
+
+        uint256 taken = core.getSession(session_id).roster_root;
+        assertEq(taken, STUB_ROOT, "the session took the root in force at its opening");
+
+        tree.setRoot(STUB_ROOT + 1);
+
+        assertEq(
+            core.getSession(session_id).roster_root,
+            taken,
+            "the session's root does not follow the tree"
+        );
+        assertEq(tree.currentRoot(), STUB_ROOT + 1, "the tree did move");
     }
 
     /// A session carries no verdict before it has been judged — not GREEN.
@@ -574,7 +635,11 @@ contract AssertionsTest is Test, RegistrationFixtures {
     //  - The participant does not see the distribution while choosing. Kept by
     //    the Lit Protocol time lock, off-chain; nothing on-chain to assert.
     //  - The set of participants is the set fixed for the session. Not kept
-    //    anywhere: the count is checked, the membership is not. That is the
+    //    anywhere: the count is checked, the membership is not. A session now
+    //    snapshots a root as well, and two tests above check that it keeps the
+    //    one it took — but no function in this package verifies a membership
+    //    proof against that root, so what the snapshot makes possible is a
+    //    check by a third party, not a check by the chain. That is the
     //    set-equality primitive recorded as not established.
     //  - The chain's recomputation binds the verdict. Not kept: no contract
     //    calls computeFinalVerdict, and finalizeSession compares the submitted
