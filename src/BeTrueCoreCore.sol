@@ -70,6 +70,7 @@ interface IRegistrationVerifier {
 interface ICompositionTree {
     function currentRoot() external view returns (uint256);
     function registrar()   external view returns (address);
+    function insertBatch(uint256[] calldata leaves) external;
 }
 
 contract BeTrueCoreCore is IBeTrueCore {
@@ -133,6 +134,27 @@ contract BeTrueCoreCore is IBeTrueCore {
     ///      carries this as a step of the same continuous run, and the
     ///      published address is the thing a reader checks. Audit lens B8.
     ICompositionTree public compositionTree;
+
+    /// @notice Every registered commitment, in the order it was registered
+    /// @dev The queue the tree is filled from, and the reason the coordinator
+    ///      cannot choose WHO enters the composition — only WHEN. register()
+    ///      appends here and nothing else writes to it; the tree is filled from
+    ///      the front, in order, so an entry cannot be stepped over: skipping it
+    ///      would leave it first in line for the next call.
+    ///
+    ///      This publishes no commitment that was not already public. Each one
+    ///      arrives as an argument of register(), visible on the network before
+    ///      it reaches a block and in the chain's history afterwards — the note
+    ///      at the head of this file. What the array adds is convenience of
+    ///      enumeration: reading the set no longer means scanning the history.
+    ///      Audit lens B4.
+    bytes32[] private registeredCommitments;
+
+    /// @notice How many of them have been written into the composition tree
+    /// @dev The head of the queue. Everything below this index is in the tree,
+    ///      everything from it up is waiting, and it only ever moves forward.
+    uint256 private committedToTree;
+
     /// @notice Anti-collusion coordinator address (only can finalize sessions)
     address public maciCoordinator;
 
@@ -358,6 +380,80 @@ contract BeTrueCoreCore is IBeTrueCore {
         emit CompositionTreeSet(_compositionTree);
     }
 
+    /// @notice A batch of registrations was written into the composition tree
+    /// @dev count is the size of this batch, committed the running total. No
+    ///      field names a participant — but the call that emits this carries
+    ///      the leaves themselves in its arguments, and those are the same
+    ///      commitments register() already published one by one. What this
+    ///      pair adds is the shape of the queue over time. Audit lens B4.
+    event RegistrationsCommitted(uint256 count, uint256 committed);
+
+    /// @notice Write waiting registrations into the composition tree, in order
+    /// @dev THE COORDINATOR DECIDES WHEN, NEVER WHO. That is the whole design
+    ///      of this function, and it is enforced rather than promised. The
+    ///      caller hands over no list: the leaves are taken from
+    ///      registeredCommitments, from the front, in the order they were
+    ///      registered. An entry cannot be passed over, because passing over it
+    ///      would leave it first in line for the next call. max_leaves bounds
+    ///      how many go in at once; it cannot choose which.
+    ///
+    ///      Why the role holds even that much. Not for authority — for the
+    ///      entrant. The tree is to be written on a cadence with whatever has
+    ///      accumulated, because a call per entrant hands an observer the entry
+    ///      of one person standing alone; the reasoning is at the head of
+    ///      contracts/CompositionTree.sol. If anyone could call this, a
+    ///      stranger would empty the queue after every single registration and
+    ///      every batch would be a batch of one. The restriction protects the
+    ///      person entering; it does not hold a power over them.
+    ///
+    ///      What this means for Trial 3. Nothing here needs rewriting when the
+    ///      role passes to a contract the community drives: a timing decision
+    ///      is one a protocol can make by a rule — once a day, say — where a
+    ///      choice of persons is one it could have no basis for. The role and
+    ///      its three trials are stated once, at the coordinator field in
+    ///      Poll.sol.
+    ///
+    ///      Ordering of the body: the head moves before the tree is called, so
+    ///      a tree that re-entered this contract would find the queue already
+    ///      advanced and nothing left to take twice.
+    /// @param max_leaves The most leaves to write now; 0 means all that wait
+    /// @return count How many were written
+    function commitRegistrationsToTree(uint256 max_leaves)
+        external
+        onlyCoordinator
+        returns (uint256 count)
+    {
+        require(address(compositionTree) != address(0), "Composition tree not set");
+
+        uint256 start   = committedToTree;
+        uint256 pending = registeredCommitments.length - start;
+        require(pending > 0, "Nothing waiting for the tree");
+
+        count = (max_leaves == 0 || max_leaves > pending) ? pending : max_leaves;
+
+        uint256[] memory leaves = new uint256[](count);
+        for (uint256 i = 0; i < count; i++) {
+            leaves[i] = uint256(registeredCommitments[start + i]);
+        }
+
+        committedToTree = start + count;
+
+        compositionTree.insertBatch(leaves);
+
+        emit RegistrationsCommitted(count, committedToTree);
+    }
+
+    /// @notice How many registrations are waiting to be written into the tree
+    /// @dev Read against its neighbours, as every published figure here is.
+    ///      getParticipantCount() less this is the number already in the tree,
+    ///      which the tree itself also reports. Neither says who. A figure that
+    ///      stays above zero for a long while says the tree is not being
+    ///      written, which is the thing a reader should be able to see.
+    ///      Audit lens B4.
+    function pendingTreeRegistrations() external view returns (uint256) {
+        return registeredCommitments.length - committedToTree;
+    }
+
     // ─────────────────────────────────────────────────────────────
     // MODIFIERS
     // ─────────────────────────────────────────────────────────────
@@ -538,6 +634,11 @@ contract BeTrueCoreCore is IBeTrueCore {
 
         participantCount++;
         rosterWeightTotal += base;
+
+        // Into the queue, at the back. Nothing else writes here, and nothing
+        // removes from it — see the note at registeredCommitments.
+        registeredCommitments.push(identity_commitment);
+
         emit RegistryGrew(participantCount);
     }
 
