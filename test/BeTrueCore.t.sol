@@ -9,6 +9,7 @@ import "../src/HarmonyAgent.sol";
 import "../src/VWUEngine.sol";
 import "../contracts/RegistrationVerifier.sol";
 import "./RegistrationFixtures.sol";
+import "./CompositionTreeStub.sol";
 
 /// @title BeTrueCoreTest
 /// @notice Foundry unit tests for BeTrueCore Developer Package v0.3
@@ -53,6 +54,16 @@ contract BeTrueCoreTest is Test, RegistrationFixtures {
 
     RegistrationVerifier internal registrationVerifier;
 
+    /// @dev The value the stand-in tree answers currentRoot() with. Deliberately
+    ///      a small plain number and not a hash: nothing here is a Merkle root
+    ///      of anything. The promise that a session keeps the root it took is
+    ///      asserted in test/Assertions.t.sol, not here.
+    uint256 constant STUB_ROOT = 1234;
+
+    /// @dev Stands in for the composition tree. See test/CompositionTreeStub.sol
+    ///      for why these suites do not deploy the real one.
+    CompositionTreeStub public tree;
+
     function setUp() public {
         vm.startPrank(deployer);
 
@@ -69,6 +80,11 @@ contract BeTrueCoreTest is Test, RegistrationFixtures {
             address(registrationVerifier)
         );
 
+        // The tree takes the core's address in its own constructor, so it
+        // cannot exist until the core does — which is the whole reason the
+        // wire below is a call and not a constructor argument.
+        tree = new CompositionTreeStub(address(core), STUB_ROOT);
+
         // Register HarmonyAgent as the only writer of audit events
         matrix.setHarmonyAgent(address(harmony));
 
@@ -80,8 +96,15 @@ contract BeTrueCoreTest is Test, RegistrationFixtures {
         _populateTestMatrix();
 
         vm.stopPrank();
-    }
 
+        // Wired by the coordinator, not by the deployer: setCompositionTree is
+        // onlyCoordinator, and the deployer has no say over this contract once
+        // the constructor has run. Without it openSession reverts, and every
+        // test here that opens a session would fail on the wire rather than on
+        // what it means to check.
+        vm.prank(coordinator);
+        core.setCompositionTree(address(tree));
+    }
     /// @dev Populate the canonical nine cells of the 736-point map — three per
     ///      agent type. The map assigns every TDSH parameter to exactly one
     ///      agent: T01–T08 to the Analyst, T09–T16 to the Strategist, T17–T32
