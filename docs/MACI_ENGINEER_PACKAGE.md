@@ -192,9 +192,13 @@ this number" to "this leaf". Binding it inside the circuit would require an
 attestation signed by the gateway as a private input, with the gateway's public
 key as a public input — that is unbuilt work, not an existing property.
 
-Also note: in the current construction this proof has no verifier. No contract
-checks it; the tree root is written by a single address and the leaves are
-computed off-chain.
+Also note, and the note is now the opposite of what it said: this proof has a
+verifier. `contracts/RegistrationVerifier.sol` was generated on 25.11.2026 and
+`register` checks the proof against the commitment being registered before the
+registry is touched. The tree root is no longer written by any address — the
+chain computes it from the core's own queue — and the leaves are on chain in
+the insertion log. What stays unbuilt is the paragraph above: nothing
+cryptographic ties the gateway's confirmation to a leaf.
 
 
 No behavioural input exists. An earlier design verified the participant
@@ -317,8 +321,8 @@ Sybil resistance in this architecture is not three independent cryptographic lay
 
 | Layer | Mechanism | What an extra entry costs |
 |-------|-----------|---------------------------|
-| L0 | NIN-code checked at the e-government gateway — in the client, not on-chain | A leaf in the registered tree. Registration verifies no proof on-chain and restricts no caller, so an extra leaf costs one call: no work, no stake, no vouch, no ceremony. The tree is assembled off-chain and only its root reaches the contract, which cannot tell a root carrying the commitments of those who registered from one carrying a leaf nobody chose |
 | L0 | NIN-code checked at the e-government gateway — in the client, not on-chain | A leaf, and a Groth16 proof to go with it. Since 25 November 2026 `register` verifies a proof of NINCommitment on-chain against the commitment being registered, before the registry is touched, so an extra entry is no longer one free call. It is still not a person: one human who generates two secrets holds two provable commitments, and nothing on-chain tells two commitments made by one from two made by two. Since 28 November the root the voting circuit verifies against is the composition root itself — built on-chain from the core's own queue, snapshotted by the session, and read by a registry that holds no root of its own. A root carrying a leaf nobody chose can no longer be produced, let alone pass. What remains at this layer is therefore the one thing above: a proof of a commitment is not a proof of a person, and that rests on the client at the gateway |
+| L1 | ZK nullifier chain | A secret behind one leaf. What this enforces is one entry per SECRET, not one per citizen: two leaves with two secrets yield two nullifiers in one session |
 | L5 | — | Nothing. Sybil identification is not a function of this layer: an extra participant leaves no aggregate for an agent to read, and no agent decides anything in any case |
 
 **Where the guarantee actually sits.** With the identifier checked in the client, the substrate of this resistance is a state register record rather than a test distinguishing a human from a machine — forging it means forging the register, not passing a test, and cheaper imitation of a human does not move this boundary. It is an organisational guarantee and is named as one wherever this project claims it. The cryptographic part that is missing is named too: a third-party-verifiable proof that a root transition inserted exactly the announced commitments and nothing else. It is the `not established` row of the requirements table, and it is the one place where outside specialist work is needed.
