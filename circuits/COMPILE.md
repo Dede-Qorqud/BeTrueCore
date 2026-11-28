@@ -227,21 +227,39 @@ snarkjs zkey export verificationkey \
 >
 > A single contribution is therefore acceptable only while the deployment is a
 > test with no real community behind it. Before the first session with real
-> participants, the Phase 2 ceremony must be public, with several independent
-> contributors, and the deployed verifier must be the one built from it.
+> participants the ceremony must be run again, and the shape it has to take
+> follows from what this protocol is rather than from cryptographic custom.
+> Groth16 needs ONE honest contributor, not a quorum: the security holds if a
+> single participant destroyed their share. So what matters is not how many
+> contributed but that no one could have been kept out. A ceremony with a
+> named set of contributors would be a declared membership of exactly the kind
+> this architecture refuses everywhere else, and it would place in one group's
+> hands something larger than any role here holds — whoever keeps a share can
+> forge a membership proof for a leaf that is not in the tree, and no root, no
+> tree and no registry can tell. The ceremony is therefore to be open to
+> anyone, with its transcript published, so that each contribution can be
+> checked by anyone against the one before it. That the community runs it is
+> not a slogan: it is the same move the rest of the protocol makes — not a
+> body that announces who belongs, but a procedure whose record is checkable.
+>
+> The loop in this, said plainly rather than left for a reader to find: the
+> ceremony happens BEFORE the community exists, because the verifier must be
+> deployed before anyone can register. There is no roster to draw contributors
+> from. Open entry is what cuts the loop — participation needs no proof of
+> belonging, and the transcript is checkable without knowing who anybody was.
 >
 > This is one of three doors into the roster, and they are listed together
 > here because closing one and leaving the others open changes nothing.
 > First, this ceremony: a single contributor can forge a membership proof for
-> a leaf that is not in the tree. Second, the registry root: it is written by
-> one address, the tree is built off-chain, and a root carrying a leaf nobody
-> chose verifies exactly as well as an honest one. Since 27 November 2026 a
-> second tree exists that computes its root on-chain from the core's own
-> queue of registrations, `contracts/CompositionTree.sol`, and for that root
-> a reader can see what went into it. It does not close this door: the
-> registry does not read that tree, nothing compares the two roots, and the
-> circuit verifies against this one. The door closes when the registry reads
-> the tree and `updateMerkleRoot` is gone. Third, `register` in
+> a leaf that is not in the tree. Second, the registry root — CLOSED on 28
+> November 2026, and named here rather than struck out, because a reader who
+> finds two doors cannot tell which three were meant. It used to be written
+> by one address, over a tree assembled off-chain, and a root carrying a leaf
+> nobody chose verified exactly as well as an honest one. The registry now
+> holds no root at all: it asks the session which root that session opened
+> with, and that root was computed on-chain by `contracts/CompositionTree.sol`
+> from the core's own queue of registrations. `updateMerkleRoot` no longer
+> exists, so there is no address to trust not to use it. Third, `register` in
 > `src/BeTrueCoreCore.sol` — until 25 November 2026 the widest of the three,
 > and now the narrowest. It used to be unguarded: any address could call it
 > with any 32-byte value, the proof argument was accepted and never read, and
@@ -441,13 +459,16 @@ export DEPLOYER_KEY=...      # private key of the deploying address
 forge create contracts/Verifier.sol:Groth16Verifier \
   --rpc-url "$SEPOLIA_RPC_URL" --private-key "$DEPLOYER_KEY" --broadcast
 
-# 2. Deploy NINNullifierRegistry with the verifier address and the first root.
-# The constructor refuses a zero root and a root outside the BN254 scalar
-# field, so the root of the tree participants were registered into must exist
-# before this call — it is a constructor argument, not a later step.
+# 2. Deploy NINNullifierRegistry with the verifier and the core.
+# It takes no root. Since 28.11.2026 it holds none: it asks the session which
+# root that session opened with, and that root was computed on-chain by the
+# composition tree. BeTrueCoreCore must therefore already exist — it is
+# deployed in the checklist of docs/MACI_ENGINEER_PACKAGE.md, which this
+# section assumes has been run up to that point. Both addresses are refused
+# as zero here rather than at the first entry.
 forge create contracts/NINNullifierRegistry.sol:NINNullifierRegistry \
   --rpc-url "$SEPOLIA_RPC_URL" --private-key "$DEPLOYER_KEY" --broadcast \
-  --constructor-args "$VERIFIER_ADDRESS" "$INITIAL_ROOT"
+  --constructor-args "$VERIFIER_ADDRESS" "$CORE_ADDRESS"
 
 # 3. Wire the registry to Poll.sol.
 # Until this is done, verifyAndRegister reverts with OnlyPoll and nobody can
@@ -455,16 +476,14 @@ forge create contracts/NINNullifierRegistry.sol:NINNullifierRegistry \
 cast send "$REGISTRY_ADDRESS" "setPoll(address)" "$POLL_ADDRESS" \
   --rpc-url "$SEPOLIA_RPC_URL" --private-key "$DEPLOYER_KEY"
 
-# 4. After each later registration batch, write the new root.
-# A proof is valid only against the root the registry holds at that moment,
-# which is why registration stays frozen for the duration of a session.
-# This is the hand-written root, and the one the voting circuit verifies
-# against. The composition tree below has a root of its own and does not
-# lift this freeze — see the three doors above.
-cast send "$REGISTRY_ADDRESS" "updateMerkleRoot(bytes32)" "$NEW_ROOT" \
-  --rpc-url "$SEPOLIA_RPC_URL" --private-key "$DEPLOYER_KEY"
+# THERE IS NO STEP FOR WRITING A ROOT, and there is no function to call.
+# updateMerkleRoot was removed on 28.11.2026 together with the root it wrote.
+# Nothing has to be done after a registration batch for proofs to keep
+# verifying, and registration is NOT frozen for the duration of a session:
+# the session holds the root it opened with, the tree goes on growing beside
+# it, and a proof built at the start of a session is as good at its end.
 
-# 5. Deploy circomlib's two-input Poseidon from its generated bytecode.
+# 4. Deploy circomlib's two-input Poseidon from its generated bytecode.
 # The composition tree hashes with it and it must be the Poseidon the
 # circuits use. There is no Solidity source: the recipe for printing the
 # bytecode is in test/PoseidonT3Bytecode.sol, and `cast send --create` sends
@@ -472,7 +491,7 @@ cast send "$REGISTRY_ADDRESS" "updateMerkleRoot(bytes32)" "$NEW_ROOT" \
 cast send --create "$POSEIDON_CREATION_BYTECODE" \
   --rpc-url "$SEPOLIA_RPC_URL" --private-key "$DEPLOYER_KEY"
 
-# 6. Deploy the composition tree with that hasher and the core as registrar.
+# 5. Deploy the composition tree with that hasher and the core as registrar.
 # BeTrueCoreCore takes no tree in its constructor and the tree takes the
 # core's address in its own, so the core exists first and this order cannot
 # be reversed. A zero address is refused here, not at the first insertion.
@@ -480,7 +499,7 @@ forge create contracts/CompositionTree.sol:CompositionTree \
   --rpc-url "$SEPOLIA_RPC_URL" --private-key "$DEPLOYER_KEY" --broadcast \
   --constructor-args "$POSEIDON_ADDRESS" "$CORE_ADDRESS"
 
-# 7. Wire the tree into the core. Once, and never again.
+# 6. Wire the tree into the core. Once, and never again.
 # Refused unless the tree names this core as its registrar, so a mistyped
 # address cannot be wired. Until it is done openSession reverts, so a
 # deployment that forgets this step fails loudly rather than snapshotting an
@@ -490,7 +509,7 @@ forge create contracts/CompositionTree.sol:CompositionTree \
 cast send "$CORE_ADDRESS" "setCompositionTree(address)" "$TREE_ADDRESS" \
   --rpc-url "$SEPOLIA_RPC_URL" --private-key "$DEPLOYER_KEY"
 
-# 8. Write registrations into the tree on a cadence, not after each entrant.
+# 7. Write registrations into the tree on a cadence, not after each entrant.
 # The call takes no list of commitments: leaves are drawn from the core's own
 # queue, from the front, in registration order, so the coordinator decides
 # when a batch is written and never who is in it. The argument bounds the
