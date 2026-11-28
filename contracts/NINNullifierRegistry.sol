@@ -109,6 +109,14 @@ interface IGroth16Verifier {
     ) external view returns (bool);
 }
 
+/// @notice The core, under the one call this registry makes on it
+/// @dev Declared here rather than imported: contracts/ and src/ are two
+///      Foundry profiles and do not import each other. One uint256 is all
+///      that crosses.
+interface ISessionRoots {
+    function sessionRoot(uint256 session_id) external view returns (uint256);
+}
+
 
 /// @title NINNullifierRegistry
 /// @notice On-chain ZK identity proof registry for BeTrueCore
@@ -131,11 +139,21 @@ contract NINNullifierRegistry {
     uint256 internal constant SNARK_SCALAR_FIELD =
         21888242871839275222246405745257275088548364400416034343698204186575808495617;
 
-    /// @notice Current Merkle root of the registered voter tree
-    /// @dev Updated when new citizens are registered
-    ///      In production: updated by community governance, not by the
-    ///      deploying address
-    bytes32 public merkleRoot;
+    /// @notice Where a session's composition root is read from
+    /// @dev BeTrueCoreCore, under the one call this contract makes on it.
+    ///      THIS CONTRACT NO LONGER HOLDS A ROOT. It used to keep one that a
+    ///      single address wrote by hand, and a root carrying a leaf nobody
+    ///      chose verified exactly as well as an honest one. Now a proof is
+    ///      checked against the root the session itself snapshotted when it
+    ///      opened, and that root was computed on chain by
+    ///      contracts/CompositionTree.sol from the core's own queue of
+    ///      registrations. No address can set it, so none has to be trusted
+    ///      not to.
+    ///
+    ///      Immutable, and a constructor argument rather than a later setter:
+    ///      a settable source of roots would be the same power under another
+    ///      name. The core is deployed first and this contract after it.
+    ISessionRoots public immutable sessions;
 
     /// @notice Tracks which nullifiers have been used, per session
     /// @dev nullifiers[session_id][nullifier] = true if already submitted
@@ -182,10 +200,6 @@ contract NINNullifierRegistry {
     /// @notice Address named to take over the registrar role, not yet in force
     address public pendingDeployer;
 
-    /// @notice Number of times the Merkle root has been updated
-    /// @dev Replaces the roots themselves in the log — see MerkleRootUpdated.
-    uint256 public rootUpdateCount;
-
     /// @notice The only contract allowed to call verifyAndRegister
     /// @dev Set by the deployer after Poll.sol is deployed — and changeable
     ///      afterwards, which is why setPoll emits an event. Without it the
@@ -198,17 +212,6 @@ contract NINNullifierRegistry {
     // EVENTS
     // ══════════════════════════════════════════════════════════════════════
 
-    /// @notice Emitted when the voter Merkle root is updated
-    /// @dev The counter only. Publishing the roots themselves, each with its
-    ///      own timestamp, hands an observer the exact chronology of
-    ///      registrations — no names, but the dates and the number. Set beside
-    ///      the IdentityVerified events of later sessions, that chronology
-    ///      narrows the circle: in a small community it tells whether a newly
-    ///      registered citizen has taken part since. It narrows it in the
-    ///      probabilistic sense, not down to one person — a proof against a
-    ///      root can come from anyone whose leaf is in that tree.
-    event MerkleRootUpdated(uint256 rootUpdateCount);
-    
     /// @notice Emitted when a valid ZK identity proof is accepted
     /// @dev It contains NO information about who the participant is.
     ///      It is not the only on-chain record of participation, though:
@@ -261,13 +264,14 @@ contract NINNullifierRegistry {
     /// @notice Thrown when a nullifier is not a valid field element
     error NullifierOutOfField(bytes32 nullifier);
 
-    /// @notice Thrown when a Merkle root is not a valid field element
-    /// @dev The root is a Poseidon output, so an honest one is always in the
-    ///      field. This check guards against a mistyped value: the root is
-    ///      passed to the verifier as a public signal, and an out-of-field
-    ///      signal is refused there — every entry to every session would fail
-    ///      until the root is corrected, with nothing naming the cause.
-    error RootOutOfField(bytes32 root);
+    /// @notice Thrown when the session asked about never opened
+    /// @dev Zero is not a root any tree produces: an empty Poseidon tree
+    ///      hashes its filler leaves up to something, never to zero. So zero
+    ///      means no session, and saying that is better than verifying
+    ///      against zero, which no honest proof satisfies and which would
+    ///      fail with nothing naming the cause.
+    error SessionHasNoRoot(uint256 sessionId);
+
 
     /// @notice Thrown when caller is not the holder of the registrar role
     error OnlyDeployer();
@@ -283,26 +287,23 @@ contract NINNullifierRegistry {
     // CONSTRUCTOR
     // ══════════════════════════════════════════════════════════════════════
 
-    /// @param _verifier     Address of the snarkjs-generated Verifier.sol
-    /// @param _initialRoot  Initial Merkle root (empty tree or first batch)
-    constructor(address _verifier, bytes32 _initialRoot) {
+    /// @param _verifier  Address of the snarkjs-generated Verifier.sol
+    /// @param _sessions  BeTrueCoreCore, which this contract asks for the
+    ///                   composition root a session opened with
+    /// @dev No root is taken here any more. It used to be a constructor
+    ///      argument and then a thing one address could rewrite; now every
+    ///      root comes from the session being entered, and the session took
+    ///      it from a tree the chain computed. Both addresses are refused as
+    ///      zero at deployment rather than at the first entry, because a
+    ///      registry wired to nothing turns everyone away and says nothing
+    ///      about why.
+    constructor(address _verifier, address _sessions) {
         require(_verifier != address(0), "Verifier: zero address");
+        require(_sessions != address(0), "Sessions: zero address");
 
-        // The same two checks updateMerkleRoot applies, applied here as well.
-        // A root set at deployment carries the same load as one set later:
-        // out of field, it is refused by the verifier as a public signal, so
-        // every entry to every session fails with nothing naming the cause —
-        // the failure RootOutOfField exists to prevent. Zero is not an empty
-        // tree either: the root of an empty Poseidon tree is the hash chain of
-        // its filler leaves, never zero.
-        require(_initialRoot != bytes32(0), "Root: cannot be zero");
-        if (uint256(_initialRoot) >= SNARK_SCALAR_FIELD) {
-            revert RootOutOfField(_initialRoot);
-        }
-
-        verifier    = IGroth16Verifier(_verifier);
-        merkleRoot  = _initialRoot;
-        deployer    = msg.sender;
+        verifier = IGroth16Verifier(_verifier);
+        sessions = ISessionRoots(_sessions);
+        deployer = msg.sender;
     }
 
     // ══════════════════════════════════════════════════════════════════════
@@ -322,27 +323,26 @@ contract NINNullifierRegistry {
     // round, because such a way is itself the capture surface.
     //
     // What a handover does not change: the successor inherits an unconstrained
-    // power. The root is computed off-chain and this contract cannot tell which
-    // leaves a new root added, so passing the role passes the same trust to
-    // another address rather than reducing it. Only a provable root transition
-    // reduces it — see the note at updateMerkleRoot, and the corresponding row
-    // in docs/AUTHORITY_CHAIN.md, §14. Both events carry rootUpdateCount, so
-    // the archive shows where in the run of root updates the role changed
-    // hands. Audit lens B8.
+    // power. It no longer carries the root: since the registry reads the root
+    // the session snapshotted, no address writes one, and what passes here is
+    // the right to name the Poll contract and to pass this role on. That is
+    // the whole of it, and it is worth saying how much smaller it is than what
+    // it used to be — the holder could once keep a chosen entry out of a
+    // session by moving the root under a proof in flight. See the
+    // corresponding row in docs/AUTHORITY_CHAIN.md, §14. Audit lens B8.
     // ══════════════════════════════════════════════════════════════════════
 
     /// @notice The acting holder named a successor. Nothing has moved yet.
-    event RegistrarHandoverProposed(
-        address indexed proposed,
-        uint256 rootUpdateCount
-    );
+    event RegistrarHandoverProposed(address indexed proposed);
 
-    /// @notice The role passed. rootUpdateCount fixes where in the run of root
-    ///         updates it happened.
+    /// @notice The role passed
+    /// @dev These two used to carry rootUpdateCount, which fixed where in the
+    ///      run of root updates the change fell. There is no such run any
+    ///      more, and a counter frozen at zero would say less than nothing.
+    ///      The block number orders these events as well as a counter did.
     event RegistrarTransferred(
         address indexed previous,
-        address indexed current,
-        uint256 rootUpdateCount
+        address indexed current
     );
 
     /// @notice Name the address that may take over the registrar role
@@ -352,7 +352,7 @@ contract NINNullifierRegistry {
         require(proposed != deployer, "Already registrar");
 
         pendingDeployer = proposed;
-        emit RegistrarHandoverProposed(proposed, rootUpdateCount);
+        emit RegistrarHandoverProposed(proposed);
     }
 
     /// @notice Take over the registrar role, called by the named address
@@ -363,77 +363,12 @@ contract NINNullifierRegistry {
         deployer         = msg.sender;
         pendingDeployer  = address(0);
 
-        emit RegistrarTransferred(previous, msg.sender, rootUpdateCount);
+        emit RegistrarTransferred(previous, msg.sender);
     }
 
     // ══════════════════════════════════════════════════════════════════════
     // REGISTRAR
     // ══════════════════════════════════════════════════════════════════════
-
-    /// @notice Update the registered voter Merkle root
-    /// @dev Called when a new citizen registers — their commitment
-    ///      is added as a leaf and the root is updated off-chain,
-    ///      then committed here.
-    ///      The line that stood here — replace with multi-sig or Thermostat
-    ///      governance — is withdrawn as a remedy, for the reason given in the
-    ///      note below: splitting the role changes who may call, not what the
-    ///      call proves. "Thermostat governance" named nothing defined
-    ///      anywhere in this project.
-    ///
-    ///      Open, structural — not addressed by this function. The registry
-    ///      holds one root and proofs are accepted against it alone, so every
-    ///      new registration invalidates proofs already in flight: a
-    ///      participant has to recompute, and in practice registration has to
-    ///      be frozen for the duration of a session. Holding a window of the
-    ///      last N roots and accepting a proof against any of them is the only
-    ///      thing that closes this. It is a decision, not an edit.
-    ///
-    ///      The same shape, read against lens B5, is more than an
-    ///      inconvenience. Proofs are visible on the network before they are
-    ///      mined, and whoever holds this role is among those who see them.
-    ///      Calling this function at that moment makes a proof in flight
-    ///      verify against a root it was not built for, and it is refused.
-    ///      Nothing in the chain records that this was deliberate: the log
-    ///      carries a counter, and the refusal looks like the ordinary
-    ///      staleness described above. So the holder of this role can keep a
-    ///      chosen entry out of a session, silently, without touching the
-    ///      registry's contents. A window of roots closes this together with
-    ///      the staleness — one decision, both properties.
-    ///
-    ///      Read against lens B7, the same function is the door into the
-    ///      community. The tree is assembled off-chain and only its root
-    ///      reaches this contract, so this call cannot distinguish a root that
-    ///      added the commitments of citizens who registered from a root that
-    ///      added a leaf nobody chose — the caller's own included. The cost of
-    ///      an extra participant is one call of this function, and nothing
-    ///      limits how many leaves a single call brings in. The event carries a
-    ///      counter, so the chain records that a root changed and never what
-    ///      the change contained.
-    ///
-    ///      Note what the multi-sig line above does NOT buy. Splitting this
-    ///      role between several holders changes who may call, not what the
-    ///      call proves: an added leaf stays invisible either way, and the same
-    ///      holds for community governance. Making an addition auditable needs
-    ///      the root transition itself to be provable — the new root shown to
-    ///      follow from the old one by inserting exactly the commitments
-    ///      declared, with that set published. Until such a proof exists,
-    ///      completeness of the participant set rests on trusting whoever
-    ///      computes the root, and that must be said wherever the set is
-    ///      called closed.
-    ///
-    /// @param _newRoot  New Merkle root after adding the latest registrations
-    function updateMerkleRoot(bytes32 _newRoot) external {
-        if (msg.sender != deployer) revert OnlyDeployer();
-        require(_newRoot != bytes32(0), "Root: cannot be zero");
-        if (uint256(_newRoot) >= SNARK_SCALAR_FIELD) {
-            revert RootOutOfField(_newRoot);
-        }
-
-        merkleRoot = _newRoot;
-        rootUpdateCount++;
-
-        emit MerkleRootUpdated(rootUpdateCount);
-    }
 
     /// @notice Set the contract allowed to call verifyAndRegister
     /// @dev Deployment step: deploy Poll.sol, then point this registry at it.
@@ -539,13 +474,22 @@ contract NINNullifierRegistry {
         // declares the output nullifier and then the public inputs merkle_root
         // and external_nullifier:
         //   [0] = nullifier          (circuit output)
-        //   [1] = merkle_root        (current on-chain root)
+        //   [1] = merkle_root        (the root THIS session opened with)
         //   [2] = external_nullifier (= sessionId)
         // Any other order verifies a different statement, and no honestly
         // built proof can satisfy it — every entry would be refused.
+        //
+        // The root is the session's own snapshot, not a live reading of the
+        // tree. That is what lets registration continue while a session runs:
+        // the tree grows, this value does not move, and a proof built at the
+        // start of the session is as good at its end. A live reading would
+        // invalidate every proof in flight each time someone registered.
+        uint256 root = sessions.sessionRoot(sessionId);
+        if (root == 0) revert SessionHasNoRoot(sessionId);
+
         uint256[3] memory publicInputs = [
             uint256(nullifier),
-            uint256(merkleRoot),
+            root,
             sessionId
         ];
 
@@ -591,8 +535,11 @@ contract NINNullifierRegistry {
         return nullifiers[sessionId][nullifier];
     }
 
-    /// @notice Returns the current Merkle root
-    function currentMerkleRoot() external view returns (bytes32) {
-        return merkleRoot;
+    /// @notice The composition root a session is checked against
+    /// @dev Read through from the core, so that a reader who has this
+    ///      contract's address can follow the chain of custody of a root
+    ///      without being told where the core lives.
+    function sessionMerkleRoot(uint256 sessionId) external view returns (uint256) {
+        return sessions.sessionRoot(sessionId);
     }
 }
