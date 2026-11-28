@@ -22,8 +22,9 @@ ffi            = false
 # contracts/ is a source root only under the profile below. Files there are
 # still compiled by the default profile whenever src/ or test/ imports them
 # by relative path, and test/ does: VerifierRegistry.t.sol imports
-# Verifier.sol and NINNullifierRegistry.sol, and BeTrueCore.t.sol,
-# Assertions.t.sol and RegistrationProof.t.sol import RegistrationVerifier.sol.
+# Verifier.sol and NINNullifierRegistry.sol, BeTrueCore.t.sol,
+# Assertions.t.sol and RegistrationProof.t.sol import RegistrationVerifier.sol,
+# and CompositionTree.t.sol imports CompositionTree.sol.
 # The consequence worth knowing before adding a file here: one that no test
 # imports is never compiled by `forge test`, so it can be broken while the
 # Assertions check still passes. Build the directory as a root with:
