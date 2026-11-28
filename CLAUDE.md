@@ -21,7 +21,8 @@ the participant is not named and the decision is verifiable. Six layers:
 | L5 — AI Agents | Analyst ×3, Strategist ×3, Sentinel ×3 — read-only | specified, not implemented |
 
 Stage: TRL 2 → TRL 3. The contracts compile and the test suite passes; nothing
-is deployed, and three named gaps are open (section 7).
+is deployed. Of the three gaps named in section 7, the first closed in code on
+28 November 2026 and two stand open.
 
 What is here:
 
@@ -33,11 +34,11 @@ contracts/        NINNullifierRegistry, Verifier, RegistrationVerifier,
 circuits/         NINCommitment.circom, NINIdentityProof.circom,
                   lib/BinaryMerkleTree.circom, COMPILE.md, README.md
 test/             BeTrueCore.t.sol — 38 tests of mechanics
-                  Assertions.t.sol — 32 tests of architectural promises
-                  CompositionTree.t.sol — 16 tests of the tree itself, against
+                  Assertions.t.sol — 33 tests of architectural promises
+                  CompositionTree.t.sol — 17 tests of the tree itself, against
                   a real Poseidon
                   RegistrationProof.t.sol — 11 tests of the registration proof
-                  VerifierRegistry.t.sol — 7 tests of the voting verifier
+                  VerifierRegistry.t.sol — 9 tests of the voting verifier
                   RegistrationFixtures.sol — two real proofs, no tests of its own
                   CompositionTreeStub.sol — a stand-in for the tree, no tests
                   PoseidonT3Bytecode.sol — circomlib's Poseidon, no tests
@@ -50,7 +51,7 @@ docs/             ARCHITECTURE_FOUNDATION, AUTHORITY_CHAIN, MAPPING_MODEL,
 ## 2. Build and test
 
 ```bash
-forge test            # src/ + test/ — 104 tests, all passing
+forge test            # src/ + test/ — 108 tests, all passing
 forge build           # src/ only
 FOUNDRY_PROFILE=contracts forge build    # contracts/ — separate profile
 ```
@@ -227,29 +228,58 @@ holding one threshold is how they drift apart.
 
 ## 7. What is deliberately open
 
-Three gaps are recorded in this repository as open. They are not oversights,
-and the records of them are not untidiness to be cleaned up.
+Three gaps are recorded in this repository. They were not oversights, and the
+records of them are not untidiness to be cleaned up — least of all once one
+is closed. The first closed in code on 28 November 2026 and its record stays
+where it was, saying what closed and what did not; a reader who finds only
+the open ones cannot tell which of the three they are looking at.
 
-1. **Set equality is not proved where the vote checks it.** Two trees now
-   describe the same set, and the vote is checked against the weaker one.
-   The composition tree is built on chain: `BeTrueCoreCore` keeps every
-   registration in a queue and hands leaves to `contracts/CompositionTree.sol`
-   from the front, in order, and the tree computes the root itself — so for
-   that tree a new root is demonstrably the old one with exactly the
-   registered commitments inserted. The root the voting circuit verifies
-   against is not that one. It is `merkleRoot` in
-   `contracts/NINNullifierRegistry.sol`, still written by a single address
-   under no proof, and nothing compares the two. Until the registry reads the
-   tree, what the chain can show about the composition and what a vote is
-   checked against are different things. Marked `not established` in the
-   requirements table of `docs/AUTHORITY_CHAIN.md`.
+1. **Set equality, where the vote checks it — CLOSED 28 November 2026.** The
+   record stays, because what is closed has to be named as precisely as what
+   is open, and because the two things it does NOT establish are still read
+   out of it by mistake.
 
-2. **The verdict recomputation is not on the session path.**
+   What holds now. The root a session verifies membership proofs against is
+   the Merkle root of exactly the commitments registered, in the order they
+   were registered. `BeTrueCoreCore` appends every registration to a queue
+   that nothing else writes to; `commitRegistrationsToTree` hands leaves to
+   `contracts/CompositionTree.sol` from the front of that queue, in order,
+   and is the only caller of `insertBatch`; the tree computes the root
+   itself; `removeLeaf` is reachable by no code at all; `openSession` takes
+   the root as the session's own snapshot; and
+   `contracts/NINNullifierRegistry.sol` holds no root of its own and reads
+   that snapshot. `updateMerkleRoot` is gone, and with it the one address
+   that could decide what the set was.
+
+   And it is checkable by a stranger from published records alone, which is
+   the part that took two further commits. Every batch is announced with its
+   leaves, every root transition with its root, and every session with the
+   root it opened with. A reader holding the event log and nothing else —
+   no archive node, no calldata, no view call — rebuilds the tree and
+   arrives at the root, or fails to.
+   `test_the_log_carries_the_batch_and_a_reader_rebuilds_the_root` is that
+   reader.
+
+   **What this does NOT establish, and what is still open because of it.**
+   That the people in the composition are the people entitled to be there:
+   one person generating two secrets holds two provable commitments, which
+   is gap 3 below. And that an entry to a session is sound: with a single
+   contributor to the Phase 2 ceremony, a membership proof can be forged for
+   a leaf that is not in the tree, and a flawless root does not help against
+   that. Of the three doors into the roster named in `circuits/COMPILE.md`,
+   this closes the second. The first — the ceremony — is now the binding one.
+
+   Still open, and not this: the same guarantee **without publishing the
+   number of leaves**. The count is public, in the event and in `size()`.
+   That is the second half of the item recorded in the Дорожная карта, and
+   it is not ordinary engineering.
+   
+3. **The verdict recomputation is not on the session path.**
    `HarmonyAgent` can recompute a verdict from the submitted cells, but
    `finalizeSession` in `BeTrueCoreCore.sol` stores the verdicts it receives and
    compares them with nothing. The function exists; the guarantee does not.
 
-3. **`register` proves knowledge of a commitment, not a person.** Closed in
+4. **`register` proves knowledge of a commitment, not a person.** Closed in
    part on 25 November 2026, and the part that is closed is named precisely, so
    that the rest is not read as closed with it. What was open: the function was
    external and unguarded, the proof argument was accepted and never read, and
