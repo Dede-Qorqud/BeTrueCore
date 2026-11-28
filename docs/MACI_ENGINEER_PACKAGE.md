@@ -31,8 +31,11 @@ BeTrueCore L1 Layer
 │   ├── Verifier.sol            — verifies the voting circuit's proofs on-chain, 3 public signals [written 25.11.2026]
 │   └── RegistrationVerifier.sol — verifies the registration circuit's proofs on-chain, 1 public signal [written 25.11.2026]
 ├── Lit Protocol MPC            — threshold key management for coordinator [Phase 2]
-└── ZK Nullifier Registry       — prevents double-voting across sessions
-                                  (contracts/NINNullifierRegistry.sol) [written]
+├── ZK Nullifier Registry       — prevents double-voting across sessions
+│                                 (contracts/NINNullifierRegistry.sol) [written]
+└── CompositionTree.sol         — the community's composition, built on-chain from
+                                  the core's queue; a session snapshots its root
+                                  [written 27.11.2026]
 ```
 
 ---
@@ -315,7 +318,7 @@ Sybil resistance in this architecture is not three independent cryptographic lay
 | Layer | Mechanism | What an extra entry costs |
 |-------|-----------|---------------------------|
 | L0 | NIN-code checked at the e-government gateway — in the client, not on-chain | A leaf in the registered tree. Registration verifies no proof on-chain and restricts no caller, so an extra leaf costs one call: no work, no stake, no vouch, no ceremony. The tree is assembled off-chain and only its root reaches the contract, which cannot tell a root carrying the commitments of those who registered from one carrying a leaf nobody chose |
-| L1 | ZK nullifier chain | A secret behind one leaf. What this enforces is one entry per SECRET, not one per citizen: two leaves with two secrets yield two nullifiers in one session |
+| L0 | NIN-code checked at the e-government gateway — in the client, not on-chain | A leaf, and a Groth16 proof to go with it. Since 25 November 2026 `register` verifies a proof of NINCommitment on-chain against the commitment being registered, before the registry is touched, so an extra entry is no longer one free call. It is still not a person: one human who generates two secrets holds two provable commitments, and nothing on-chain tells two commitments made by one from two made by two. Since 27 November the composition tree is built on-chain from the core's own queue of registrations, so for THAT root a reader can see that it carries the commitments registered and nothing else. The root the voting circuit verifies against is still the hand-written one in NINNullifierRegistry, which cannot tell a root carrying the commitments of those who registered from one carrying a leaf nobody chose |
 | L5 | — | Nothing. Sybil identification is not a function of this layer: an extra participant leaves no aggregate for an agent to read, and no agent decides anything in any case |
 
 **Where the guarantee actually sits.** With the identifier checked in the client, the substrate of this resistance is a state register record rather than a test distinguishing a human from a machine — forging it means forging the register, not passing a test, and cheaper imitation of a human does not move this boundary. It is an organisational guarantee and is named as one wherever this project claims it. The cryptographic part that is missing is named too: a third-party-verifiable proof that a root transition inserted exactly the announced commitments and nothing else. It is the `not established` row of the requirements table, and it is the one place where outside specialist work is needed.
@@ -365,9 +368,13 @@ const voteOptionTreeDepth = 2;
 - [ ] Deploy ZK verifier contracts (Groth16) — there are two, and they are not interchangeable: `contracts/Verifier.sol` for the voting circuit, three public signals, and `contracts/RegistrationVerifier.sol` for the registration circuit, one. See `circuits/COMPILE.md`, Steps 4 and 4b
 - [ ] Deploy NINNullifierRegistry with the verifier address and the initial Merkle root
 - [ ] Point the registry at Poll.sol (setPoll) — until this is done, verifyAndRegister reverts with OnlyPoll and nobody can enter a session
-- [ ] After each registration batch, write the new root into the registry (updateMerkleRoot) — a proof is valid only against the root the registry holds at that moment, so registration stays frozen for the duration of a session
+- [ ] After each registration batch, write the new root into the registry (updateMerkleRoot). TWO ROOTS DESCRIBE THE SAME SET TODAY and this is the one the voting circuit verifies against, written by hand. A proof is valid only against the root the registry holds at that moment, so registration stays frozen for the duration of a session. The composition tree below does NOT lift that freeze: a session snapshots the composition root, the vote is checked against this one, and nothing compares the two
 - [ ] Carry that freeze through to the participant: someone who registers while a session is open is registered and joins from the next session, and the application tells them so at that moment — admission is confirmed when the current session ends. The contract side of this is the roster fixed by openSession (`src/IBeTrueCore.sol`, Session); do not let a late registrant be counted into a session whose roster was already taken
 - [ ] Deploy BeTrueCoreCore with the coordinator address and the address of `contracts/RegistrationVerifier.sol` — the verifier is a constructor argument with no setter behind it, so it is deployed first and cannot be changed afterwards; a zero address is refused at deployment rather than at the first registration
+- [ ] Deploy circomlib's two-input Poseidon from its generated bytecode — the tree below hashes with it, and it must be the same Poseidon the circuits use. The recipe is in `test/PoseidonT3Bytecode.sol`
+- [ ] Deploy `contracts/CompositionTree.sol` with that hasher and with BeTrueCoreCore as its registrar — the core's address is a constructor argument, so the core is deployed first and this order cannot be reversed
+- [ ] Wire the tree into the core (setCompositionTree). It can be set ONCE and is refused unless the tree names this core as registrar, so a mistyped address cannot be wired. Until it is set, openSession reverts: a deployment that forgets this step cannot quietly run a session against an empty root. What the check cannot establish is that the tree offered is the community's own rather than an empty one built to pass it — the published address is what a reader checks, and this step belongs to the same continuous run as the deployments above
+- [ ] Write registrations into the tree on a cadence (commitRegistrationsToTree), not after each entrant. The call takes no list: leaves are drawn from the core's own queue, from the front, in registration order, so the role chooses when and never who. A call per entrant would show an observer one person entering alone, which is what the batching is for
 - [ ] Deploy EthicalMatrix and populate 736 cells
 - [ ] Deploy HarmonyAgent connected to EthicalMatrix, then register it in EthicalMatrix (setHarmonyAgent)
 - [ ] Set the coordinator in HarmonyAgent (setCoordinator) — without it no verdict can be issued
