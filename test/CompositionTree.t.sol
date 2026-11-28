@@ -185,6 +185,96 @@ contract CompositionTreeTest is Test {
     }
 
     // ─────────────────────────────────────────────────────────────
+    // WHAT THE ARCHIVE CARRIES
+    // ─────────────────────────────────────────────────────────────
+
+    /// Rebuild the root the way a third party would: from the leaves alone,
+    /// hashing every level, knowing nothing of how this contract inserts.
+    /// Deliberately the naive walk and not the contract's own method — a
+    /// rebuild that copied the contract's algorithm would agree with a wrong
+    /// algorithm just as happily.
+    function _rootFromLeaves(uint256[] memory leaves) internal view returns (uint256) {
+        require(leaves.length > 0, "no leaves");
+
+        uint256 levels = tree.LEVELS();
+        uint256[] memory zeros = new uint256[](levels + 1);
+        for (uint256 i = 1; i <= levels; i++) {
+            zeros[i] = IPoseidon2(hasher).poseidon([zeros[i - 1], zeros[i - 1]]);
+        }
+
+        uint256[] memory level = leaves;
+        for (uint256 d = 0; d < levels; d++) {
+            uint256 n = (level.length + 1) / 2;
+            uint256[] memory next = new uint256[](n);
+            for (uint256 i = 0; i < n; i++) {
+                uint256 l = level[2 * i];
+                uint256 r = (2 * i + 1 < level.length) ? level[2 * i + 1] : zeros[d];
+                next[i] = IPoseidon2(hasher).poseidon([l, r]);
+            }
+            level = next;
+        }
+        return level[0];
+    }
+
+    /// THE WHOLE CLAIM OF THE ARCHIVE, IN ONE RUN. A reader who holds the
+    /// event log and nothing else — no archive node, no calldata, no view
+    /// call — reads the batches out of it, rebuilds the tree from them, and
+    /// arrives at the root the tree now holds. Before the leaves were in the
+    /// log, that reader could see that a root had moved and could not see
+    /// what moved it.
+    function test_the_log_carries_the_batch_and_a_reader_rebuilds_the_root() public {
+        vm.recordLogs();
+
+        _insert(1, 10);
+        _insert(11, 17);
+
+        Vm.Log[] memory logs = vm.getRecordedLogs();
+        bytes32 wanted = keccak256(
+            "LeavesInserted(uint256,uint256,uint256,uint256[])"
+        );
+
+        uint256[] memory seen = new uint256[](17);
+        uint256 k;
+        uint256 lastRoot;
+        uint256 batches;
+
+        for (uint256 i = 0; i < logs.length; i++) {
+            if (logs[i].topics[0] != wanted) continue;
+            batches++;
+
+            (
+                uint256 count,
+                uint256 first_index,
+                uint256 new_root,
+                uint256[] memory leaves
+            ) = abi.decode(logs[i].data, (uint256, uint256, uint256, uint256[]));
+
+            assertEq(count, leaves.length, "the count describes the batch beside it");
+            assertEq(first_index, k, "and the batch begins where the last one ended");
+
+            for (uint256 j = 0; j < leaves.length; j++) {
+                seen[k] = leaves[j];
+                k++;
+            }
+            lastRoot = new_root;
+        }
+
+        assertEq(batches, 2, "both batches were announced");
+        assertEq(k, 17, "and seventeen leaves in all");
+        for (uint256 i = 0; i < 17; i++) {
+            assertEq(seen[i], i + 1, "in the order they went in");
+        }
+
+        assertEq(lastRoot, tree.currentRoot(), "the log's last root is the tree's root");
+        assertEq(
+            _rootFromLeaves(seen),
+            lastRoot,
+            "and a reader rebuilding from the log alone arrives at it"
+        );
+        assertEq(lastRoot, ROOT_AFTER_B, "which is also what circomlibjs says");
+    }
+
+    // ─────────────────────────────────────────────────────────────
     // LEAVING
     // ─────────────────────────────────────────────────────────────
 
