@@ -110,6 +110,7 @@ contract VerifierRegistryTest is Test {
 
         registry = new NINNullifierRegistry(address(verifier), address(core));
         registry.setPoll(POLL);
+    }
 
     // ══════════════════════════════════════════════════════════════════════
     // The generated verifier, on its own
