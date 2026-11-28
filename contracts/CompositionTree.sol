@@ -151,10 +151,37 @@ contract CompositionTree {
     // ══════════════════════════════════════════════════════════════════════
 
     /// @notice A batch was written into the tree.
+    /// @dev WHY THE LEAVES THEMSELVES ARE HERE. Without them the log says a
+    ///      root moved and not what moved it, so recomputing the tree means
+    ///      reading the calldata of every registration on an archive node.
+    ///      The leaves arrive in an internal call and are in no transaction's
+    ///      calldata at all. An archive built from events — which is what L4
+    ///      keeps, what L5 reads and what a third party is handed — could
+    ///      therefore show every root transition and prove none of them.
+    ///      With the batch in the log, anyone holding the log alone can
+    ///      rebuild the tree and arrive at new_root or fail to.
+    ///
+    ///      It discloses nothing that was not public. Each leaf is the
+    ///      commitment its owner passed to register, in the calldata of their
+    ///      own transaction, visible on the network before it was mined. What
+    ///      changes is that reading the set no longer needs an archive node.
+    ///
+    ///      Why this does not undo the batching. register emits no
+    ///      commitment, deliberately, so nothing here ties a leaf to the
+    ///      address that registered it; the batch is what hides that
+    ///      correspondence and the batch is unchanged. A batch of one would
+    ///      show one person entering alone — which is why the core writes on
+    ///      a cadence and not per entrant. Audit lens B4 and B5.
     /// @param count       How many leaves this batch carried.
     /// @param first_index Index of the first leaf of the batch.
     /// @param new_root    The root after the batch.
-    event LeavesInserted(uint256 count, uint256 first_index, uint256 new_root);
+    /// @param leaves      The batch itself, in the order it went in.
+    event LeavesInserted(
+        uint256 count,
+        uint256 first_index,
+        uint256 new_root,
+        uint256[] leaves
+    );
 
     /// @notice A leaf was zeroed — a participant left the community.
     /// @param leaf_index Position that was zeroed.
@@ -275,7 +302,7 @@ contract CompositionTree {
         root      = cur[0];
         nextIndex = start + n;
 
-        emit LeavesInserted(n, start, root);
+        emit LeavesInserted(n, start, root, leaves);
     }
 
     // ══════════════════════════════════════════════════════════════════════
