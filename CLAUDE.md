@@ -34,10 +34,13 @@ circuits/         NINCommitment.circom, NINIdentityProof.circom,
                   lib/BinaryMerkleTree.circom, COMPILE.md, README.md
 test/             BeTrueCore.t.sol — 38 tests of mechanics
                   Assertions.t.sol — 32 tests of architectural promises
-                  VerifierRegistry.t.sol — 7 tests of the voting verifier
+                  CompositionTree.t.sol — 16 tests of the tree itself, against
+                  a real Poseidon
                   RegistrationProof.t.sol — 11 tests of the registration proof
+                  VerifierRegistry.t.sol — 7 tests of the voting verifier
                   RegistrationFixtures.sol — two real proofs, no tests of its own
                   CompositionTreeStub.sol — a stand-in for the tree, no tests
+                  PoseidonT3Bytecode.sol — circomlib's Poseidon, no tests
 docs/             ARCHITECTURE_FOUNDATION, AUTHORITY_CHAIN, MAPPING_MODEL,
                   MACI_ENGINEER_PACKAGE, L5_MANAGED_AGENTS
 ```
@@ -47,13 +50,13 @@ docs/             ARCHITECTURE_FOUNDATION, AUTHORITY_CHAIN, MAPPING_MODEL,
 ## 2. Build and test
 
 ```bash
-forge test            # src/ + test/ — 88 tests, all passing
+forge test            # src/ + test/ — 104 tests, all passing
 forge build           # src/ only
 FOUNDRY_PROFILE=contracts forge build    # contracts/ — separate profile
 ```
 
 `contracts/` is a source root only under its own profile in `foundry.toml`.
-It is still reached by relative imports, and four test files import from it,
+It is still reached by relative imports, and five test files import from it,
 so `forge test` compiles those contracts as dependencies of the suite. The
 consequence: a file in `contracts/` that no test imports is not compiled by
 `forge test` at all, and can be broken while the Assertions check passes.
