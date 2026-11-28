@@ -14,6 +14,14 @@ name: Assertions
 # forge-std is not vendored in this repository, so it is installed here. lib/
 # is ignored by .gitignore and must stay that way: a vendored copy would make
 # the pinned version above a decoration.
+#
+# The last step builds contracts/ under its own profile, and it is here
+# because `forge test` does not. That command compiles a file in contracts/
+# only when some test imports it, so a file nobody imports is never compiled
+# at all and can be broken while this check stays green — the consequence
+# CLAUDE.md section 2 and foundry.toml both warn about. Today every file
+# there happens to be imported by a test, which makes the protection an
+# accident rather than a rule. This step makes it a rule.
 
 on:
   push:
@@ -39,3 +47,6 @@ jobs:
 
       - name: Run the full suite
         run: forge test --use 0.8.24 -vv
+
+      - name: Build contracts/ as a source root
+        run: FOUNDRY_PROFILE=contracts forge build
