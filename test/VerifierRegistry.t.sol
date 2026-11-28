@@ -46,10 +46,30 @@ import "../contracts/NINNullifierRegistry.sol";
 /// this file is. Before the first session with real participants, Phase 2 is
 /// run again in public with several independent contributors, and the deployed
 /// verifier is the one built from that run, not this one.
+/// @notice Stands in for BeTrueCoreCore, under the one call the registry makes
+/// @dev The registry asks a session for the root it opened with. Here the
+///      answer is the root the real proof below was built against, which is
+///      all this suite needs from a core. How a real core arrives at that
+///      value — the queue, the tree, the snapshot taken at openSession — is
+///      asserted in test/Assertions.t.sol and test/CompositionTree.t.sol. A
+///      promise checked against a stand-in is checked against nothing.
+contract SessionRootsStub {
+    mapping(uint256 => uint256) private roots;
+
+    function setRoot(uint256 session_id, uint256 root) external {
+        roots[session_id] = root;
+    }
+
+    function sessionRoot(uint256 session_id) external view returns (uint256) {
+        return roots[session_id];
+    }
+}
+
 contract VerifierRegistryTest is Test {
 
     Groth16Verifier        internal verifier;
     NINNullifierRegistry   internal registry;
+    SessionRootsStub       internal core;
 
     /// Stands in for Poll.sol, which is the only permitted caller.
     address internal constant POLL = address(0xB011);
@@ -81,9 +101,15 @@ contract VerifierRegistryTest is Test {
 
     function setUp() public {
         verifier = new Groth16Verifier();
-        registry = new NINNullifierRegistry(address(verifier), MERKLE_ROOT);
+
+        // The registry holds no root of its own any more. It asks the session
+        // which root that session opened with, so the suite puts the root the
+        // proof was built against where the session would have it.
+        core = new SessionRootsStub();
+        core.setRoot(SESSION_ID, uint256(MERKLE_ROOT));
+
+        registry = new NINNullifierRegistry(address(verifier), address(core));
         registry.setPoll(POLL);
-    }
 
     // ══════════════════════════════════════════════════════════════════════
     // The generated verifier, on its own
@@ -178,6 +204,39 @@ contract VerifierRegistryTest is Test {
         vm.expectRevert(NINNullifierRegistry.OnlyPoll.selector);
         registry.verifyAndRegister(
             SESSION_ID, NULLIFIER, _proofA(), _proofB(), _proofC()
+        );
+    }
+
+    /// A session that never opened has no root, and the registry says which
+    /// session rather than verifying against zero — which no honest proof
+    /// satisfies and which would fail with nothing naming the cause.
+    function test_Registry_RefusesASessionThatNeverOpened() public {
+        vm.prank(POLL);
+        vm.expectRevert(
+            abi.encodeWithSelector(
+                NINNullifierRegistry.SessionHasNoRoot.selector, uint256(99)
+            )
+        );
+        registry.verifyAndRegister(
+            99, NULLIFIER, _proofA(), _proofB(), _proofC()
+        );
+    }
+
+    /// The root is the session's, not the registry's: the registry reads it
+    /// through and holds nothing of its own to go stale.
+    function test_Registry_ReadsTheRootThroughFromTheSession() public {
+        assertEq(
+            registry.sessionMerkleRoot(SESSION_ID),
+            uint256(MERKLE_ROOT),
+            "the root in force for this session"
+        );
+
+        core.setRoot(SESSION_ID, uint256(MERKLE_ROOT) + 1);
+
+        assertEq(
+            registry.sessionMerkleRoot(SESSION_ID),
+            uint256(MERKLE_ROOT) + 1,
+            "and it follows the session, because the registry keeps no copy"
         );
     }
 }
