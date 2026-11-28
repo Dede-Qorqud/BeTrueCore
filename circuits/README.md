@@ -29,8 +29,12 @@ circuits/
     └── BinaryMerkleTree.circom — Poseidon Merkle tree (helper library)
 
 contracts/
-└── NINNullifierRegistry.sol    — On-chain: Merkle root + nullifier registry
-                                  Accepts Groth16 ZK proofs from NINIdentityProof
+├── CompositionTree.sol — On-chain: the community's composition.
+│ Poseidon Merkle tree, filled by the core
+│ from its own queue of registrations
+└── NINNullifierRegistry.sol — On-chain: nullifier registry. Holds no root:
+asks the session which root it opened with.
+Accepts Groth16 ZK proofs from NINIdentityProof
 ```
 
 ---
@@ -52,7 +56,7 @@ These circuits fill that slot:
 | Circuit | Fills which slot |
 |---------|-----------------|
 | `NINCommitment.circom` | Produces `identity_commitment` that `BeTrueCoreCore` stores |
-| `NINIdentityProof.circom` | Runs once per voting session: proves the commitment is a leaf under the Merkle root the registry currently holds, and derives a session-bound nullifier |
+| `NINIdentityProof.circom` | Runs once per voting session: proves the commitment is a leaf under the root the session opened with, and derives a session-bound nullifier. The registry holds no root of its own since 28 November 2026 — it asks the session — which is why registration is not frozen while a session runs |
 | `NINNullifierRegistry.sol` | Replaces the bare `usedNullifiers` mapping with ZK-verified nullifier storage |
 
 ---
@@ -62,12 +66,12 @@ These circuits fill that slot:
 **NINCommitment.circom** — registration phase:
 - NIN code is hashed client-side, never sent to any server
 - Commitment = `Poseidon(Poseidon(NIN, salt), secret)` — two-layer binding
-- Output: `identity_commitment` → a leaf of a Merkle tree built off-chain; only the root of that tree is written on-chain. Nothing proves that the root carries exactly the announced commitments and nothing else: that proof is the primitive named as `not established` in the requirements table of `docs/AUTHORITY_CHAIN.md`, §14, and until it exists a closed roster rests on trust in whoever computes the root
+- Output: `identity_commitment` → a leaf of the composition tree, which is built ON CHAIN by `contracts/CompositionTree.sol` from a queue `BeTrueCoreCore` keeps itself. That the root carries exactly the commitments registered, and nothing else, was the primitive marked `not established` in the requirements table of `docs/AUTHORITY_CHAIN.md`, §14; it was established in code on 28 November 2026 and the table says so. A reader holding the event log and nothing else rebuilds the tree and arrives at the root. What a closed roster still rests on is a different thing entirely — that one commitment is one person, which no part of this rests on proof
 
 **NINIdentityProof.circom** — voting phase. Each line states what the circuit
 establishes, and the label names that and nothing wider:
 
-- Prover knows the `(NIN, salt, secret)` behind a valid Merkle leaf → `MEMBERSHIP`. That one leaf corresponds to one person is not established by the circuit: registration verifies no proof on-chain, and the root is computed off-chain.
+- Prover knows the `(NIN, salt, secret)` behind a valid Merkle leaf → `MEMBERSHIP`. That one leaf corresponds to one person is not established by the circuit, and is not established anywhere else either: one human who generates two secrets holds two provable commitments. What has changed since this line was first written is what it no longer rests on — since 25 November 2026 `register` verifies a Groth16 proof on-chain, and since 28 November the root is computed on-chain. What remains is the identifier checked at the e-government gateway, in the client, and it is an organisational guarantee.
 - Which leaf is used is not revealed → `LEAF PRIVACY`. Not anonymity in the legal sense — the tree of commitments is pseudonymisation, and pseudonymised data remains personal data (`docs/AUTHORITY_CHAIN.md`, §11).
 - The same nullifier cannot be spent twice in one session → `ONE ENTRY PER SESSION`. Sybil resistance is a different property and rests elsewhere: on the identifier checked at the e-government gateway, in the client, outside this protocol. It is an organisational guarantee and is named as one.
 - Different sessions → different nullifiers → `NULLIFIERS DO NOT LINK SESSIONS`. The link that remains is the sending address: one wallet links that person's sessions whatever the nullifier scheme does (§11, *No Linkage*, partial correspondence).
@@ -83,9 +87,11 @@ establishes, and the label names that and nothing wider:
     ↓ Poseidon(NIN, salt)
   nin_key
     ↓ Poseidon(nin_key, secret)
-  identity_commitment ──────────────────────→ [MERKLE TREE — BUILT OFF-CHAIN]
-                                               only its root is written on-chain
-                                                      ↓ merkle_root
+  identity_commitment ──────────────────────→ [COMPOSITION TREE — ON CHAIN]
+                                               CompositionTree.sol, filled by
+                                               the core from its own queue
+                                                      ↓ root, snapshotted when
+                                                        a session opens
 [DEVICE, per SESSION]                         NINNullifierRegistry.sol
   NINIdentityProof circuit                          ↓ verifyAndRegister()
     ↓ Groth16 proof                           proof valid + nullifier fresh
