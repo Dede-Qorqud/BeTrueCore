@@ -312,6 +312,46 @@ contract AssertionsTest is Test, RegistrationFixtures {
         assertEq(tree.currentRoot(), STUB_ROOT + 1, "the tree did move");
     }
 
+    /// The root a session opened with reaches the LOG, not only storage.
+    /// A reader holding the archive and nothing else can see which
+    /// composition a session ran over; before this it could see that a
+    /// session happened and had to call a live node to learn the rest.
+    function test_the_log_carries_the_root_a_session_opened_with() public {
+        vm.recordLogs();
+
+        vm.prank(coordinator);
+        uint256 session_id = core.openSession(keccak256("dilemma"), DURATION);
+
+        Vm.Log[] memory logs = vm.getRecordedLogs();
+        bytes32 wanted = keccak256(
+            "SessionOpened(uint256,bytes32,uint256,uint256,uint256)"
+        );
+
+        bool found;
+        for (uint256 i = 0; i < logs.length; i++) {
+            if (logs[i].topics[0] != wanted) continue;
+            found = true;
+
+            assertEq(
+                uint256(logs[i].topics[1]),
+                session_id,
+                "the log names the session"
+            );
+
+            (, , uint256 logged_root) = abi.decode(
+                logs[i].data,
+                (uint256, uint256, uint256)
+            );
+            assertEq(logged_root, STUB_ROOT, "and the root it opened with");
+            assertEq(
+                logged_root,
+                core.getSession(session_id).roster_root,
+                "which is the same value storage holds"
+            );
+        }
+        assertTrue(found, "the session was announced at all");
+    }
+
     /// The tree is filled from the front of the queue, in the order people
     /// registered. The coordinator decides when a batch is written; it does not
     /// decide who is in it. With two registrations waiting, a batch bounded to
