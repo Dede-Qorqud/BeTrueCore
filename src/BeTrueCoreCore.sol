@@ -254,12 +254,24 @@ contract BeTrueCoreCore is IBeTrueCore {
     ///      report about a session can be checked afterwards only against the
     ///      text that was actually in force. An archive assembled from events
     ///      was carrying the end of a session and not its beginning.
-    ///      Audit lens B1.
+    ///
+    ///      roster_root is here for the same reason, and it is the one that
+    ///      makes a session checkable by someone who was not watching. It is
+    ///      the composition root the session snapshotted, the value every
+    ///      membership proof for this session verifies against. Without it in
+    ///      the log, a reader with the archive and nothing else can see that a
+    ///      session happened and cannot see which composition it ran over;
+    ///      the value was readable only by calling getSession on a live node.
+    ///      The archive is what L5 reads and what a third party is handed, so
+    ///      a figure that lives only in storage is, for them, not published at
+    ///      all. It discloses nothing new: getSession returned it already.
+    ///      Audit lens B1 and B4.
     event SessionOpened(
         uint256 indexed session_id,
         bytes32 indexed dilemma_hash,
         uint256 start_time,
-        uint256 end_time
+        uint256 end_time,
+        uint256 roster_root
     );
 
     /// @notice A choice was recorded in a session. No participant named.
@@ -808,7 +820,8 @@ contract BeTrueCoreCore is IBeTrueCore {
             session_id,
             dilemma_hash,
             block.timestamp,
-            block.timestamp + duration_seconds
+            block.timestamp + duration_seconds,
+            sessions[session_id].roster_root
         );
     }
 
