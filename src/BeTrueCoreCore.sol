@@ -454,6 +454,30 @@ contract BeTrueCoreCore is IBeTrueCore {
         return registeredCommitments.length - committedToTree;
     }
 
+    /// @notice The composition root a session took when it opened
+    /// @dev What this is for. A membership proof for a session must verify
+    ///      against the root that session snapshotted, not against whatever
+    ///      the tree holds by the time the proof arrives. The registry reads
+    ///      this to know which root that is, which is what lets the tree go
+    ///      on growing while a session runs — registration need not be frozen
+    ///      for the duration of one.
+    ///
+    ///      Why a getter of its own, when getSession already returns the
+    ///      field. A contract in contracts/ cannot read the Session struct
+    ///      without the struct, and contracts/ and src/ do not import each
+    ///      other — the note at ICompositionTree above says why. One
+    ///      uint256 needs no struct. It publishes nothing getSession did not
+    ///      publish already. Audit lens B4.
+    ///
+    ///      Zero means the session was never opened. The caller refuses that
+    ///      case by name rather than verifying against zero, which no honest
+    ///      proof could satisfy and which would fail with nothing saying why.
+    /// @param session_id The session asked about
+    /// @return The composition root in force for it
+    function sessionRoot(uint256 session_id) external view returns (uint256) {
+        return sessions[session_id].roster_root;
+    }
+
     // ─────────────────────────────────────────────────────────────
     // MODIFIERS
     // ─────────────────────────────────────────────────────────────
